@@ -1,0 +1,12 @@
+src/
+bin/
+.sisyphus/
+.gitmodules
+vitest.config.ts
+tsconfig.json
+coverage/
+*.test.ts
+__tests__/
+.git/
+.gitignore
+examples/
