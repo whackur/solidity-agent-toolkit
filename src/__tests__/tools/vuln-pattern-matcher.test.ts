@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { matchPatterns } from "../../tools/vuln-pattern-matcher.js";
+import { matchPatterns } from "../../mcp/tools/vuln-pattern-matcher.js";
 import { VULNERABILITY_PATTERNS } from "../../knowledge/vulnerability-patterns.js";
 
 describe("VULNERABILITY_PATTERNS", () => {

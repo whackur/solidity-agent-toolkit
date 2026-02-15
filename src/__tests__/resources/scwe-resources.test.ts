@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { registerSCWEResources } from "../../resources/scwe-resources.js";
+import { registerSCWEResources } from "../../mcp/resources/scwe-resources.js";
 import { loadAllSCWE, getSCWEById, _resetCache } from "../../knowledge/scwe-parser.js";
 
 describe("SCWE Resources", () => {

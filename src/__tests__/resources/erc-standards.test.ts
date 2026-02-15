@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { registerERCResources, getERCStandard } from "../../resources/erc-standards.js";
+import { registerERCResources, getERCStandard } from "../../mcp/resources/erc-standards.js";
 
 describe("ERC Standards Resources", () => {
   describe("registerERCResources", () => {

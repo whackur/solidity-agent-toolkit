@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { registerTop10Resources } from "../../resources/top10-resources.js";
+import { registerTop10Resources } from "../../mcp/resources/top10-resources.js";
 import { loadAllTop10, getTop10ById, _resetCache } from "../../knowledge/top10-parser.js";
 
 describe("Top 10 Resources", () => {

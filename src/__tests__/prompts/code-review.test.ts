@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { registerCodeReviewPrompts } from "../../prompts/code-review.js";
+import { registerCodeReviewPrompts } from "../../mcp/prompts/code-review.js";
 
 describe("Code Review Prompts", () => {
   let server: McpServer;

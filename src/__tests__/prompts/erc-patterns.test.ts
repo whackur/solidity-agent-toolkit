@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildERCPrompt } from "../../prompts/erc-patterns-logic.js";
+import { buildERCPrompt } from "../../mcp/prompts/erc-patterns-logic.js";
 
 describe("ERC Pattern Logic", () => {
   describe("buildERCPrompt", () => {

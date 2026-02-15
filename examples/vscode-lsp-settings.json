@@ -1,0 +1,4 @@
+{
+  "solidity-security-lsp.serverPath": "solidity-agent-toolkit-lsp",
+  "solidity-security-lsp.trace.server": "verbose"
+}

@@ -1,8 +1,8 @@
 # solidity-agent-toolkit
 
-MCP server providing Solidity smart contract security analysis tools, OWASP knowledge base, and development utilities for AI agents.
+MCP server and LSP server providing Solidity smart contract security analysis tools, OWASP knowledge base, and development utilities for AI agents.
 
-Built on the [Model Context Protocol](https://modelcontextprotocol.io/) — works with Claude Desktop, Cursor, opencode, and any MCP-compatible client.
+Built on the [Model Context Protocol](https://modelcontextprotocol.io/) and [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) — works with Claude Desktop, Cursor, opencode, VSCode, IntelliJ, Neovim, and any MCP/LSP-compatible client.
 
 ## Installation
 
@@ -65,6 +65,104 @@ Add to your `opencode.json`:
   }
 }
 ```
+
+### VSCode (via MCP extension)
+
+If using an MCP-compatible VSCode extension (e.g., Cline, Continue, or GitHub Copilot MCP):
+
+```json
+{
+  "mcpServers": {
+    "solidity-agent-toolkit": {
+      "command": "npx",
+      "args": ["-y", "solidity-agent-toolkit"]
+    }
+  }
+}
+```
+
+### IntelliJ (via JetBrains AI MCP)
+
+In **Settings → Tools → AI Assistant → MCP Servers**, add:
+
+- **Name**: `solidity-agent-toolkit`
+- **Command**: `npx`
+- **Arguments**: `-y solidity-agent-toolkit`
+- **Transport**: `stdio`
+
+## LSP Client Setup
+
+The LSP server provides real-time security diagnostics, OWASP SCWE hover info, and remediation code actions for `.sol` files.
+
+### VSCode
+
+Install a generic LSP client extension (e.g., [vscode-languageclient](https://github.com/AstroNvim/astrolsp)) or add to `.vscode/settings.json`:
+
+```json
+{
+  "solidity-security-lsp.serverPath": "solidity-agent-toolkit-lsp",
+  "solidity-security-lsp.trace.server": "verbose"
+}
+```
+
+Or run manually for testing:
+
+```bash
+npx solidity-agent-toolkit-lsp
+```
+
+### IntelliJ
+
+**Settings → Languages & Frameworks → Language Servers → +**:
+
+- **Name**: `Solidity Security LSP`
+- **Command**: `npx -y solidity-agent-toolkit-lsp`
+- **File patterns**: `*.sol`
+
+### Neovim (nvim-lspconfig)
+
+```lua
+local lspconfig = require('lspconfig')
+local configs = require('lspconfig.configs')
+
+if not configs.solidity_security then
+  configs.solidity_security = {
+    default_config = {
+      cmd = { 'npx', '-y', 'solidity-agent-toolkit-lsp' },
+      filetypes = { 'solidity' },
+      root_dir = lspconfig.util.root_pattern('foundry.toml', 'hardhat.config.ts', 'hardhat.config.js', '.git'),
+    },
+  }
+end
+
+lspconfig.solidity_security.setup({})
+```
+
+### Sublime Text (LSP package)
+
+Install the [LSP](https://packagecontrol.io/packages/LSP) package, then add to **Settings → Package Settings → LSP → Settings**:
+
+```json
+{
+  "clients": {
+    "solidity-security": {
+      "enabled": true,
+      "command": ["npx", "-y", "solidity-agent-toolkit-lsp"],
+      "selector": "source.solidity",
+      "schemes": ["file"]
+    }
+  }
+}
+```
+
+### LSP Features
+
+| Feature             | Trigger               | Description                                            |
+| ------------------- | --------------------- | ------------------------------------------------------ |
+| Pattern diagnostics | On every keystroke    | Regex-based vulnerability detection mapped to SCWE IDs |
+| CLI diagnostics     | On file save          | Slither, Solhint, and Aderyn analysis (debounced)      |
+| Hover info          | Hover over diagnostic | OWASP SCWE description, remediation, and CWE mapping   |
+| Code actions        | Quick fix menu        | View remediation guidance and fixed code examples      |
 
 ## Available Tools
 
@@ -157,10 +255,22 @@ Tools that don't require external dependencies (pattern matching, SCWE search, N
 pnpm install
 pnpm build            # Compile TypeScript
 pnpm dev              # Start MCP server (stdio transport)
+pnpm lsp              # Start LSP server (stdio transport)
 pnpm test             # Run tests
 pnpm test:watch       # Run tests in watch mode
 pnpm test:coverage    # Run tests with coverage
 pnpm typecheck        # Type-check without emitting
+```
+
+### Architecture
+
+```
+src/
+├── core/         # Shared analysis logic (CLI wrappers, parsers)
+├── mcp/          # MCP server (tools, resources, prompts)
+├── lsp/          # LSP server (diagnostics, hover, code actions)
+├── knowledge/    # OWASP SCWE/SC Top 10 data layer
+└── index.ts      # MCP entry point
 ```
 
 ## License

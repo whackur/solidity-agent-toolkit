@@ -1,0 +1,10 @@
+{
+  "clients": {
+    "solidity-security": {
+      "enabled": true,
+      "command": ["npx", "-y", "solidity-agent-toolkit-lsp"],
+      "selector": "source.solidity",
+      "schemes": ["file"]
+    }
+  }
+}

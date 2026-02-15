@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   buildAuditPrompt,
   buildVulnerabilityFixPrompt,
-} from "../../prompts/security-audit-logic.js";
+} from "../../mcp/prompts/security-audit-logic.js";
 import * as top10Parser from "../../knowledge/top10-parser.js";
 import * as scweParser from "../../knowledge/scwe-parser.js";
 

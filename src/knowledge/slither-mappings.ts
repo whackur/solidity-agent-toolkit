@@ -129,49 +129,4 @@ export function getDetectorsForScweId(scweId: string): string[] {
     .map(([detector]) => detector);
 }
 
-/**
- * Get detailed mapping information for a detector.
- */
-export function getDetectorMapping(detector: string): SlitherDetectorMapping | undefined {
-  const scweId = SLITHER_SCWE_MAPPINGS[detector];
-  if (!scweId) return undefined;
 
-  return {
-    detector,
-    scweId,
-    description: DETECTOR_DESCRIPTIONS[detector] || "No description available",
-  };
-}
-
-/**
- * Human-readable descriptions for Slither detectors.
- */
-const DETECTOR_DESCRIPTIONS: Record<string, string> = {
-  "reentrancy-eth":
-    "Reentrancy vulnerability allowing state changes after external calls that transfer ETH",
-  "reentrancy-no-eth": "Reentrancy vulnerability in functions that do not transfer ETH",
-  "tx-origin": "Use of tx.origin for authorization, vulnerable to phishing attacks",
-  "unchecked-transfer": "ERC20 transfer/transferFrom return value not checked",
-  "unchecked-lowlevel": "Low-level call return value not checked",
-  "shadowing-state": "State variable shadows another state variable",
-  "unused-return": "Return value of function call not used",
-  suicidal: "Unprotected selfdestruct instruction",
-  "controlled-delegatecall": "Delegatecall to user-controlled address",
-  "unprotected-upgrade": "Upgradeable contract without access control",
-  "arbitrary-send-eth": "Functions that send ETH to arbitrary destinations",
-  "uninitialized-state": "Uninitialized state variable",
-  "locked-ether": "Contract with payable functions but no withdrawal mechanism",
-  "incorrect-equality": "Dangerous strict equality checks on balance or timestamp",
-  timestamp: "Dangerous usage of block.timestamp",
-  "weak-prng": "Weak pseudo-random number generation",
-  assembly: "Use of inline assembly",
-  "low-level-calls": "Use of low-level calls",
-  pragma: "Incorrect or missing pragma directive",
-  "costly-loop": "Costly operations inside a loop",
-  "calls-loop": "External calls inside a loop",
-  "missing-zero-check": "Missing zero address validation",
-  "encode-packed-collision": "abi.encodePacked collision vulnerability",
-  "delegatecall-loop": "Delegatecall inside a loop",
-  "divide-before-multiply": "Division before multiplication causing precision loss",
-  "arbitrary-send-erc20": "Functions that send ERC20 tokens to arbitrary destinations",
-};

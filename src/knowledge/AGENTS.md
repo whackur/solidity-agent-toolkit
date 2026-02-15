@@ -14,26 +14,26 @@ data/owasp-scs/docs/sctop10/*.md →  top10-parser.ts  →  SCTop10Entry[]
 
 ## KEY TYPES
 
-| Type | Source | Used By |
-|------|--------|---------|
-| `SCWEEntry` | `scwe-parser.ts` | Resources (`scwe://`), search tools |
-| `SCTop10Entry` | `top10-parser.ts` | Resources (`sctop10://`) |
-| `VulnerabilityPattern` | `vulnerability-patterns.ts` | Pattern matcher tool |
-| `StyleRule` / `StyleViolation` | `style-rules.ts` | Style guide checker |
-| `SlitherDetectorMapping` | `slither-mappings.ts` | Slither tool enrichment |
+| Type                           | Source                      | Used By                             |
+| ------------------------------ | --------------------------- | ----------------------------------- |
+| `SCWEEntry`                    | `scwe-parser.ts`            | Resources (`scwe://`), search tools |
+| `SCTop10Entry`                 | `top10-parser.ts`           | Resources (`sctop10://`)            |
+| `VulnerabilityPattern`         | `vulnerability-patterns.ts` | Pattern matcher tool                |
+| `StyleRule` / `StyleViolation` | `style-rules.ts`            | Style guide checker                 |
+| `SlitherDetectorMapping`       | `slither-mappings.ts`       | Slither tool enrichment             |
 
 ## ENTRY POINTS FOR CONSUMERS
 
-| Function | File | Purpose |
-|----------|------|---------|
-| `loadAllSCWE()` | `scwe-parser.ts` | Load all 156 entries (cached) |
-| `getSCWEById(id)` | `scwe-parser.ts` | Single entry lookup |
-| `searchSCWE(query)` | `scwe-parser.ts` | Text search in title/description |
-| `loadAllTop10()` | `top10-parser.ts` | Load all 10 SC Top 10 entries |
-| `getTop10ById(id)` | `top10-parser.ts` | Single Top 10 lookup |
-| `VULNERABILITY_PATTERNS` | `vulnerability-patterns.ts` | 32+ regex patterns array |
-| `getScweIdForDetector(d)` | `slither-mappings.ts` | Slither detector → SCWE mapping |
-| `checkAllRules(code)` | `style-rules.ts` | Run all style checks |
+| Function                  | File                        | Purpose                          |
+| ------------------------- | --------------------------- | -------------------------------- |
+| `loadAllSCWE()`           | `scwe-parser.ts`            | Load all 156 entries (cached)    |
+| `getSCWEById(id)`         | `scwe-parser.ts`            | Single entry lookup              |
+| `searchSCWE(query)`       | `scwe-parser.ts`            | Text search in title/description |
+| `loadAllTop10()`          | `top10-parser.ts`           | Load all 10 SC Top 10 entries    |
+| `getTop10ById(id)`        | `top10-parser.ts`           | Single Top 10 lookup             |
+| `VULNERABILITY_PATTERNS`  | `vulnerability-patterns.ts` | 32+ regex patterns array         |
+| `getScweIdForDetector(d)` | `slither-mappings.ts`       | Slither detector → SCWE mapping  |
+| `checkAllRules(code)`     | `style-rules.ts`            | Run all style checks             |
 
 ## PARSING GOTCHAS
 

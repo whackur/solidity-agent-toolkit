@@ -4,7 +4,7 @@ import {
   extractNatSpec,
   validateNatSpec,
   generateNatSpec,
-} from "../../tools/natspec.js";
+} from "../../mcp/tools/natspec.js";
 
 describe("parseFunctions", () => {
   it("parses simple public function", () => {

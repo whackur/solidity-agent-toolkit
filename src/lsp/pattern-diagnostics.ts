@@ -1,0 +1,38 @@
+import { type Diagnostic } from "vscode-languageserver/node.js";
+import { type TextDocument } from "vscode-languageserver-textdocument";
+import { matchPatterns, type PatternMatch } from "../core/pattern-matcher.js";
+import { mapToLspSeverity } from "./severity-mapper.js";
+
+function matchToDiagnostic(match: PatternMatch, document: TextDocument): Diagnostic {
+  const line = match.line - 1; // PatternMatch is 1-indexed, LSP is 0-indexed
+  const lineText = document.getText({
+    start: { line, character: 0 },
+    end: { line, character: Number.MAX_SAFE_INTEGER },
+  });
+
+  const message =
+    `[${match.name}] ${match.description}`.length > 200
+      ? `[${match.name}] ${match.description}`.slice(0, 197) + "..."
+      : `[${match.name}] ${match.description}`;
+
+  return {
+    range: {
+      start: { line, character: 0 },
+      end: { line, character: lineText.length },
+    },
+    severity: mapToLspSeverity("pattern", match.severity),
+    source: "solidity-patterns",
+    code: match.scweId,
+    message,
+  };
+}
+
+export function getPatternDiagnostics(document: TextDocument): Diagnostic[] {
+  const code = document.getText();
+  if (!code.trim()) return [];
+
+  const matches = matchPatterns(code);
+  return matches
+    .filter((m) => m.line - 1 < document.lineCount)
+    .map((m) => matchToDiagnostic(m, document));
+}

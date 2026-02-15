@@ -1,24 +1,26 @@
-# src/__tests__/ — Test Conventions
+# src/**tests**/ — Test Conventions
 
 ## OVERVIEW
 
-vitest tests mirroring `src/` structure. 358 tests, 22 files. CLI tools are mocked; knowledge layer uses real OWASP data.
+vitest tests mirroring `src/` structure. ~390 tests, 27 files. CLI tools are mocked; knowledge layer uses real OWASP data.
 
 ## STRUCTURE
 
 ```
 __tests__/
-├── server.test.ts                # Basic McpServer instantiation
+├── server.test.ts                   # Basic McpServer instantiation
 ├── integration/full-server.test.ts  # End-to-end with InMemoryTransport
-├── tools/*.test.ts               # One per tool file
-├── resources/*.test.ts           # One per resource file
-├── prompts/*.test.ts             # One per prompt file
-└── knowledge/*.test.ts           # Parser tests (use real data)
+├── tools/*.test.ts                  # One per MCP tool (imports from ../../mcp/tools/)
+├── resources/*.test.ts              # One per MCP resource (imports from ../../mcp/resources/)
+├── prompts/*.test.ts                # One per MCP prompt (imports from ../../mcp/prompts/)
+├── knowledge/*.test.ts              # Parser tests (use real data)
+└── lsp/*.test.ts                    # LSP tests (severity, diagnostics, hover, code actions)
 ```
 
 ## MOCKING PATTERNS
 
 ### CLI tools (execSync)
+
 ```typescript
 import { vi } from "vitest";
 import { execSync } from "child_process";
@@ -36,6 +38,7 @@ vi.mocked(execSync).mockImplementation(() => {
 ```
 
 ### MCP Server internals (private access)
+
 ```typescript
 // @ts-expect-error — accessing private for testing
 const prompt = server._registeredPrompts["security_audit"];
@@ -43,6 +46,7 @@ const result = await prompt.callback(args, { requestId: "1" });
 ```
 
 ### Integration test (Client + InMemoryTransport)
+
 ```typescript
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
