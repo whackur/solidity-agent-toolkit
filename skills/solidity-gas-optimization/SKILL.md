@@ -4,7 +4,7 @@ description: Gas optimization patterns for Solidity smart contracts. Use when op
 license: MIT
 metadata:
   author: whackur
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Solidity Gas Optimization
