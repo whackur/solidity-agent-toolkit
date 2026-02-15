@@ -2,14 +2,14 @@
 
 ## OVERVIEW
 
-MCP protocol layer. Thin wrappers around `core/` functions, registered via `server.tool()`, `server.resource()`, `server.prompt()`. 22 tools, 6 resources, 6 prompts.
+MCP protocol layer. Thin wrappers around `core/` functions, registered via `server.tool()`, `server.resource()`, `server.prompt()`. 24 tools, 9 resources, 7 prompts.
 
 ## STRUCTURE
 
 ```
 mcp/
 ├── server.ts              # createMcpServer() + startMcpServer() — all registrations
-├── tools/                 # One file per tool group (11 files → 22 tools)
+├── tools/                 # One file per tool group (12 files → 24 tools)
 │   ├── slither.ts         # registerSlitherTools(server) — run_slither, list_slither_detectors
 │   ├── solhint.ts         # registerSolhintTools(server) — run_solhint, list_solhint_rules
 │   ├── aderyn.ts          # registerAderynTools(server) — run_aderyn
@@ -20,18 +20,22 @@ mcp/
 │   ├── natspec.ts         # registerNatspecTools(server) — validate_natspec, generate_natspec
 │   ├── scwe-search.ts     # registerScweTools(server) — search_vulnerabilities, check_vulnerability, get_remediation
 │   ├── style-guide.ts     # registerStyleTools(server) — check_style, format_code
-│   └── vuln-pattern-matcher.ts  # registerPatternTools(server) — match_vulnerability_patterns
-├── resources/             # MCP Resource providers (3 files → 6 resources)
+│   ├── vuln-pattern-matcher.ts  # registerPatternTools(server) — match_vulnerability_patterns
+│   └── adversarial.ts     # registerAdversarialTools(server) — analyze_adversarial_scenarios
+├── resources/             # MCP Resource providers (4 files → 9 resources)
 │   ├── scwe-resources.ts  # scwe://list, scwe://{id}, scwe://category/{category}
 │   ├── top10-resources.ts # sctop10://list, sctop10://{id}
-│   └── erc-standards.ts   # erc://{standard}
-└── prompts/               # MCP Prompt templates (6 files → 6 prompts)
+│   ├── erc-standards.ts   # erc://{standard}
+│   └── adversarial-resources.ts  # adversarial://list, adversarial://category/{category}, adversarial://scenario/{id}
+└── prompts/               # MCP Prompt templates (8 files → 7 prompts)
     ├── security-audit.ts        # security_audit prompt
     ├── security-audit-logic.ts  # security_audit generation logic (split for LOC)
     ├── code-review.ts           # code_review prompt
     ├── gas-optimization.ts      # optimize_gas prompt
     ├── erc-patterns.ts          # generate_erc prompt
-    └── erc-patterns-logic.ts    # generate_erc generation logic (split for LOC)
+    ├── erc-patterns-logic.ts    # generate_erc generation logic (split for LOC)
+    ├── adversarial-analysis.ts        # adversarial_analysis prompt
+    └── adversarial-analysis-logic.ts  # adversarial_analysis generation logic
 ```
 
 ## CONVENTIONS

@@ -1,6 +1,6 @@
 # Agent Skills
 
-This toolkit includes 6 [Agent Skills](https://agentskills.io/) that follow the agentskills.io specification. They are auto-detectable by 35+ AI coding agents including Claude Code, Cursor, Codex, OpenCode, Antigravity, VSCode, and more.
+This toolkit includes 7 [Agent Skills](https://agentskills.io/) that follow the agentskills.io specification. They are auto-detectable by 35+ AI coding agents including Claude Code, Cursor, Codex, OpenCode, Antigravity, VSCode, and more.
 
 Skills work **standalone** as AI coding guidelines. When paired with the MCP server, agents can also run automated analysis tools.
 
@@ -14,6 +14,7 @@ Skills work **standalone** as AI coding guidelines. When paired with the MCP ser
 | `solidity-gas-optimization`        | Storage packing, custom errors, immutables, calldata, assembly, Solady                    |
 | `solidity-code-review`             | Structured audit methodology, severity classification, review checklist                   |
 | `solidity-erc-standards`           | ERC20, ERC721, ERC1155, ERC4626 implementation guidelines and pitfalls                    |
+| `solidity-adversarial-analysis`    | Adversarial threat modeling, attack scenario construction, multi-step exploit analysis    |
 
 ## Installation
 

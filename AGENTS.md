@@ -2,12 +2,12 @@
 
 ## OVERVIEW
 
-MCP server + LSP server + Agent Skills providing Solidity smart contract security tools for AI agents and editors. TypeScript + `@modelcontextprotocol/sdk@1.26.0` + `vscode-languageserver@9.0.1` + `zod@4.3.6`. Wraps Foundry/Slither/Aderyn/Solhint CLIs, serves OWASP SCWE knowledge base (156 vulnerabilities) via MCP and LSP protocols, and ships 5 Agent Skills (agentskills.io spec).
+MCP server + LSP server + Agent Skills providing Solidity smart contract security tools for AI agents and editors. TypeScript + `@modelcontextprotocol/sdk@1.26.0` + `vscode-languageserver@9.0.1` + `zod@4.3.6`. Wraps Foundry/Slither/Aderyn/Solhint CLIs, serves OWASP SCWE knowledge base (156 vulnerabilities) and adversarial attack scenarios via MCP and LSP protocols, and ships 7 Agent Skills (agentskills.io spec).
 
 ## COMMANDS
 
 ```bash
-pnpm test                                         # vitest run (~420 tests)
+pnpm test                                         # vitest run (~496 tests)
 pnpm test -- src/__tests__/tools/slither.test.ts   # single test file
 pnpm test -- -t "maps reentrancy"                  # single test by name pattern
 pnpm test:watch                                    # vitest watch mode
@@ -33,7 +33,7 @@ src/
 ├── lsp/               # LSP server (diagnostics, hover, code actions)
 ├── knowledge/         # OWASP data parsers, vulnerability patterns, style rules
 └── __tests__/         # Mirrors src/ structure
-skills/                # 5 Agent Skills (agentskills.io spec, SKILL.md files)
+skills/                # 7 Agent Skills (agentskills.io spec, SKILL.md files)
 bin/                   # CLI entry points (cli.ts, lsp.ts)
 data/owasp-scs/        # Git submodule — READ ONLY, never modify
 ```

@@ -4,7 +4,7 @@ description: Smart contract code review and security audit methodology for Solid
 license: MIT
 metadata:
   author: whackur
-  version: "0.2.1"
+  version: "0.2.0"
 ---
 
 # Solidity Code Review Guide
@@ -17,12 +17,12 @@ Apply this methodology when performing a security audit, peer review, or general
 
 Before beginning the manual review, ensure the following items are addressed:
 
-- [ ] **Compilation**: Verify the code compiles without errors using the project's build system (Foundry, Hardhat, etc.).
-- [ ] **Test Suite**: Run the existing test suite. Ensure tests pass and review coverage reports to identify untested logic.
-- [ ] **Dependencies**: Identify all external libraries and inherited contracts. Verify versions are pinned and trusted.
-- [ ] **Documentation**: Review technical specifications and NatSpec comments to understand intended behavior.
-- [ ] **Known Issues**: Check for previous audit reports or documented "known risks" provided by the developers.
-- [ ] **Scope**: Define the exact list of contracts and functions that are within the audit scope.
+- **Compilation**: Verify the code compiles without errors using the project's build system (Foundry, Hardhat, etc.).
+- **Test Suite**: Run the existing test suite. Ensure tests pass and review coverage reports to identify untested logic.
+- **Dependencies**: Identify all external libraries and inherited contracts. Verify versions are pinned and trusted.
+- **Documentation**: Review technical specifications and NatSpec comments to understand intended behavior.
+- **Known Issues**: Check for previous audit reports or documented "known risks" provided by the developers.
+- **Scope**: Define the exact list of contracts and functions that are within the audit scope.
 
 ## Review Methodology
 
@@ -45,55 +45,55 @@ Before beginning the manual review, ensure the following items are addressed:
 
 ### Access Control & Authorization
 
-- [ ] Verify `onlyOwner` or role-based access on all sensitive state-changing functions.
-- [ ] Ensure initializers are protected and can only be called once.
-- [ ] Check for `tx.origin` usage instead of `msg.sender`.
+- Verify `onlyOwner` or role-based access on all sensitive state-changing functions.
+- Ensure initializers are protected and can only be called once.
+- Check for `tx.origin` usage instead of `msg.sender`.
 
 ### External Call Safety
 
-- [ ] Follow the Check-Effects-Interactions (CEI) pattern strictly.
-- [ ] Use `call()` instead of `transfer()` or `send()` for ETH transfers.
-- [ ] Handle return values of all external calls.
+- Follow the Check-Effects-Interactions (CEI) pattern strictly.
+- Use `call()` instead of `transfer()` or `send()` for ETH transfers.
+- Handle return values of all external calls.
 
 ### State Management & Reentrancy
 
-- [ ] Use `ReentrancyGuard` for functions making external calls.
-- [ ] Check for cross-contract reentrancy where state is shared.
-- [ ] Ensure state variables are updated before external interactions.
+- Use `ReentrancyGuard` for functions making external calls.
+- Check for cross-contract reentrancy where state is shared.
+- Ensure state variables are updated before external interactions.
 
 ### Arithmetic & Type Safety
 
-- [ ] For Solidity <0.8.0, ensure `SafeMath` is used.
-- [ ] Check for precision loss in divisions (multiply before dividing).
-- [ ] Verify safe casting between types (e.g., `uint256` to `uint8`).
+- For Solidity <0.8.0, ensure `SafeMath` is used.
+- Check for precision loss in divisions (multiply before dividing).
+- Verify safe casting between types (e.g., `uint256` to `uint8`).
 
 ### Token Handling (ERC20/721)
 
-- [ ] Use `SafeERC20` for `transfer` and `transferFrom`.
-- [ ] Account for "fee-on-transfer" tokens if applicable.
-- [ ] Verify `approve` race condition handling.
+- Use `SafeERC20` for `transfer` and `transferFrom`.
+- Account for "fee-on-transfer" tokens if applicable.
+- Verify `approve` race condition handling.
 
 ### Upgrade Mechanisms
 
-- [ ] Check for storage gaps in logic contracts to prevent collisions.
-- [ ] Ensure logic contracts do not use `selfdestruct` or `delegatecall`.
-- [ ] Verify the proxy admin has restricted access.
+- Check for storage gaps in logic contracts to prevent collisions.
+- Ensure logic contracts do not use `selfdestruct` or `delegatecall`.
+- Verify the proxy admin has restricted access.
 
 ### Event Emissions
 
-- [ ] Emit events for all significant state changes (ownership, parameters, transfers).
-- [ ] Use `indexed` parameters for efficient off-chain filtering.
+- Emit events for all significant state changes (ownership, parameters, transfers).
+- Use `indexed` parameters for efficient off-chain filtering.
 
 ### NatSpec Documentation
 
-- [ ] Ensure `@notice`, `@param`, and `@return` are accurate.
-- [ ] Use `@dev` to document complex logic or security assumptions.
+- Ensure `@notice`, `@param`, and `@return` are accurate.
+- Use `@dev` to document complex logic or security assumptions.
 
 ### Style Guide Compliance
 
-- [ ] Code follows the official Solidity style guide conventions.
-- [ ] Naming conventions: PascalCase (contracts), camelCase (functions), UPPER_CASE (constants).
-- [ ] Function modifier order: visibility, mutability, virtual, override, custom.
+- Code follows the official Solidity style guide conventions.
+- Naming conventions: PascalCase (contracts), camelCase (functions), UPPER_CASE (constants).
+- Function modifier order: visibility, mutability, virtual, override, custom.
 - See the [Solidity Style Guide Reference](./references/solidity-style-guide.md) for the full checklist.
 
 ## Reporting Format

@@ -2,7 +2,7 @@
 
 ## OVERVIEW
 
-6 Agent Skills following the [agentskills.io](https://agentskills.io) open specification. Auto-detectable by 35+ AI coding agents. Install via `npx skills add whackur/solidity-agent-toolkit`.
+7 Agent Skills following the [agentskills.io](https://agentskills.io) open specification. Auto-detectable by 35+ AI coding agents. Install via `npx skills add whackur/solidity-agent-toolkit`.
 
 ## STRUCTURE
 
@@ -23,9 +23,11 @@ skills/
 │   ├── SKILL.md                        # Audit methodology, severity classification
 │   ├── references/audit-checklist.md   # 40+ checkbox items by SCSVS category
 │   └── references/solidity-style-guide.md  # Style conventions + check_style rule IDs
-└── solidity-erc-standards/
-    ├── SKILL.md                        # ERC20/721/1155/4626 guidelines
-    └── references/erc-interfaces.md    # Interface definitions + pitfall table + SCWE
+├── solidity-erc-standards/
+│   ├── SKILL.md                        # ERC20/721/1155/4626 guidelines
+│   └── references/erc-interfaces.md    # Interface definitions + pitfall table + SCWE
+└── solidity-adversarial-analysis/
+    └── SKILL.md                        # Adversarial threat modeling, attack scenarios
 ```
 
 ## SKILL.md FORMAT

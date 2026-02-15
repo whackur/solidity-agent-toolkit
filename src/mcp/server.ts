@@ -18,11 +18,14 @@ import { registerSCWEResources } from "./resources/scwe-resources.js";
 import { registerSecurityAuditPrompts } from "./prompts/security-audit.js";
 import { registerCodeReviewPrompts } from "./prompts/code-review.js";
 import { registerGasOptimizationPrompts } from "./prompts/gas-optimization.js";
+import { registerAdversarialTools } from "./tools/adversarial.js";
+import { registerAdversarialPrompts } from "./prompts/adversarial-analysis.js";
+import { registerAdversarialResources } from "./resources/adversarial-resources.js";
 
 export function createMcpServer(): McpServer {
   const server = new McpServer({
     name: "solidity-agent-toolkit",
-    version: "0.1.0",
+    version: "0.2.0",
   });
 
   registerTop10Resources(server);
@@ -43,6 +46,9 @@ export function createMcpServer(): McpServer {
   registerSecurityAuditPrompts(server);
   registerCodeReviewPrompts(server);
   registerGasOptimizationPrompts(server);
+  registerAdversarialPrompts(server);
+  registerAdversarialTools(server);
+  registerAdversarialResources(server);
 
   return server;
 }

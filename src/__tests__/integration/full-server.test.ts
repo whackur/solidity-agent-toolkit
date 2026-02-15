@@ -20,6 +20,9 @@ import { registerSCWEResources } from "../../mcp/resources/scwe-resources.js";
 import { registerSecurityAuditPrompts } from "../../mcp/prompts/security-audit.js";
 import { registerCodeReviewPrompts } from "../../mcp/prompts/code-review.js";
 import { registerGasOptimizationPrompts } from "../../mcp/prompts/gas-optimization.js";
+import { registerAdversarialTools } from "../../mcp/tools/adversarial.js";
+import { registerAdversarialPrompts } from "../../mcp/prompts/adversarial-analysis.js";
+import { registerAdversarialResources } from "../../mcp/resources/adversarial-resources.js";
 
 describe("Full MCP Server Integration", () => {
   let server: McpServer;
@@ -30,7 +33,7 @@ describe("Full MCP Server Integration", () => {
   beforeAll(async () => {
     server = new McpServer({
       name: "solidity-agent-toolkit",
-      version: "0.1.0",
+      version: "0.2.0",
     });
 
     registerTop10Resources(server);
@@ -51,6 +54,9 @@ describe("Full MCP Server Integration", () => {
     registerSecurityAuditPrompts(server);
     registerCodeReviewPrompts(server);
     registerGasOptimizationPrompts(server);
+    registerAdversarialTools(server);
+    registerAdversarialPrompts(server);
+    registerAdversarialResources(server);
 
     [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
 
@@ -89,11 +95,12 @@ describe("Full MCP Server Integration", () => {
       "search_vulnerabilities",
       "check_vulnerability",
       "get_remediation",
+      "analyze_adversarial_scenarios",
     ];
 
-    it("should register 23 tools", async () => {
+    it("should register 24 tools", async () => {
       const result = await client.listTools();
-      expect(result.tools.length).toBe(23);
+      expect(result.tools.length).toBe(24);
     });
 
     it("should register all expected tools by name", async () => {
@@ -127,6 +134,7 @@ describe("Full MCP Server Integration", () => {
 
       expect(uris).toContain("sctop10://list");
       expect(uris).toContain("scwe://list");
+      expect(uris).toContain("adversarial://list");
     });
 
     it("should register resource templates", async () => {
@@ -137,14 +145,16 @@ describe("Full MCP Server Integration", () => {
       expect(templateUris).toContain("erc://{standard}");
       expect(templateUris).toContain("scwe://{id}");
       expect(templateUris).toContain("scwe://category/{category}");
+      expect(templateUris).toContain("adversarial://category/{category}");
+      expect(templateUris).toContain("adversarial://scenario/{id}");
     });
 
-    it("should have at least 2 static resources and 4 resource templates", async () => {
+    it("should have at least 3 static resources and 6 resource templates", async () => {
       const resources = await client.listResources();
       const templates = await client.listResourceTemplates();
 
-      expect(resources.resources.length).toBeGreaterThanOrEqual(2);
-      expect(templates.resourceTemplates.length).toBeGreaterThanOrEqual(4);
+      expect(resources.resources.length).toBeGreaterThanOrEqual(3);
+      expect(templates.resourceTemplates.length).toBeGreaterThanOrEqual(6);
     });
 
     it("should be able to read sctop10://list", async () => {
@@ -172,11 +182,12 @@ describe("Full MCP Server Integration", () => {
       "code_review",
       "best_practices_check",
       "optimize_gas",
+      "adversarial_analysis",
     ];
 
-    it("should register 6 prompts", async () => {
+    it("should register 7 prompts", async () => {
       const result = await client.listPrompts();
-      expect(result.prompts.length).toBe(6);
+      expect(result.prompts.length).toBe(7);
     });
 
     it("should register all expected prompts by name", async () => {
@@ -204,7 +215,7 @@ describe("Full MCP Server Integration", () => {
 
     it("should report correct server version", () => {
       const info = client.getServerVersion();
-      expect(info?.version).toBe("0.1.0");
+      expect(info?.version).toBe("0.2.0");
     });
   });
 });

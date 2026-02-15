@@ -99,20 +99,20 @@ The Clone pattern deploys a 45-byte proxy that delegates all calls to a single i
 
 ## Optimization Checklist
 
-1. [ ] Are variables packed into 32-byte slots?
-2. [ ] Are all revert strings replaced with custom errors?
-3. [ ] Are `constant` and `immutable` used where possible?
-4. [ ] Are function parameters `calldata` instead of `memory`?
-5. [ ] Are loop increments `unchecked`?
-6. [ ] Is array length cached before loops?
-7. [ ] Are `uint256` used instead of smaller types for math?
-8. [ ] Are `bytes32` used instead of `string` for short data?
-9. [ ] Are storage writes minimized/batched?
-10. [ ] Is `short-circuiting` applied to complex conditionals?
-11. [ ] Are `external` functions used instead of `public` where possible?
-12. [ ] Is `Solady` used for standard utilities?
-13. [ ] Are `TSTORE`/`TLOAD` used for transient state?
-14. [ ] Is the contract size within the 24KB limit?
+1. Are variables packed into 32-byte slots?
+2. Are all revert strings replaced with custom errors?
+3. Are `constant` and `immutable` used where possible?
+4. Are function parameters `calldata` instead of `memory`?
+5. Are loop increments `unchecked`?
+6. Is array length cached before loops?
+7. Are `uint256` used instead of smaller types for math?
+8. Are `bytes32` used instead of `string` for short data?
+9. Are storage writes minimized/batched?
+10. Is `short-circuiting` applied to complex conditionals?
+11. Are `external` functions used instead of `public` where possible?
+12. Is `Solady` used for standard utilities?
+13. Are `TSTORE`/`TLOAD` used for transient state?
+14. Is the contract size within the 24KB limit?
 
 ## Enhanced with MCP
 
@@ -131,3 +131,8 @@ Leverage `solidity-agent-toolkit` MCP tools for precise optimization analysis:
 **Check for optimization-related vulnerabilities:**
 
 - `match_vulnerability_patterns` — Detect patterns where optimization may compromise security (e.g., unchecked usage in non-loop contexts)
+
+## References
+
+- For security implications of optimizations: Security Best Practices skill
+- For auditing optimized code: Code Review skill
