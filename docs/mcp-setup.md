@@ -8,6 +8,7 @@ The MCP server communicates over **stdio** transport. Configure your MCP client 
 ## Claude Desktop
 
 Config file location:
+
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
@@ -72,9 +73,9 @@ If using an MCP-compatible VSCode extension (e.g., Cline, Continue, or GitHub Co
 
 In **Settings > Tools > AI Assistant > MCP Servers**, add:
 
-| Field | Value |
-|-------|-------|
-| Name | `solidity-agent-toolkit` |
-| Command | `npx` |
+| Field     | Value                              |
+| --------- | ---------------------------------- |
+| Name      | `solidity-agent-toolkit`           |
+| Command   | `npx`                              |
 | Arguments | `-y solidity-agent-toolkit@latest` |
-| Transport | `stdio` |
+| Transport | `stdio`                            |

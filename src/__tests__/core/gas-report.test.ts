@@ -114,9 +114,7 @@ describe("formatStorageLayout", () => {
   });
 
   it("reports well-optimized when fully packed", () => {
-    const slots = [
-      { slot: 0, offset: 0, type: "uint256", variable: "value", bytes: 32 },
-    ];
+    const slots = [{ slot: 0, offset: 0, type: "uint256", variable: "value", bytes: 32 }];
 
     const result = formatStorageLayout(slots, "Optimal");
 
@@ -227,9 +225,7 @@ describe("formatGasEstimates", () => {
     const estimates = [
       {
         contract: "Light",
-        functions: [
-          { name: "cheapOp", min: 1000, avg: 2000, median: 1500, max: 3000, calls: 1 },
-        ],
+        functions: [{ name: "cheapOp", min: 1000, avg: 2000, median: 1500, max: 3000, calls: 1 }],
       },
     ];
 

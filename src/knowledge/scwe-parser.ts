@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { escapeRegex } from "./markdown-section.js";
 
 export interface SCWEMappings {
   scsvsCg: string[];
@@ -42,10 +43,6 @@ function toNumberArray(val: unknown): number[] {
   if (Array.isArray(val)) return val.map(Number).filter((n) => !Number.isNaN(n));
   if (typeof val === "number") return [val];
   return [];
-}
-
-function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /** Regex-based: extract content between `## <heading>` and next `## ` (or EOF). */

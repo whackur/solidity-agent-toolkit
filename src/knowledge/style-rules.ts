@@ -49,7 +49,7 @@ function isCommentOrEmpty(line: string): boolean {
   );
 }
 
-export const indentationRule: StyleRule = {
+export const INDENTATION_RULE: StyleRule = {
   id: "style-indentation",
   name: "Indentation",
   description: "Use 4 spaces for indentation, not tabs",
@@ -71,7 +71,7 @@ export const indentationRule: StyleRule = {
   },
 };
 
-export const maxLineLengthRule: StyleRule = {
+export const MAX_LINE_LENGTH_RULE: StyleRule = {
   id: "style-max-line-length",
   name: "Max Line Length",
   description: "Lines should not exceed 120 characters",
@@ -92,7 +92,7 @@ export const maxLineLengthRule: StyleRule = {
   },
 };
 
-export const blankLinesRule: StyleRule = {
+export const BLANK_LINES_RULE: StyleRule = {
   id: "style-blank-lines",
   name: "Blank Lines",
   description:
@@ -133,7 +133,7 @@ export const blankLinesRule: StyleRule = {
   },
 };
 
-export const importOrderRule: StyleRule = {
+export const IMPORT_ORDER_RULE: StyleRule = {
   id: "style-import-order",
   name: "Import Order",
   description: "Import statements should be at the top of the file, after pragma",
@@ -179,7 +179,7 @@ export const importOrderRule: StyleRule = {
   },
 };
 
-export const functionOrderRule: StyleRule = {
+export const FUNCTION_ORDER_RULE: StyleRule = {
   id: "style-function-order",
   name: "Function Ordering",
   description:
@@ -297,7 +297,7 @@ export const functionOrderRule: StyleRule = {
   },
 };
 
-export const modifierOrderRule: StyleRule = {
+export const MODIFIER_ORDER_RULE: StyleRule = {
   id: "style-modifier-order",
   name: "Modifier Ordering",
   description: "Modifiers should be ordered: visibility → mutability → virtual → override → custom",
@@ -364,7 +364,7 @@ export const modifierOrderRule: StyleRule = {
   },
 };
 
-export const namingContractRule: StyleRule = {
+export const NAMING_CONTRACT_RULE: StyleRule = {
   id: "style-naming-contract",
   name: "Naming: Contracts/Structs/Events/Enums",
   description: "Contracts, structs, events, and enums should use PascalCase",
@@ -402,7 +402,7 @@ export const namingContractRule: StyleRule = {
   },
 };
 
-export const namingFunctionRule: StyleRule = {
+export const NAMING_FUNCTION_RULE: StyleRule = {
   id: "style-naming-function",
   name: "Naming: Functions/Modifiers",
   description: "Functions and modifiers should use camelCase",
@@ -447,7 +447,7 @@ export const namingFunctionRule: StyleRule = {
   },
 };
 
-export const namingConstantRule: StyleRule = {
+export const NAMING_CONSTANT_RULE: StyleRule = {
   id: "style-naming-constant",
   name: "Naming: Constants",
   description: "Constants should use UPPER_CASE_WITH_UNDERSCORES",
@@ -476,7 +476,7 @@ export const namingConstantRule: StyleRule = {
   },
 };
 
-export const namingVariableRule: StyleRule = {
+export const NAMING_VARIABLE_RULE: StyleRule = {
   id: "style-naming-variable",
   name: "Naming: Variables",
   description: "State variables should use camelCase (except constants)",
@@ -512,7 +512,7 @@ export const namingVariableRule: StyleRule = {
   },
 };
 
-export const whitespaceRule: StyleRule = {
+export const WHITESPACE_RULE: StyleRule = {
   id: "style-whitespace",
   name: "Whitespace",
   description: "No extra spaces inside parentheses or brackets",
@@ -549,7 +549,7 @@ export const whitespaceRule: StyleRule = {
   },
 };
 
-export const natspecRule: StyleRule = {
+export const NATSPEC_RULE: StyleRule = {
   id: "style-natspec",
   name: "NatSpec Comments",
   description: "Public and external functions should have NatSpec documentation",
@@ -600,18 +600,18 @@ export const natspecRule: StyleRule = {
  * All style rules
  */
 export const STYLE_RULES: StyleRule[] = [
-  indentationRule,
-  maxLineLengthRule,
-  blankLinesRule,
-  importOrderRule,
-  functionOrderRule,
-  modifierOrderRule,
-  namingContractRule,
-  namingFunctionRule,
-  namingConstantRule,
-  namingVariableRule,
-  whitespaceRule,
-  natspecRule,
+  INDENTATION_RULE,
+  MAX_LINE_LENGTH_RULE,
+  BLANK_LINES_RULE,
+  IMPORT_ORDER_RULE,
+  FUNCTION_ORDER_RULE,
+  MODIFIER_ORDER_RULE,
+  NAMING_CONTRACT_RULE,
+  NAMING_FUNCTION_RULE,
+  NAMING_CONSTANT_RULE,
+  NAMING_VARIABLE_RULE,
+  WHITESPACE_RULE,
+  NATSPEC_RULE,
 ];
 
 /**

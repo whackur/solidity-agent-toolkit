@@ -1,5 +1,5 @@
-import { execSync } from "child_process";
 import { existsSync } from "fs";
+import { isCliAvailable } from "./tool-checker.js";
 
 export interface CompilationError {
   severity: string;
@@ -20,12 +20,7 @@ export interface CompilationResult {
 }
 
 export function checkForgeInstalled(): boolean {
-  try {
-    execSync("forge --version", { stdio: "ignore" });
-    return true;
-  } catch {
-    return false;
-  }
+  return isCliAvailable("forge");
 }
 
 export function isFoundryProject(): boolean {
@@ -91,6 +86,7 @@ export function parseCompilationOutput(output: string | Buffer): CompilationResu
           }
         }
       } catch {
+        // Non-JSON line in forge output — skip and continue parsing
         continue;
       }
     }

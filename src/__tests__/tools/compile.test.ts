@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { execSync } from "child_process";
 import { existsSync } from "fs";
 import { registerCompileTools } from "../../mcp/tools/compile.js";
+import { registerCompileInspectTools } from "../../mcp/tools/compile-inspect.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 vi.mock("child_process");
@@ -33,12 +34,12 @@ describe("Compile Tools", () => {
     });
 
     it("registers get_abi tool", () => {
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       expect(registeredTools.has("get_abi")).toBe(true);
     });
 
     it("registers get_bytecode tool", () => {
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       expect(registeredTools.has("get_bytecode")).toBe(true);
     });
 
@@ -252,7 +253,7 @@ describe("Compile Tools", () => {
         throw new Error("forge not found");
       });
 
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       const tool = registeredTools.get("get_abi");
       const result = await tool.handler({ contractName: "MyContract" });
 
@@ -264,7 +265,7 @@ describe("Compile Tools", () => {
       vi.mocked(execSync).mockReturnValue(Buffer.from("forge 0.2.0\n"));
       vi.mocked(existsSync).mockReturnValue(false);
 
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       const tool = registeredTools.get("get_abi");
       const result = await tool.handler({ contractName: "MyContract" });
 
@@ -298,7 +299,7 @@ describe("Compile Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       const tool = registeredTools.get("get_abi");
       const result = await tool.handler({ contractName: "MyContract" });
 
@@ -324,7 +325,7 @@ describe("Compile Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       const tool = registeredTools.get("get_abi");
       const result = await tool.handler({ contractName: "NonExistent" });
 
@@ -347,7 +348,7 @@ describe("Compile Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       const tool = registeredTools.get("get_abi");
       const result = await tool.handler({ contractName: "MyContract" });
 
@@ -362,7 +363,7 @@ describe("Compile Tools", () => {
         throw new Error("forge not found");
       });
 
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       const tool = registeredTools.get("get_bytecode");
       const result = await tool.handler({ contractName: "MyContract" });
 
@@ -374,7 +375,7 @@ describe("Compile Tools", () => {
       vi.mocked(execSync).mockReturnValue(Buffer.from("forge 0.2.0\n"));
       vi.mocked(existsSync).mockReturnValue(false);
 
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       const tool = registeredTools.get("get_bytecode");
       const result = await tool.handler({ contractName: "MyContract" });
 
@@ -398,7 +399,7 @@ describe("Compile Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       const tool = registeredTools.get("get_bytecode");
       const result = await tool.handler({ contractName: "MyContract" });
 
@@ -424,7 +425,7 @@ describe("Compile Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       const tool = registeredTools.get("get_bytecode");
       const result = await tool.handler({ contractName: "MyContract" });
 
@@ -448,7 +449,7 @@ describe("Compile Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       const tool = registeredTools.get("get_bytecode");
       const result = await tool.handler({ contractName: "NonExistent" });
 
@@ -470,7 +471,7 @@ describe("Compile Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileTools(mockServer);
+      registerCompileInspectTools(mockServer);
       const tool = registeredTools.get("get_bytecode");
       const result = await tool.handler({ contractName: "MyContract" });
 

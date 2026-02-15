@@ -25,11 +25,11 @@ Install a generic LSP client extension (e.g., [vscode-languageclient](https://gi
 
 **Settings > Languages & Frameworks > Language Servers > +**:
 
-| Field | Value |
-|-------|-------|
-| Name | `Solidity Security LSP` |
-| Command | `npx -y solidity-agent-toolkit-lsp` |
-| File patterns | `*.sol` |
+| Field         | Value                               |
+| ------------- | ----------------------------------- |
+| Name          | `Solidity Security LSP`             |
+| Command       | `npx -y solidity-agent-toolkit-lsp` |
+| File patterns | `*.sol`                             |
 
 ## Neovim
 
@@ -76,9 +76,9 @@ Install the [LSP](https://packagecontrol.io/packages/LSP) package, then add to *
 
 ## LSP Features
 
-| Feature | Trigger | Description |
-|---------|---------|-------------|
-| Pattern diagnostics | On every keystroke | Regex-based vulnerability detection mapped to SCWE IDs |
-| CLI diagnostics | On file save | Slither, Solhint, and Aderyn analysis (debounced) |
-| Hover info | Hover over diagnostic | OWASP SCWE description, remediation, and CWE mapping |
-| Code actions | Quick fix menu | View remediation guidance and fixed code examples |
+| Feature             | Trigger               | Description                                            |
+| ------------------- | --------------------- | ------------------------------------------------------ |
+| Pattern diagnostics | On every keystroke    | Regex-based vulnerability detection mapped to SCWE IDs |
+| CLI diagnostics     | On file save          | Slither, Solhint, and Aderyn analysis (debounced)      |
+| Hover info          | Hover over diagnostic | OWASP SCWE description, remediation, and CWE mapping   |
+| Code actions        | Quick fix menu        | View remediation guidance and fixed code examples      |

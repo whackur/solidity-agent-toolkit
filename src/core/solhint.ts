@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { isCliAvailable } from "./tool-checker.js";
 
 export interface SolhintViolation {
   ruleId: string;
@@ -101,12 +101,7 @@ export const SOLHINT_RULES: SolhintRule[] = [
 ];
 
 export function checkSolhintInstalled(): boolean {
-  try {
-    execSync("solhint --version", { stdio: "ignore" });
-    return true;
-  } catch {
-    return false;
-  }
+  return isCliAvailable("solhint");
 }
 
 export function parseSolhintOutput(jsonOutput: string): SolhintViolation[] {

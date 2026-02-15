@@ -1,4 +1,5 @@
 import { execSync } from "child_process";
+import { isCliAvailable } from "./tool-checker.js";
 
 export interface AderynFinding {
   detector: string;
@@ -12,12 +13,7 @@ export interface AderynFinding {
 }
 
 export function checkAderynInstalled(): boolean {
-  try {
-    execSync("aderyn --version", { stdio: "ignore" });
-    return true;
-  } catch {
-    return false;
-  }
+  return isCliAvailable("aderyn");
 }
 
 interface RawAderynFinding {
@@ -45,6 +41,7 @@ export function parseAderynJson(output: string): AderynFinding[] {
     }
     return [];
   } catch {
+    // Aderyn CLI failed or returned malformed JSON — return empty findings
     return [];
   }
 }

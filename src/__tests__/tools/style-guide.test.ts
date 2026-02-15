@@ -5,18 +5,18 @@ import {
   checkAllRules,
   formatStyleViolations,
   STYLE_RULES,
-  indentationRule,
-  maxLineLengthRule,
-  blankLinesRule,
-  importOrderRule,
-  functionOrderRule,
-  modifierOrderRule,
-  namingContractRule,
-  namingFunctionRule,
-  namingConstantRule,
-  namingVariableRule,
-  whitespaceRule,
-  natspecRule,
+  INDENTATION_RULE,
+  MAX_LINE_LENGTH_RULE,
+  BLANK_LINES_RULE,
+  IMPORT_ORDER_RULE,
+  FUNCTION_ORDER_RULE,
+  MODIFIER_ORDER_RULE,
+  NAMING_CONTRACT_RULE,
+  NAMING_FUNCTION_RULE,
+  NAMING_CONSTANT_RULE,
+  NAMING_VARIABLE_RULE,
+  WHITESPACE_RULE,
+  NATSPEC_RULE,
 } from "../../knowledge/style-rules.js";
 import { registerStyleGuideTools } from "../../mcp/tools/style-guide.js";
 
@@ -46,10 +46,10 @@ describe("Style Guide", () => {
     });
   });
 
-  describe("indentationRule", () => {
+  describe("INDENTATION_RULE", () => {
     it("detects tab indentation", () => {
       const code = "\tfunction foo() {}";
-      const violations = indentationRule.check(code, code.split("\n"));
+      const violations = INDENTATION_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
       expect(violations[0].ruleId).toBe("style-indentation");
       expect(violations[0].line).toBe(1);
@@ -58,15 +58,15 @@ describe("Style Guide", () => {
 
     it("passes 4-space indentation", () => {
       const code = "    function foo() {}";
-      const violations = indentationRule.check(code, code.split("\n"));
+      const violations = INDENTATION_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
   });
 
-  describe("maxLineLengthRule", () => {
+  describe("MAX_LINE_LENGTH_RULE", () => {
     it("detects lines over 120 characters", () => {
       const longLine = "a".repeat(121);
-      const violations = maxLineLengthRule.check(longLine, [longLine]);
+      const violations = MAX_LINE_LENGTH_RULE.check(longLine, [longLine]);
       expect(violations).toHaveLength(1);
       expect(violations[0].ruleId).toBe("style-max-line-length");
       expect(violations[0].message).toContain("121");
@@ -74,27 +74,27 @@ describe("Style Guide", () => {
 
     it("passes lines at 120 characters", () => {
       const line = "a".repeat(120);
-      const violations = maxLineLengthRule.check(line, [line]);
+      const violations = MAX_LINE_LENGTH_RULE.check(line, [line]);
       expect(violations).toHaveLength(0);
     });
   });
 
-  describe("blankLinesRule", () => {
+  describe("BLANK_LINES_RULE", () => {
     it("detects missing blank lines between top-level declarations", () => {
       const code = ["contract A {", "}", "contract B {", "}"].join("\n");
-      const violations = blankLinesRule.check(code, code.split("\n"));
+      const violations = BLANK_LINES_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
       expect(violations[0].ruleId).toBe("style-blank-lines");
     });
 
     it("passes with 2 blank lines between top-level declarations", () => {
       const code = ["contract A {", "}", "", "", "contract B {", "}"].join("\n");
-      const violations = blankLinesRule.check(code, code.split("\n"));
+      const violations = BLANK_LINES_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
   });
 
-  describe("importOrderRule", () => {
+  describe("IMPORT_ORDER_RULE", () => {
     it("detects imports after non-import statements", () => {
       const code = [
         "pragma solidity ^0.8.0;",
@@ -102,7 +102,7 @@ describe("Style Guide", () => {
         "contract Foo {}",
         'import "./B.sol";',
       ].join("\n");
-      const violations = importOrderRule.check(code, code.split("\n"));
+      const violations = IMPORT_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
       expect(violations[0].line).toBe(4);
     });
@@ -114,12 +114,12 @@ describe("Style Guide", () => {
         'import "./B.sol";',
         "contract Foo {}",
       ].join("\n");
-      const violations = importOrderRule.check(code, code.split("\n"));
+      const violations = IMPORT_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
   });
 
-  describe("functionOrderRule", () => {
+  describe("FUNCTION_ORDER_RULE", () => {
     it("detects wrong function ordering", () => {
       const code = [
         "contract MyContract {",
@@ -127,7 +127,7 @@ describe("Style Guide", () => {
         "    function bar() external {}",
         "}",
       ].join("\n");
-      const violations = functionOrderRule.check(code, code.split("\n"));
+      const violations = FUNCTION_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
       expect(violations[0].ruleId).toBe("style-function-order");
       expect(violations[0].message).toContain("external");
@@ -142,7 +142,7 @@ describe("Style Guide", () => {
         "    function foo() private {}",
         "}",
       ].join("\n");
-      const violations = functionOrderRule.check(code, code.split("\n"));
+      const violations = FUNCTION_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
 
@@ -153,7 +153,7 @@ describe("Style Guide", () => {
         "    function bar() external {}",
         "}",
       ].join("\n");
-      const violations = functionOrderRule.check(code, code.split("\n"));
+      const violations = FUNCTION_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
     });
 
@@ -164,7 +164,7 @@ describe("Style Guide", () => {
         "    function bar() external {}",
         "}",
       ].join("\n");
-      const violations = functionOrderRule.check(code, code.split("\n"));
+      const violations = FUNCTION_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
       expect(violations[0].message).toContain("external");
     });
@@ -176,7 +176,7 @@ describe("Style Guide", () => {
         "    function bar() external view returns (uint256) {}",
         "}",
       ].join("\n");
-      const violations = functionOrderRule.check(code, code.split("\n"));
+      const violations = FUNCTION_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
     });
 
@@ -188,7 +188,7 @@ describe("Style Guide", () => {
         "    function c() external pure returns (uint256) {}",
         "}",
       ].join("\n");
-      const violations = functionOrderRule.check(code, code.split("\n"));
+      const violations = FUNCTION_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
 
@@ -212,7 +212,7 @@ describe("Style Guide", () => {
         "    function l() private pure returns (uint256) {}",
         "}",
       ].join("\n");
-      const violations = functionOrderRule.check(code, code.split("\n"));
+      const violations = FUNCTION_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
 
@@ -223,49 +223,49 @@ describe("Style Guide", () => {
         "    function bar() internal {}",
         "}",
       ].join("\n");
-      const violations = functionOrderRule.check(code, code.split("\n"));
+      const violations = FUNCTION_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
     });
   });
 
-  describe("modifierOrderRule", () => {
+  describe("MODIFIER_ORDER_RULE", () => {
     it("detects wrong modifier ordering", () => {
       const code = "    function foo() view public {}";
-      const violations = modifierOrderRule.check(code, code.split("\n"));
+      const violations = MODIFIER_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
       expect(violations[0].message).toContain("public");
     });
 
     it("passes correct modifier ordering", () => {
       const code = "    function foo() public view {}";
-      const violations = modifierOrderRule.check(code, code.split("\n"));
+      const violations = MODIFIER_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
   });
 
-  describe("namingContractRule", () => {
+  describe("NAMING_CONTRACT_RULE", () => {
     it("detects non-PascalCase contract names", () => {
       const code = "contract my_contract {}";
-      const violations = namingContractRule.check(code, code.split("\n"));
+      const violations = NAMING_CONTRACT_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
       expect(violations[0].message).toContain("PascalCase");
     });
 
     it("detects non-PascalCase struct names", () => {
       const code = "    struct my_struct {}";
-      const violations = namingContractRule.check(code, code.split("\n"));
+      const violations = NAMING_CONTRACT_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
     });
 
     it("detects non-PascalCase event names", () => {
       const code = "    event transfer_event();";
-      const violations = namingContractRule.check(code, code.split("\n"));
+      const violations = NAMING_CONTRACT_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
     });
 
     it("detects non-PascalCase enum names", () => {
       const code = "    enum status_type { Active, Inactive }";
-      const violations = namingContractRule.check(code, code.split("\n"));
+      const violations = NAMING_CONTRACT_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
     });
 
@@ -276,99 +276,99 @@ describe("Style Guide", () => {
         "    event Transfer();",
         "    enum Status { Active }",
       ].join("\n");
-      const violations = namingContractRule.check(code, code.split("\n"));
+      const violations = NAMING_CONTRACT_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
   });
 
-  describe("namingFunctionRule", () => {
+  describe("NAMING_FUNCTION_RULE", () => {
     it("detects non-camelCase function names", () => {
       const code = "    function MyFunction() public {}";
-      const violations = namingFunctionRule.check(code, code.split("\n"));
+      const violations = NAMING_FUNCTION_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
       expect(violations[0].message).toContain("camelCase");
     });
 
     it("detects non-camelCase modifier names", () => {
       const code = "    modifier OnlyOwner() {}";
-      const violations = namingFunctionRule.check(code, code.split("\n"));
+      const violations = NAMING_FUNCTION_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
     });
 
     it("passes camelCase function names", () => {
       const code = "    function transfer() public {}";
-      const violations = namingFunctionRule.check(code, code.split("\n"));
+      const violations = NAMING_FUNCTION_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
 
     it("allows underscore-prefixed function names", () => {
       const code = "    function _internalHelper() internal {}";
-      const violations = namingFunctionRule.check(code, code.split("\n"));
+      const violations = NAMING_FUNCTION_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
   });
 
-  describe("namingConstantRule", () => {
+  describe("NAMING_CONSTANT_RULE", () => {
     it("detects non-UPPER_CASE constant names", () => {
       const code = "    uint256 public constant maxSupply = 1000;";
-      const violations = namingConstantRule.check(code, code.split("\n"));
+      const violations = NAMING_CONSTANT_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
       expect(violations[0].message).toContain("UPPER_CASE");
     });
 
     it("passes UPPER_CASE constant names", () => {
       const code = "    uint256 public constant MAX_SUPPLY = 1000;";
-      const violations = namingConstantRule.check(code, code.split("\n"));
+      const violations = NAMING_CONSTANT_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
   });
 
-  describe("namingVariableRule", () => {
+  describe("NAMING_VARIABLE_RULE", () => {
     it("detects non-camelCase variable names", () => {
       const code = "    uint256 public TotalSupply;";
-      const violations = namingVariableRule.check(code, code.split("\n"));
+      const violations = NAMING_VARIABLE_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
       expect(violations[0].message).toContain("camelCase");
     });
 
     it("passes camelCase variable names", () => {
       const code = "    uint256 public totalSupply;";
-      const violations = namingVariableRule.check(code, code.split("\n"));
+      const violations = NAMING_VARIABLE_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
 
     it("skips constant variables", () => {
       const code = "    uint256 constant MAX_SUPPLY = 1000;";
-      const violations = namingVariableRule.check(code, code.split("\n"));
+      const violations = NAMING_VARIABLE_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
   });
 
-  describe("whitespaceRule", () => {
+  describe("WHITESPACE_RULE", () => {
     it("detects extra spaces inside parentheses", () => {
       const code = "function foo(  x,  y  ) {}";
-      const violations = whitespaceRule.check(code, code.split("\n"));
+      const violations = WHITESPACE_RULE.check(code, code.split("\n"));
       expect(violations.length).toBeGreaterThan(0);
     });
 
     it("passes normal spacing", () => {
       const code = "function foo(x, y) {}";
-      const violations = whitespaceRule.check(code, code.split("\n"));
+      const violations = WHITESPACE_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
   });
 
-  describe("natspecRule", () => {
+  describe("NATSPEC_RULE", () => {
     it("detects missing NatSpec on public functions", () => {
       const code = ["contract MyContract {", "    function transfer() public {}", "}"].join("\n");
-      const violations = natspecRule.check(code, code.split("\n"));
+      const violations = NATSPEC_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
       expect(violations[0].message).toContain("NatSpec");
     });
 
     it("detects missing NatSpec on external functions", () => {
       const code = ["contract MyContract {", "    function transfer() external {}", "}"].join("\n");
-      const violations = natspecRule.check(code, code.split("\n"));
+      const violations = NATSPEC_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
     });
 
@@ -379,7 +379,7 @@ describe("Style Guide", () => {
         "    function transfer() public {}",
         "}",
       ].join("\n");
-      const violations = natspecRule.check(code, code.split("\n"));
+      const violations = NATSPEC_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
 
@@ -392,7 +392,7 @@ describe("Style Guide", () => {
         "    function transfer() public {}",
         "}",
       ].join("\n");
-      const violations = natspecRule.check(code, code.split("\n"));
+      const violations = NATSPEC_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
 
@@ -403,7 +403,7 @@ describe("Style Guide", () => {
         "    function _secret() private {}",
         "}",
       ].join("\n");
-      const violations = natspecRule.check(code, code.split("\n"));
+      const violations = NATSPEC_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
     });
   });

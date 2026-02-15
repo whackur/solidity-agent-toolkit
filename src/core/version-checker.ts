@@ -60,7 +60,8 @@ const BOLD = "\x1b[1m";
 const RESET = "\x1b[0m";
 
 function boxify(lines: string[], padding: number = 2): string {
-  const stripAnsi = (s: string) => s.replace(/\x1b\[[0-9;]*m/g, "");
+  const ansiPattern = new RegExp(String.fromCharCode(27) + "\\[[0-9;]*m", "g");
+  const stripAnsi = (s: string) => s.replace(ansiPattern, "");
   const contentWidth = Math.max(...lines.map((l) => stripAnsi(l).length)) + padding * 2;
   const pad = " ".repeat(padding);
 

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { escapeRegex } from "./markdown-section.js";
 
 export interface SCTop10Examples {
   vulnerable: string;
@@ -23,10 +24,6 @@ const DATA_ROOT = path.resolve(
 );
 
 const TOP10_FILE_RE = /^SC(\d{2})-.*\.md$/;
-
-function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 
 /** Regex-based: extract `### <heading>` section until next `### ` or `## ` (or EOF). */
 function extractSubSection(body: string, heading: string): string {
