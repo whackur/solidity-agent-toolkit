@@ -25,7 +25,7 @@ Config file location:
 
 ## Cursor
 
-Add to your Cursor MCP configuration:
+Add to `.cursor/mcp.json` in your project root:
 
 ```json
 {
@@ -44,11 +44,12 @@ Add to your `opencode.json`:
 
 ```json
 {
+  "$schema": "https://opencode.ai/config.json",
   "mcp": {
     "solidity-agent-toolkit": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "solidity-agent-toolkit@latest"]
+      "type": "local",
+      "command": ["npx", "-y", "solidity-agent-toolkit@latest"],
+      "enabled": true
     }
   }
 }
@@ -56,7 +57,22 @@ Add to your `opencode.json`:
 
 ## VSCode
 
-If using an MCP-compatible VSCode extension (e.g., Cline, Continue, or GitHub Copilot MCP):
+Add to `.vscode/mcp.json` in your workspace:
+
+```json
+{
+  "servers": {
+    "solidity-agent-toolkit": {
+      "command": "npx",
+      "args": ["-y", "solidity-agent-toolkit@latest"]
+    }
+  }
+}
+```
+
+## IntelliJ
+
+Go to **Settings > Tools > AI Assistant > Model Context Protocol (MCP)**, click **+**, and paste:
 
 ```json
 {
@@ -68,14 +84,3 @@ If using an MCP-compatible VSCode extension (e.g., Cline, Continue, or GitHub Co
   }
 }
 ```
-
-## IntelliJ
-
-In **Settings > Tools > AI Assistant > MCP Servers**, add:
-
-| Field     | Value                              |
-| --------- | ---------------------------------- |
-| Name      | `solidity-agent-toolkit`           |
-| Command   | `npx`                              |
-| Arguments | `-y solidity-agent-toolkit@latest` |
-| Transport | `stdio`                            |
