@@ -68,11 +68,11 @@ export const SLITHER_SCWE_MAPPINGS: Record<string, string> = {
   "uninitialized-storage": "SCWE-109",
   "uninitialized-local": "SCWE-109",
 
-  // Locked ether -> SCWE-132
-  "locked-ether": "SCWE-132",
+  // Locked ether -> SCWE-140
+  "locked-ether": "SCWE-140",
 
-  // Dangerous strict equalities -> SCWE-132
-  "incorrect-equality": "SCWE-132",
+  // Dangerous strict equalities -> SCWE-075
+  "incorrect-equality": "SCWE-075",
 
   // Assembly usage -> SCWE-127
   assembly: "SCWE-127",

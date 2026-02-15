@@ -1,6 +1,9 @@
 # Foundry Cheatsheet
 
+> **MCP Integration**: Many Forge commands have equivalent MCP tools (`compile_contract`, `run_tests`, `gas_snapshot`, `dry_run_deploy`). Use MCP tools for programmatic access within AI agent workflows.
+
 ## Forge Commands
+
 - `forge build`: Compile the project.
 - `forge test`: Run tests.
 - `forge snapshot`: Generate gas snapshots.
@@ -12,6 +15,7 @@
 - `forge debug`: Debug a single transaction.
 
 ## Cast Commands
+
 - `cast call`: Perform a read-only call.
 - `cast send`: Send a transaction.
 - `cast estimate`: Estimate gas for a transaction.
@@ -24,6 +28,7 @@
 - `cast wallet`: Manage local wallets and keys.
 
 ## Anvil Commands
+
 - `anvil`: Start a local Ethereum node.
 - `--fork-url <URL>`: Fork a remote network.
 - `--fork-block-number <BLOCK>`: Pin the fork to a block.
@@ -33,6 +38,7 @@
 ## Common Cheatcode Patterns
 
 ### Identity & Funds
+
 ```solidity
 vm.prank(alice);
 contract.call(); // msg.sender is alice
@@ -44,12 +50,14 @@ contract.call();
 ```
 
 ### Time & Blocks
+
 ```solidity
 vm.warp(1641006000); // set block.timestamp
 vm.roll(14000000);   // set block.number
 ```
 
 ### State
+
 ```solidity
 uint256 slot = vm.load(address(contract), bytes32(0));
 vm.store(address(contract), bytes32(0), bytes32(uint256(1)));
@@ -60,6 +68,7 @@ vm.revertTo(id);
 ```
 
 ### Assertions
+
 ```solidity
 vm.expectRevert("Error message");
 contract.fail();
@@ -73,6 +82,7 @@ contract.callTarget();
 ```
 
 ### Environment
+
 ```solidity
 uint256 key = vm.envUint("PRIVATE_KEY");
 address addr = vm.envAddress("CONTRACT_ADDR");
@@ -80,6 +90,7 @@ string memory s = vm.envString("API_KEY");
 ```
 
 ## Testing Patterns
+
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;

@@ -26,7 +26,7 @@ describe("VULNERABILITY_PATTERNS", () => {
       "SCWE-046",
       "SCWE-065",
       "SCWE-109",
-      "SCWE-132",
+      "SCWE-035",
       "SCWE-106",
       "SCWE-128",
       "SCWE-136",
@@ -109,7 +109,7 @@ contract Lottery {
     expect(scwe065[0].severity).toBe("medium");
   });
 
-  it("detects delegatecall injection (SCWE-132)", () => {
+  it("detects insecure delegatecall usage (SCWE-035)", () => {
     const code = `
 contract Proxy {
     function forward(address target, bytes calldata data) public {
@@ -118,9 +118,9 @@ contract Proxy {
     }
 }`;
     const matches = matchPatterns(code);
-    const scwe132 = matches.filter((m) => m.scweId === "SCWE-132");
-    expect(scwe132.length).toBeGreaterThan(0);
-    expect(scwe132[0].severity).toBe("critical");
+    const scwe035 = matches.filter((m) => m.scweId === "SCWE-035");
+    expect(scwe035.length).toBeGreaterThan(0);
+    expect(scwe035[0].severity).toBe("critical");
   });
 
   it("detects integer overflow risk with old pragma (SCWE-106)", () => {

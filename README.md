@@ -31,7 +31,7 @@ See [MCP Setup](docs/mcp-setup.md) for client-specific instructions.
 
 ## Features
 
-**22 MCP Tools** — Security analysis (Slither, Aderyn, Solhint, pattern matching), compilation & testing (Foundry), gas & storage inspection, dry-run deployment, code quality (NatSpec, style, formatting)
+**23 MCP Tools** — Security analysis (Slither, Aderyn, Solhint, pattern matching), compilation & testing (Foundry), gas & storage inspection, dry-run deployment, code quality (NatSpec, style, formatting)
 
 **6 MCP Resources** — OWASP Smart Contract Top 10, SCWE vulnerability database (156 entries), ERC standard interfaces
 
@@ -39,18 +39,18 @@ See [MCP Setup](docs/mcp-setup.md) for client-specific instructions.
 
 **LSP Server** — Real-time pattern diagnostics, CLI diagnostics on save, OWASP SCWE hover info, remediation code actions
 
-**5 Agent Skills** — Security best practices, Foundry development, gas optimization, code review methodology, ERC standards
+**6 Agent Skills** — Security best practices, Foundry development, Hardhat development, gas optimization, code review methodology, ERC standards
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [Installation](docs/installation.md) | Install, update, uninstall, version pinning |
-| [MCP Setup](docs/mcp-setup.md) | Claude Desktop, Cursor, opencode, VSCode, IntelliJ |
-| [LSP Setup](docs/lsp-setup.md) | VSCode, IntelliJ, Neovim, Sublime Text |
-| [API Reference](docs/api-reference.md) | All tools, resources, and prompts |
-| [Agent Skills](docs/agent-skills.md) | Skill descriptions and installation |
-| [Development](docs/development.md) | Prerequisites, commands, architecture |
+| Document                               | Description                                        |
+| -------------------------------------- | -------------------------------------------------- |
+| [Installation](docs/installation.md)   | Install, update, uninstall, version pinning        |
+| [MCP Setup](docs/mcp-setup.md)         | Claude Desktop, Cursor, opencode, VSCode, IntelliJ |
+| [LSP Setup](docs/lsp-setup.md)         | VSCode, IntelliJ, Neovim, Sublime Text             |
+| [API Reference](docs/api-reference.md) | All tools, resources, and prompts                  |
+| [Agent Skills](docs/agent-skills.md)   | Skill descriptions and installation                |
+| [Development](docs/development.md)     | Prerequisites, commands, architecture              |
 
 ## License
 

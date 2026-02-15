@@ -2,34 +2,38 @@
 
 ## OVERVIEW
 
-5 Agent Skills following the [agentskills.io](https://agentskills.io) open specification. Auto-detectable by 35+ AI coding agents. Install via `npx skills add whackur/solidity-agent-toolkit`.
+6 Agent Skills following the [agentskills.io](https://agentskills.io) open specification. Auto-detectable by 35+ AI coding agents. Install via `npx skills add whackur/solidity-agent-toolkit`.
 
 ## STRUCTURE
 
 ```
 skills/
 ├── solidity-security-best-practices/
-│   ├── SKILL.md                        # CEI, reentrancy, access control, OWASP Top 10
-│   └── references/owasp-scwe-top10.md  # SC01–SC10 quick reference
+│   ├── SKILL.md                        # Security thinking framework, OWASP Top 10
+│   └── references/owasp-scwe-top10.md  # SC01–SC10 quick reference + MCP mappings
 ├── solidity-foundry-development/
 │   ├── SKILL.md                        # Setup, testing, cheatcodes, deployment
 │   └── references/foundry-cheatsheet.md
+├── solidity-hardhat-development/
+│   ├── SKILL.md                        # Hardhat 3 setup, ESM, Ignition, multichain
+│   └── references/hardhat-cheatsheet.md
 ├── solidity-gas-optimization/
 │   └── SKILL.md                        # Storage packing, custom errors, assembly, Solady
 ├── solidity-code-review/
 │   ├── SKILL.md                        # Audit methodology, severity classification
-│   └── references/audit-checklist.md   # 40+ checkbox items by SCSVS category
+│   ├── references/audit-checklist.md   # 40+ checkbox items by SCSVS category
+│   └── references/solidity-style-guide.md  # Style conventions + check_style rule IDs
 └── solidity-erc-standards/
     ├── SKILL.md                        # ERC20/721/1155/4626 guidelines
-    └── references/erc-interfaces.md    # Full interface definitions + pitfall table
+    └── references/erc-interfaces.md    # Interface definitions + pitfall table + SCWE
 ```
 
 ## SKILL.md FORMAT
 
 ```yaml
 ---
-name: lowercase-with-hyphens    # ≤64 chars, MUST match directory name
-description: What + when + triggers  # ≤1024 chars, trigger keywords here
+name: lowercase-with-hyphens # ≤64 chars, MUST match directory name
+description: What + when + triggers # ≤1024 chars, trigger keywords here
 license: MIT
 metadata:
   author: whackur
@@ -72,4 +76,4 @@ Skill versions and package version (`package.json`) are **independent**. They st
 - **NO body over 250 lines** — move detailed content to `references/` for progressive disclosure
 - **NO uppercase or spaces in `name` field** — spec requires lowercase alphanumeric + hyphens
 - **NO verbatim copy of MCP prompt templates** — skills provide guidelines, not prompt engineering
-- **NO Hardhat-specific skill** — project is Foundry-focused; Hardhat can be added later
+- **NO duplicate content across skills** — if two skills cover similar ground, consolidate or cross-reference

@@ -4,242 +4,164 @@ description: Smart contract security best practices for Solidity development. Us
 license: MIT
 metadata:
   author: whackur
-  version: "0.1.0"
+  version: "0.2.1"
 ---
 
 # Solidity Security Best Practices
 
 ## When to Apply
+
 - Reviewing smart contract code for common vulnerabilities.
 - Implementing critical patterns like Checks-Effects-Interactions.
 - Auditing access control and upgradeability logic.
 - Preparing for a security audit or bug bounty.
 - Debugging unexpected behavior in external contract interactions.
 
-## Critical Security Patterns
+## Security Thinking Framework
 
-### Checks-Effects-Interactions (CEI)
-Always update state variables before making external calls to prevent reentrancy.
+When reviewing or writing Solidity code, apply these foundational principles as a mental checklist. Each principle addresses a category of vulnerability and guides your reasoning.
 
-```solidity
-// BAD
-function withdraw(uint amount) public {
-    require(balances[msg.sender] >= amount);
-    (bool s, ) = msg.sender.call{value: amount}("");
-    balances[msg.sender] -= amount;
-}
-```
+### Core Principles
 
-```solidity
-// GOOD
-function withdraw(uint amount) public {
-    require(balances[msg.sender] >= amount);
-    balances[msg.sender] -= amount;
-    (bool s, ) = msg.sender.call{value: amount}("");
-    require(s);
-}
-```
+| Principle                             | What It Means                                                  | What to Verify                                             |
+| :------------------------------------ | :------------------------------------------------------------- | :--------------------------------------------------------- |
+| **Checks-Effects-Interactions (CEI)** | Validate inputs, update state, then interact externally        | State changes complete before any external call            |
+| **Least Privilege**                   | Every function and role has the minimum access required        | Sensitive functions have appropriate access modifiers      |
+| **Defense in Depth**                  | Multiple layers of protection, no single points of failure     | Combine CEI + ReentrancyGuard + SafeERC20 where applicable |
+| **Fail-Safe Defaults**                | The default state is secure; access must be explicitly granted | Functions default to restricted, not open                  |
+| **Complete Mediation**                | Every access to every resource is validated                    | No code paths bypass access control checks                 |
 
-### Access Control
-Restrict sensitive functions to authorized addresses using standard patterns.
+### Security Decision Process
 
-```solidity
-// BAD
-function setOwner(address _new) public {
-    owner = _new;
-}
-```
+When you encounter a function, ask these questions in order:
 
-```solidity
-// GOOD
-function setOwner(address _new) public onlyOwner {
-    owner = _new;
-}
-```
+1. **Who can call this?** — Check access control (onlyOwner, hasRole, msg.sender validation)
+2. **What inputs does it accept?** — Validate all parameters (zero address, bounds, empty values)
+3. **What state does it change?** — Ensure state updates happen before external interactions
+4. **Does it interact externally?** — Apply CEI, use SafeERC20, check return values
+5. **Can it be called recursively?** — Add ReentrancyGuard if external calls are present
+6. **Is the state change visible?** — Emit events for off-chain tracking
+7. **Can it be paused?** — Implement circuit breakers for critical operations
 
-### Reentrancy Protection
-Use mutexes to prevent recursive calls into the same function or contract.
+## SCSVS-Based Audit Workflow
 
-```solidity
-// BAD
-function claim() public {
-    require(!claimed[msg.sender]);
-    msg.sender.call{value: 1 ether}("");
-    claimed[msg.sender] = true;
-}
-```
+Organize your review by OWASP SCSVS categories. For each category, focus on the specific threat model.
 
-```solidity
-// GOOD
-function claim() public nonReentrant {
-    require(!claimed[msg.sender]);
-    claimed[msg.sender] = true;
-    payable(msg.sender).transfer(1 ether);
-}
-```
+### Architecture & Design (SCSVS-ARCH)
 
-### Safe External Calls
-Handle token transfer failures and validate external contract interactions.
+- Proxy patterns: correct admin separation, storage gaps, initializer protection
+- Contract boundaries: minimal surface area, no circular dependencies
+- Delegatecall: only to trusted, immutable targets
 
-```solidity
-// BAD
-function pay(IERC20 token, uint amount) public {
-    token.transfer(msg.sender, amount);
-}
-```
+### Code Quality (SCSVS-CODE)
 
-```solidity
-// GOOD
-using SafeERC20 for IERC20;
-function pay(IERC20 token, uint amount) public {
-    token.safeTransfer(msg.sender, amount);
-}
-```
+- Explicit visibility on all functions
+- Fixed pragma (no floating versions)
+- No deprecated functions (`throw`, `suicide`, `constant` for functions)
+- No unused code, no variable shadowing
 
-## High Priority Patterns
+### Authorization (SCSVS-AUTH)
 
-### Input Validation
-Sanitize all user-provided data to prevent unexpected state changes.
+- Access control on ALL state-changing functions
+- No `tx.origin` for authentication — use `msg.sender`
+- Protected initializers (callable once only)
+- Privileged roles require multi-sig or timelock
 
-```solidity
-// BAD
-function setRate(uint _rate) public {
-    rate = _rate;
-}
-```
+### Communication (SCSVS-COMM)
 
-```solidity
-// GOOD
-function setRate(uint _rate) public {
-    if (_rate == 0) revert InvalidRate();
-    rate = _rate;
-}
-```
+- Return values of external calls checked and handled
+- No `delegatecall` to untrusted contracts
+- Pull-over-push pattern for payments
+- CEI pattern or ReentrancyGuard on all functions with external calls
 
-### Upgrade Safety
-Protect implementation contracts and ensure storage compatibility.
+### Cryptography (SCSVS-CRYPTO)
 
-```solidity
-// BAD
-contract MyProxy is Initializable {
-    uint public x;
-    function init(uint _x) public { x = _x; }
-}
-```
+- No on-chain randomness (`block.timestamp`, `blockhash`)
+- EIP-712 for structured data signatures
+- `abi.encode` instead of `abi.encodePacked` for dynamic types in hashing
+- Signature malleability protection
+- `ecrecover` result validated (not `address(0)`)
 
-```solidity
-// GOOD
-contract MyProxy is Initializable {
-    uint public x;
-    function init(uint _x) public initializer { x = _x; }
-}
-```
+### DeFi-Specific (SCSVS-DEFI)
 
-### Circuit Breakers
-Implement emergency stop mechanisms to pause functionality during attacks.
+- Slippage protection on swaps and liquidity operations
+- Flash loan resistance in price-sensitive logic
+- Oracle manipulation protection (TWAP, multiple sources)
+- No reliance on `address(this).balance` for internal accounting
+- Fee-on-transfer and rebasing token compatibility
 
-```solidity
-// BAD
-function trade() public {
-    _performTrade();
-}
-```
+### Blockchain-Specific (SCSVS-BLOCK)
 
-```solidity
-// GOOD
-function trade() public whenNotPaused {
-    _performTrade();
-}
-```
+- No block property dependence for critical logic (timestamp, difficulty)
+- Front-running protection (commit-reveal, slippage limits)
+- Gas griefing protection for relayer patterns
 
-## Medium Priority Patterns
+### Bridge & Cross-Chain (SCSVS-BRIDGE)
 
-### Signature Security
-Prevent replay attacks by including nonces and domain separators.
+- Message validation across chains
+- Replay protection for cross-chain messages
+- Trust model verification for bridge relayers
 
-```solidity
-// BAD
-function exec(bytes memory sig) public {
-    address signer = recover(sig);
-    _doWork(signer);
-}
-```
+### Governance (SCSVS-GOV)
 
-```solidity
-// GOOD
-function exec(bytes memory sig, uint nonce) public {
-    require(!used[nonce]);
-    used[nonce] = true;
-    address signer = recover(sig, nonce);
-}
-```
+- Timelock on governance actions
+- Proposal execution safety
+- Flash loan governance attack protection
 
-### Randomness
-Avoid using on-chain data for randomness; use verifiable random functions.
+### Component Security (SCSVS-COMP)
 
-```solidity
-// BAD
-uint rand = uint(keccak256(abi.encodePacked(block.timestamp)));
-```
+- Dependency audit (OpenZeppelin version pinning)
+- Known vulnerability checks against dependencies
+- Interface compliance verification
 
-```solidity
-// GOOD
-// Use Chainlink VRF
-uint rand = IVRF(vrf).requestRandomWords();
-```
+## Security Patterns by Priority
 
-### Event Emission
-Emit events for all significant state changes to facilitate off-chain tracking.
+### Critical
 
-```solidity
-// BAD
-function update(uint _v) public {
-    val = _v;
-}
-```
+- **CEI Pattern**: Always update state before external calls to prevent reentrancy. The most common vulnerability source is performing state changes after an external call.
+- **Reentrancy Guard**: Use mutex locks (OpenZeppelin ReentrancyGuard) for functions with external interactions. Protects against both same-function and cross-function reentrancy.
+- **Access Control**: Restrict sensitive functions with role-based modifiers (Ownable, AccessControl). Every state-changing function must have explicit authorization.
+- **Safe External Calls**: Use SafeERC20 for token transfers to handle non-standard return values. Always check `.call()` return values with `require`.
 
-```solidity
-// GOOD
-function update(uint _v) public {
-    val = _v;
-    emit Updated(_v);
-}
-```
+### High
 
-## Common Vulnerability Checklist
+- **Input Validation**: Validate all parameters — zero address, bounds, empty arrays, zero amounts. Use custom errors (`revert InvalidAmount()`) for gas-efficient validation.
+- **Upgrade Safety**: Protect initializers with `initializer` modifier, verify storage compatibility across upgrades, restrict upgrade admin access.
+- **Circuit Breakers**: Implement Pausable functionality (OpenZeppelin) for emergency response. Critical for DeFi protocols handling user funds.
 
-| Vulnerability Name | SCWE ID | Quick Fix |
-| :--- | :--- | :--- |
-| tx.origin Authentication | SCWE-018 | Use msg.sender instead |
-| Unprotected SELFDESTRUCT | SCWE-038 | Add access control to selfdestruct |
-| Reentrancy - External Call Before State Update | SCWE-046 | Use CEI pattern or ReentrancyGuard |
-| Unchecked External Call Return Value | SCWE-109 | Use require() or SafeERC20 |
-| Delegatecall Injection | SCWE-132 | Validate target address for delegatecall |
-| Integer Overflow/Underflow | SCWE-106 | Use Solidity 0.8+ or SafeMath |
-| Default Function Visibility | SCWE-128 | Explicitly define visibility |
-| Unencrypted On-Chain Private Data | SCWE-136 | Encrypt data or store off-chain |
-| Weak Randomness | SCWE-015 | Use Chainlink VRF or commit-reveal |
-| Unprotected Ether Withdrawal | SCWE-029 | Add access control to withdrawal |
-| Uninitialized Storage Pointer | SCWE-043 | Initialize all storage pointers |
-| Signature Replay Attack | SCWE-020 | Use nonces and EIP-712 |
-| Hash Collision with abi.encodePacked | SCWE-025 | Use abi.encode for dynamic types |
-| DoS with Block Gas Limit | SCWE-031 | Avoid loops over unbounded arrays |
-| Floating Pragma | SCWE-058 | Lock pragma to a specific version |
-| Front-Running | SCWE-063 | Use commit-reveal or slippage protection |
-| Unprotected Initializer | SCWE-053 | Use 'initializer' modifier |
-| Incorrect Access Control | SCWE-048 | Use OpenZeppelin AccessControl/Ownable |
-| DoS with Unexpected Revert | SCWE-030 | Use pull-over-push for payments |
-| Assert Violation | SCWE-067 | Use require() for input validation |
-| Lack of Reentrancy Guard | SCWE-077 | Add nonReentrant modifier |
-| Forced Ether via Self-Destruct | SCWE-079 | Don't rely on address(this).balance |
-| Hardcoded Gas Amount | SCWE-100 | Avoid .transfer(), use .call() |
+### Medium
+
+- **Signature Security**: Use nonces + EIP-712 domain separators to prevent replay attacks. Validate `ecrecover` does not return `address(0)`.
+- **Randomness**: Never use on-chain data (`block.timestamp`, `blockhash`) for randomness. Use Chainlink VRF or commit-reveal schemes.
+- **Event Emission**: Emit events for all significant state changes. Use `indexed` parameters for efficient off-chain filtering.
 
 ## Enhanced with MCP
-If you have the `solidity-agent-toolkit` MCP server configured, these tools provide automated security analysis:
-- `run_slither` for static analysis
-- `match_vulnerability_patterns` for heuristic detection
-- `check_vulnerability` for SCWE pattern matching
-- `search_vulnerabilities` for OWASP knowledge base lookup
+
+If you have the `solidity-agent-toolkit` MCP server configured, use these tools to augment your manual review:
+
+**Suspect a known vulnerability?**
+
+- `search_vulnerabilities` — Search the OWASP SCWE database by keyword or category
+- `get_remediation` — Get specific fix guidance with vulnerable and fixed code examples for any SCWE ID
+- `check_vulnerability` — Check if code matches a known SCWE pattern
+
+**Want automated scanning?**
+
+- `match_vulnerability_patterns` — Regex-based detection of 32+ common vulnerability patterns
+- `run_slither` — Comprehensive static analysis with SCWE-mapped findings
+- `run_aderyn` — Fast Rust-based vulnerability scanner
+
+**Need reference data?**
+
+- `scwe://{id}` — Full vulnerability details including description, remediation, and code examples
+- `scwe://category/{category}` — Browse all vulnerabilities by SCSVS category
+- `sctop10://list` — OWASP Smart Contract Top 10 overview
+
+**Full audit workflow?**
+
+- Use the `security_audit` prompt for a structured, guided audit process
+- Use the `vulnerability_fix` prompt for step-by-step remediation assistance
 
 ## References
+
 - [OWASP Smart Contract Top 10 (2026)](references/owasp-scwe-top10.md)

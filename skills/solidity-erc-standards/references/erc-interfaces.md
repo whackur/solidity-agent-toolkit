@@ -1,6 +1,9 @@
 # ERC Standard Interfaces
 
+> **MCP Integration**: Use `erc://{standard}` resource to fetch these interfaces programmatically. Use `check_vulnerability` to verify implementations against known pitfalls.
+
 ## ERC20 Interface
+
 ```solidity
 interface IERC20 {
     event Transfer(address indexed from, address indexed to, uint256 value);
@@ -15,6 +18,7 @@ interface IERC20 {
 ```
 
 ## ERC721 Interface
+
 ```solidity
 interface IERC721 {
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
@@ -33,6 +37,7 @@ interface IERC721 {
 ```
 
 ## ERC1155 Interface
+
 ```solidity
 interface IERC1155 {
     event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value);
@@ -49,6 +54,7 @@ interface IERC1155 {
 ```
 
 ## ERC4626 Interface
+
 ```solidity
 interface IERC4626 {
     function asset() external view returns (address);
@@ -71,6 +77,7 @@ interface IERC4626 {
 ```
 
 ## Common Extensions
+
 - **ERC20Permit**: Adds `permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)` for signature-based approvals.
 - **ERC20Votes**: Adds `delegate(address delegatee)` and `getVotes(address account)` for governance.
 - **ERC721Enumerable**: Adds `totalSupply()`, `tokenByIndex(uint256 index)`, and `tokenOfOwnerByIndex(address owner, uint256 index)`.
@@ -78,12 +85,13 @@ interface IERC4626 {
 - **IERC1155Receiver**: Must be implemented by contracts to receive ERC1155 tokens.
 
 ## Common Pitfalls per Standard
-| Standard | Pitfall | Fix |
-| --- | --- | --- |
-| ERC20 | Approval race condition | Use `increaseAllowance`/`decreaseAllowance` or `Permit`. |
-| ERC20 | Tokens returning `false` | Use `SafeERC20` wrapper. |
-| ERC721 | Reentrancy in `safeTransfer` | Use `nonReentrant` modifier or CEI pattern. |
-| ERC721 | Gas cost of Enumerable | Avoid `Enumerable` if on-chain discovery isn't required. |
-| ERC1155 | Missing batch support | Ensure `balanceOfBatch` and `safeBatchTransferFrom` are implemented. |
-| ERC4626 | Inflation attack | Mint "dead shares" to `address(0)` on first deposit. |
-| ERC4626 | Rounding errors | Round in favor of the vault (Down for deposit, Up for withdraw). |
+
+| Standard | Pitfall                      | Fix                                                                  | SCWE     |
+| -------- | ---------------------------- | -------------------------------------------------------------------- | -------- |
+| ERC20    | Approval race condition      | Use `increaseAllowance`/`decreaseAllowance` or `Permit`.             | SCWE-029 |
+| ERC20    | Tokens returning `false`     | Use `SafeERC20` wrapper.                                             | SCWE-109 |
+| ERC721   | Reentrancy in `safeTransfer` | Use `nonReentrant` modifier or CEI pattern.                          | SCWE-138 |
+| ERC721   | Gas cost of Enumerable       | Avoid `Enumerable` if on-chain discovery isn't required.             | -        |
+| ERC1155  | Missing batch support        | Ensure `balanceOfBatch` and `safeBatchTransferFrom` are implemented. | -        |
+| ERC4626  | Inflation attack             | Mint "dead shares" to `address(0)` on first deposit.                 | SCWE-049 |
+| ERC4626  | Rounding errors              | Round in favor of the vault (Down for deposit, Up for withdraw).     | -        |

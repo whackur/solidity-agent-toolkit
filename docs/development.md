@@ -2,14 +2,14 @@
 
 ## Prerequisites
 
-| Tool | Required For | Install |
-|------|-------------|---------|
-| [Node.js](https://nodejs.org/) 18+ | Runtime | [nodejs.org](https://nodejs.org/) |
-| [pnpm](https://pnpm.io/) 10.x | Package manager | `npm install -g pnpm` |
-| [Foundry](https://book.getfoundry.sh/) | Compilation, testing, gas, deployment tools | `curl -L https://foundry.paradigm.xyz \| bash && foundryup` |
-| [Slither](https://github.com/crytic/slither) | `run_slither`, `list_slither_detectors` | `pip3 install slither-analyzer` |
-| [Aderyn](https://github.com/Cyfrin/aderyn) | `run_aderyn` | `brew install cyfrin/tap/aderyn` |
-| [Solhint](https://github.com/protofire/solhint) | `run_solhint`, `list_solhint_rules` | `pnpm add -g solhint` |
+| Tool                                            | Required For                                | Install                                                     |
+| ----------------------------------------------- | ------------------------------------------- | ----------------------------------------------------------- |
+| [Node.js](https://nodejs.org/) 18+              | Runtime                                     | [nodejs.org](https://nodejs.org/)                           |
+| [pnpm](https://pnpm.io/) 10.x                   | Package manager                             | `npm install -g pnpm`                                       |
+| [Foundry](https://book.getfoundry.sh/)          | Compilation, testing, gas, deployment tools | `curl -L https://foundry.paradigm.xyz \| bash && foundryup` |
+| [Slither](https://github.com/crytic/slither)    | `run_slither`, `list_slither_detectors`     | `pip3 install slither-analyzer`                             |
+| [Aderyn](https://github.com/Cyfrin/aderyn)      | `run_aderyn`                                | `brew install cyfrin/tap/aderyn`                            |
+| [Solhint](https://github.com/protofire/solhint) | `run_solhint`, `list_solhint_rules`         | `pnpm add -g solhint`                                       |
 
 Foundry, Slither, Aderyn, and Solhint are **optional** — features that don't require them (pattern matching, SCWE search, NatSpec validation, style checking, all resources, and all prompts) work out of the box.
 
@@ -76,9 +76,11 @@ lsp/        ->  core/ + knowledge/
 ## Testing
 
 ```bash
-pnpm test                    # Run all tests (~390 tests)
-pnpm test -- --grep "slither"  # Run tests matching pattern
-pnpm test:coverage           # Generate coverage report
+pnpm test                                         # Run all tests (~420 tests)
+pnpm test -- src/__tests__/tools/slither.test.ts   # Run a single test file
+pnpm test -- -t "maps reentrancy"                  # Run tests matching name pattern
+pnpm test:watch                                    # Watch mode
+pnpm test:coverage                                 # Generate coverage report
 ```
 
 Test files live in `src/__tests__/` and mirror the source structure.
