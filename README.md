@@ -18,6 +18,26 @@ Or install globally:
 pnpm add -g solidity-agent-toolkit
 ```
 
+## Agent Skills
+
+This toolkit includes 5 [Agent Skills](https://agentskills.io/) — auto-detectable by 35+ AI coding agents (Claude Code, Cursor, Codex, OpenCode, Antigravity, VSCode, and more).
+
+Install all skills at once:
+
+```bash
+npx skills add whackur/solidity-agent-toolkit
+```
+
+| Skill | Description |
+| ----- | ----------- |
+| `solidity-security-best-practices` | CEI pattern, reentrancy prevention, access control, OWASP SCWE Top 10 |
+| `solidity-foundry-development` | Project setup, testing patterns, fuzz/invariant/fork testing, cheatcodes, deployment |
+| `solidity-gas-optimization` | Storage packing, custom errors, immutables, calldata, assembly, Solady |
+| `solidity-code-review` | Structured audit methodology, severity classification, review checklist |
+| `solidity-erc-standards` | ERC20, ERC721, ERC1155, ERC4626 implementation guidelines and pitfalls |
+
+Skills work standalone as AI coding guidelines. When paired with the MCP server, agents can also run automated analysis tools.
+
 ## MCP Client Setup
 
 ### Claude Desktop

@@ -11,7 +11,8 @@
   },
   "files": [
     "dist/",
-    "data/owasp-scs/docs/"
+    "data/owasp-scs/docs/",
+    "skills/"
   ],
   "engines": {
     "node": ">=18"
@@ -28,7 +29,8 @@
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "fix": "pnpm run lint:fix && pnpm run format"
   },
   "keywords": [
     "solidity",
@@ -42,7 +44,14 @@
     "lsp",
     "language-server",
     "owasp",
-    "ai-agent"
+    "ai-agent",
+    "agent-skills",
+    "skills",
+    "foundry",
+    "slither",
+    "aderyn",
+    "erc20",
+    "erc721"
   ],
   "author": "whackur@gmail.com",
   "license": "MIT",

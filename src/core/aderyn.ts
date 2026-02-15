@@ -20,11 +20,19 @@ export function checkAderynInstalled(): boolean {
   }
 }
 
+interface RawAderynFinding {
+  detector?: string;
+  severity?: string;
+  title?: string;
+  description?: string;
+  location?: { file?: string; line?: number };
+}
+
 export function parseAderynJson(output: string): AderynFinding[] {
   try {
     const parsed = JSON.parse(output);
     if (parsed.findings && Array.isArray(parsed.findings)) {
-      return parsed.findings.map((finding: any) => ({
+      return parsed.findings.map((finding: RawAderynFinding) => ({
         detector: finding.detector || "Unknown",
         severity: finding.severity || "Medium",
         title: finding.title || "Untitled Finding",
@@ -97,7 +105,7 @@ export function runAderyn(
     output = execSync(command, { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] });
   } catch (error) {
     if (error instanceof Error && "stdout" in error) {
-      output = (error as any).stdout || "";
+      output = typeof error.stdout === "string" ? error.stdout : "";
     } else {
       throw error;
     }

@@ -69,13 +69,14 @@ export function registerStyleGuideTools(server: McpServer): void {
           content: [{ type: "text" as const, text: formatted }],
           isError: false,
         };
-      } catch (error: any) {
-        const stderr = error.stderr || "";
+      } catch (error: unknown) {
+        const execErr = error as Error & { stderr?: string };
+        const stderr = execErr.stderr || "";
         return {
           content: [
             {
               type: "text" as const,
-              text: `forge fmt error: ${stderr || error.message || String(error)}`,
+              text: `forge fmt error: ${stderr || execErr.message || String(error)}`,
             },
           ],
           isError: true,

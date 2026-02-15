@@ -42,7 +42,12 @@ export function parseDryRunOutput(output: string): DryRunResult {
   };
 
   const lines = output.split("\n");
-  let currentTx: any = {};
+  let currentTx: {
+    contractName?: string;
+    address?: string;
+    gasEstimate?: number;
+    calldata?: string;
+  } = {};
   let totalGas = 0;
 
   for (let i = 0; i < lines.length; i++) {

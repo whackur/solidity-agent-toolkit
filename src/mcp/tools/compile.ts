@@ -73,16 +73,17 @@ export function registerCompileTools(server: McpServer): void {
             stdio: ["pipe", "pipe", "pipe"],
             maxBuffer: 10 * 1024 * 1024, // 10MB buffer
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
           // forge build returns non-zero exit code on compilation errors
           // but still outputs JSON, so we capture stdout
-          output = error.stdout || "";
+          const execErr = error as Error & { stdout?: string; stderr?: string };
+          output = execErr.stdout || "";
           if (!output) {
             return {
               content: [
                 {
                   type: "text" as const,
-                  text: `❌ **Compilation Error**\n\n${error.message}\n\n${error.stderr || ""}`,
+                  text: `❌ **Compilation Error**\n\n${execErr.message}\n\n${execErr.stderr || ""}`,
                 },
               ],
             };
@@ -175,8 +176,9 @@ export function registerCompileTools(server: McpServer): void {
             isError: true,
           };
         }
-      } catch (error: any) {
-        const errorMessage = error.stderr || error.message || String(error);
+      } catch (error: unknown) {
+        const execErr = error as Error & { stderr?: string };
+        const errorMessage = execErr.stderr || execErr.message || String(error);
         return {
           content: [
             {
@@ -252,8 +254,9 @@ export function registerCompileTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        const errorMessage = error.stderr || error.message || String(error);
+      } catch (error: unknown) {
+        const execErr = error as Error & { stderr?: string };
+        const errorMessage = execErr.stderr || execErr.message || String(error);
         return {
           content: [
             {

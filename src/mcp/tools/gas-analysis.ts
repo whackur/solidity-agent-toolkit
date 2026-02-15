@@ -74,14 +74,15 @@ export function registerGasAnalysisTools(server: McpServer): void {
             stdio: ["pipe", "pipe", "pipe"],
             maxBuffer: 10 * 1024 * 1024,
           });
-        } catch (error: any) {
-          output = error.stdout || "";
-          if (!output && error.stderr) {
+        } catch (error: unknown) {
+          const execErr = error as Error & { stdout?: string; stderr?: string };
+          output = execErr.stdout || "";
+          if (!output && execErr.stderr) {
             return {
               content: [
                 {
                   type: "text" as const,
-                  text: `❌ **Gas Snapshot Error**\n\n${error.stderr}`,
+                  text: `❌ **Gas Snapshot Error**\n\n${execErr.stderr}`,
                 },
               ],
               isError: true,
@@ -160,8 +161,9 @@ export function registerGasAnalysisTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        const errorMessage = error.stderr || error.message || String(error);
+      } catch (error: unknown) {
+        const execErr = error as Error & { stderr?: string };
+        const errorMessage = execErr.stderr || execErr.message || String(error);
         return {
           content: [
             {
@@ -212,14 +214,15 @@ export function registerGasAnalysisTools(server: McpServer): void {
             stdio: ["pipe", "pipe", "pipe"],
             maxBuffer: 10 * 1024 * 1024,
           });
-        } catch (error: any) {
-          output = error.stdout || "";
+        } catch (error: unknown) {
+          const execErr = error as Error & { stdout?: string; stderr?: string };
+          output = execErr.stdout || "";
           if (!output) {
             return {
               content: [
                 {
                   type: "text" as const,
-                  text: `❌ **Gas Report Error**\n\n${error.stderr || error.message}`,
+                  text: `❌ **Gas Report Error**\n\n${execErr.stderr || execErr.message}`,
                 },
               ],
               isError: true,

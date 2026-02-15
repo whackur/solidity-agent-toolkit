@@ -128,5 +128,3 @@ export function getDetectorsForScweId(scweId: string): string[] {
     .filter(([_, id]) => id === scweId)
     .map(([detector]) => detector);
 }
-
-

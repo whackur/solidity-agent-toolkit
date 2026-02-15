@@ -119,17 +119,18 @@ export function runSlither(
     const findings = parseSlitherJson(output);
 
     return { success: true, findings };
-  } catch (error: any) {
-    if (error.stdout) {
+  } catch (error: unknown) {
+    const execErr = error as Error & { stdout?: string; stderr?: string };
+    if (execErr.stdout) {
       try {
-        const findings = parseSlitherJson(error.stdout);
+        const findings = parseSlitherJson(execErr.stdout);
         return { success: true, findings };
       } catch {
         // Fall through to error handling
       }
     }
 
-    const errorMessage = error.stderr || error.message || "Unknown error";
+    const errorMessage = execErr.stderr || execErr.message || "Unknown error";
 
     if (errorMessage.includes("No contract found")) {
       return {
@@ -211,7 +212,7 @@ export function listSlitherDetectors(): string {
     });
 
     return output;
-  } catch (error: any) {
-    return `Failed to list detectors: ${error.message}`;
+  } catch (error: unknown) {
+    return `Failed to list detectors: ${error instanceof Error ? error.message : String(error)}`;
   }
 }

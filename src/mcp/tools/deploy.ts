@@ -103,14 +103,15 @@ export function registerDeployTools(server: McpServer): void {
             stdio: ["pipe", "pipe", "pipe"],
             maxBuffer: 10 * 1024 * 1024,
           });
-        } catch (error: any) {
-          output = error.stdout || "";
+        } catch (error: unknown) {
+          const execErr = error as Error & { stdout?: string; stderr?: string };
+          output = execErr.stdout || "";
           if (!output) {
             return {
               content: [
                 {
                   type: "text" as const,
-                  text: `❌ **Simulation Error**\n\n${error.message}\n\n${error.stderr || ""}`,
+                  text: `❌ **Simulation Error**\n\n${execErr.message}\n\n${execErr.stderr || ""}`,
                 },
               ],
               isError: true,

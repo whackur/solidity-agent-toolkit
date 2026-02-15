@@ -1,11 +1,12 @@
 # PROJECT KNOWLEDGE BASE
 
 **Generated:** 2026-02-15
-**Branch:** main
+**Commit:** 2911031
+**Branch:** develop
 
 ## OVERVIEW
 
-MCP server + LSP server providing Solidity smart contract security tools for AI agents and editors. TypeScript + `@modelcontextprotocol/sdk@1.26.0` + `vscode-languageserver@9.0.1` + `zod@4.3.6`. Wraps Foundry/Slither/Aderyn/Solhint CLIs and serves OWASP SCWE knowledge base (156 vulnerabilities) via MCP and LSP protocols.
+MCP server + LSP server + Agent Skills providing Solidity smart contract security tools for AI agents and editors. TypeScript + `@modelcontextprotocol/sdk@1.26.0` + `vscode-languageserver@9.0.1` + `zod@4.3.6`. Wraps Foundry/Slither/Aderyn/Solhint CLIs, serves OWASP SCWE knowledge base (156 vulnerabilities) via MCP and LSP protocols, and ships 5 Agent Skills (agentskills.io spec) auto-detectable by 35+ AI coding agents.
 
 ## STRUCTURE
 
@@ -30,6 +31,12 @@ MCP server + LSP server providing Solidity smart contract security tools for AI 
 │   │   └── code-actions.ts         # Remediation quick fixes
 │   ├── knowledge/         # OWASP data parsers + vulnerability patterns + style rules
 │   └── __tests__/         # Mirrors src/ structure
+├── skills/                # Agent Skills (agentskills.io spec) — 5 SKILL.md files
+│   ├── solidity-security-best-practices/
+│   ├── solidity-foundry-development/
+│   ├── solidity-gas-optimization/
+│   ├── solidity-code-review/
+│   └── solidity-erc-standards/
 ├── bin/
 │   ├── cli.ts             # MCP entry point (npx solidity-agent-toolkit)
 │   └── lsp.ts             # LSP entry point (npx solidity-agent-toolkit-lsp)
@@ -60,6 +67,7 @@ lsp/        → imports from core/ and knowledge/
 | Modify OWASP parsing  | `src/knowledge/`     | See `src/knowledge/AGENTS.md`            |
 | Add tests             | `src/__tests__/`     | Mirror source structure                  |
 | Register new MCP tool | `src/mcp/server.ts`  | Import + call `registerXxx(server)`      |
+| Add/edit Agent Skill  | `skills/`            | See `skills/AGENTS.md`                   |
 
 ## CONVENTIONS
 
@@ -110,3 +118,4 @@ pnpm format           # prettier --write .
 - **Package manager**: pnpm 10.29.3 exclusively (set in `packageManager` field)
 - **MCP SDK v2 migration planned**: v2 is pre-alpha, current code uses v1 stable API
 - **Two bin entries**: `solidity-agent-toolkit` (MCP) and `solidity-agent-toolkit-lsp` (LSP) — both use stdio transport
+- **Agent Skills**: 5 skills in `skills/` follow [agentskills.io](https://agentskills.io) spec. Install via `npx skills add whackur/solidity-agent-toolkit`. See `skills/AGENTS.md`

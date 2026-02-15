@@ -82,7 +82,8 @@ export function registerTestRunnerTools(server: McpServer): void {
 
         // Try to parse output even on error (tests might have run but some failed)
         if (error && typeof error === "object" && "stdout" in error) {
-          const stdout = (error as any).stdout?.toString() || "";
+          const execErr = error as Error & { stdout?: string | Buffer };
+          const stdout = execErr.stdout?.toString() || "";
           if (stdout) {
             try {
               const result = parseTestResults(stdout);
@@ -154,7 +155,8 @@ export function registerTestRunnerTools(server: McpServer): void {
       } catch (error) {
         // Try to parse output even on error (test might have run but failed)
         if (error && typeof error === "object" && "stdout" in error) {
-          const stdout = (error as any).stdout?.toString() || "";
+          const execErr = error as Error & { stdout?: string | Buffer };
+          const stdout = execErr.stdout?.toString() || "";
           if (stdout && (stdout.includes("[PASS]") || stdout.includes("[FAIL]"))) {
             const result = parseSingleTestOutput(stdout, testFunction, testContract);
             return {
