@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { execSync } from "child_process";
-import { runSlither, listSlitherDetectors } from "../../mcp/tools/slither.js";
+import { runSlither, listSlitherDetectors } from "../../core/slither.js";
 import {
   SLITHER_SCWE_MAPPINGS,
   getScweIdForDetector,

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { escapeRegex } from "./markdown-section.js";
+import { enrichTop10WithSCWE } from "./top10-scwe-mappings.js";
 
 export interface SCTop10Examples {
   vulnerable: string;
@@ -191,8 +192,8 @@ export function loadAllTop10(): SCTop10Entry[] {
     }
   }
 
-  _cache = entries;
-  return entries;
+  _cache = enrichTop10WithSCWE(entries);
+  return _cache;
 }
 
 export function getTop10ById(id: string): SCTop10Entry | undefined {

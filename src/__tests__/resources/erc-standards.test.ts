@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { registerERCResources, getERCStandard } from "../../mcp/resources/erc-standards.js";
+import { getSupportedERCStandards } from "../../knowledge/erc-interfaces.js";
 
 describe("ERC Standards Resources", () => {
   describe("registerERCResources", () => {
@@ -10,6 +11,42 @@ describe("ERC Standards Resources", () => {
         version: "1.0.0",
       });
       expect(() => registerERCResources(server)).not.toThrow();
+    });
+
+    it("registers erc://list and erc://{standard} resources", async () => {
+      const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
+      const { InMemoryTransport } = await import("@modelcontextprotocol/sdk/inMemory.js");
+
+      const server = new McpServer({ name: "test-server", version: "1.0.0" });
+      registerERCResources(server);
+
+      const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+      const client = new Client({ name: "test-client", version: "1.0.0" });
+      await Promise.all([client.connect(clientTransport), server.connect(serverTransport)]);
+
+      const { resources } = await client.listResources();
+      const uris = resources.map((r) => r.uri);
+      expect(uris).toContain("erc://list");
+
+      const result = await client.readResource({ uri: "erc://list" });
+      const content = result.contents[0] as { text: string };
+      expect(content.text).toContain("Supported ERC Standards");
+      expect(content.text).toContain("ERC20");
+
+      await clientTransport.close();
+      await serverTransport.close();
+    });
+  });
+
+  describe("getSupportedERCStandards", () => {
+    it("returns all 4 supported ERC standards", () => {
+      const standards = getSupportedERCStandards();
+      expect(standards).toHaveLength(4);
+      const ids = standards.map((s) => s.id);
+      expect(ids).toContain("ERC20");
+      expect(ids).toContain("ERC721");
+      expect(ids).toContain("ERC1155");
+      expect(ids).toContain("ERC4626");
     });
   });
 

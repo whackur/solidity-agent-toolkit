@@ -164,6 +164,10 @@ export function searchSCWE(query: string): SCWEEntry[] {
   });
 }
 
+export function getScweByCwe(cweId: number): SCWEEntry[] {
+  return loadAllSCWE().filter((e) => e.mappings.cwe.includes(cweId));
+}
+
 export function _resetCache(): void {
   _cache = null;
 }

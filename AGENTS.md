@@ -7,7 +7,7 @@ MCP server + LSP server + Agent Skills providing Solidity smart contract securit
 ## COMMANDS
 
 ```bash
-pnpm test                                         # vitest run (~496 tests)
+pnpm test                                         # vitest run (~636 tests, 45 files)
 pnpm test -- src/__tests__/tools/slither.test.ts   # single test file
 pnpm test -- -t "maps reentrancy"                  # single test by name pattern
 pnpm test:watch                                    # vitest watch mode
@@ -29,7 +29,11 @@ pnpm lsp                                           # LSP server (stdio)
 src/
 ├── index.ts           # MCP entry (≤5 lines, wiring only)
 ├── core/              # Pure analysis logic (CLI wrappers, parsers)
-├── mcp/               # MCP server (tools/, resources/, prompts/)
+├── mcp/               # MCP server: 10 tools, 12 resources, 7 prompts
+│   ├── server.ts      # createMcpServer() — all registrations
+│   ├── tools/         # 11 files → 10 consolidated tools
+│   ├── resources/     # 6 files → 12 resources
+│   └── prompts/       # 8 files → 7 prompts
 ├── lsp/               # LSP server (diagnostics, hover, code actions)
 ├── knowledge/         # OWASP data parsers, vulnerability patterns, style rules
 └── __tests__/         # Mirrors src/ structure
@@ -55,15 +59,15 @@ lsp/        → core/, knowledge/
 
 **Imports**: Always `.js` extension for local imports (NodeNext): `from "./core/compile.js"`. Use `import type` for type-only imports: `import type { McpServer } from "...";`.
 
-**Naming**: `camelCase` for functions/variables, `PascalCase` for types/interfaces, `UPPER_SNAKE_CASE` for exported constants (`VULNERABILITY_PATTERNS`, `SLITHER_SCWE_MAPPINGS`). Files named by purpose — never `utils.ts`, `helpers.ts`, `common.ts`.
+**Naming**: `camelCase` functions/variables, `PascalCase` types/interfaces, `UPPER_SNAKE_CASE` exported constants. Files named by purpose — never `utils.ts`, `helpers.ts`, `common.ts`.
 
 **Unused variables**: Prefix with `_` (e.g., `_unused`). ESLint enforces `argsIgnorePattern: "^_"`.
 
-**Exports**: Named exports only. Re-export types from tool wrappers: `export type { SlitherResult } from "../../core/slither.js";`.
+**Exports**: Named exports only. No default exports. Re-export types from tool wrappers.
 
 ## ERROR HANDLING
 
-**MCP tool returns**: `isError: true` = execution failure (tool missing, crash). `isError: false` = tool ran successfully, even if it found bugs.
+**MCP tool returns**: `isError: true` = execution failure (tool missing, crash). `isError: false` or absent = tool ran successfully, even if it found bugs.
 
 ```typescript
 // Tool not installed → isError: true
@@ -141,13 +145,23 @@ export function registerXxxTools(server: McpServer): void {
 // Register in mcp/server.ts: import + call registerXxxTools(server)
 ```
 
+Consolidated tools use enum/optional params to combine related operations:
+
+```typescript
+// Example: mode enum merges two tools into one
+const schema = z.object({
+  mode: z.enum(["snapshot", "report"]),
+  compare: z.boolean().optional(),
+});
+```
+
 ## WHERE TO LOOK
 
 | Task                  | Location             | Notes                                    |
 | --------------------- | -------------------- | ---------------------------------------- |
 | Add analysis tool     | `src/core/`          | Pure logic, no MCP/LSP deps              |
 | Add MCP tool wrapper  | `src/mcp/tools/`     | Thin wrapper importing from `core/`      |
-| Add MCP resource      | `src/mcp/resources/` | `ResourceTemplate` for dynamic URIs      |
+| Add MCP resource      | `src/mcp/resources/` | `registerResource` or `ResourceTemplate` |
 | Add MCP prompt        | `src/mcp/prompts/`   | Split logic into `*-logic.ts` if complex |
 | Add LSP feature       | `src/lsp/`           | See `src/lsp/AGENTS.md`                  |
 | Modify OWASP parsing  | `src/knowledge/`     | See `src/knowledge/AGENTS.md`            |
@@ -157,20 +171,17 @@ export function registerXxxTools(server: McpServer): void {
 
 ## VERSIONING
 
-Package and skill versions are **synced** — a single `pnpm version <semver>` bumps both.
+Package and skill versions are **synced** — a single `pnpm version <semver>` bumps both. The `version` lifecycle hook runs `scripts/sync-skill-versions.mjs` to update every `skills/*/SKILL.md`. Do NOT bump SKILL.md versions manually.
 
-```bash
-pnpm version 0.4.0        # bumps package.json + all SKILL.md to 0.4.0
-pnpm version patch         # 0.3.0 → 0.3.1, all SKILL.md follow
-```
+## GIT COMMIT RULES
 
-The `version` lifecycle hook runs `scripts/sync-skill-versions.mjs` which reads the new version from `package.json` and updates every `skills/*/SKILL.md` frontmatter `metadata.version`.
-
-Do NOT bump `metadata.version` in SKILL.md files manually — always use `pnpm version`.
+- **NEVER** add `Co-authored-by`, `Signed-off-by`, or any git trailers that attribute authorship to accounts not explicitly specified by the user.
+- Commit messages must only reflect the actual author configured in local git config.
+- If the user explicitly provides a `Co-authored-by` trailer, include it verbatim — never modify, add, or remove names/emails.
 
 ## NOTES
 
 - External tools (Foundry/Slither/Aderyn/Solhint) are optional; checked at runtime with graceful fallback
 - OWASP parser is regex-based and fragile to upstream markdown format changes
 - Two bin entries: `solidity-agent-toolkit` (MCP) and `solidity-agent-toolkit-lsp` (LSP), both stdio
-- Sub-directory AGENTS.md: `src/knowledge/`, `src/__tests__/`, `src/mcp/`, `src/core/`, `skills/`
+- Sub-directory AGENTS.md files: `src/knowledge/`, `src/__tests__/`, `src/mcp/`, `src/core/`, `src/lsp/`, `skills/`

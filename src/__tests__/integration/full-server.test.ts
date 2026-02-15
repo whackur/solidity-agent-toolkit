@@ -3,29 +3,26 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { registerTop10Resources } from "../../mcp/resources/top10-resources.js";
-import { registerPatternMatcherTool } from "../../mcp/tools/vuln-pattern-matcher.js";
-import { registerSolhintTools } from "../../mcp/tools/solhint.js";
-import { registerAderynTools } from "../../mcp/tools/aderyn.js";
+import { registerSecurityScanTools } from "../../mcp/tools/security-scan.js";
 import { registerCompileTools } from "../../mcp/tools/compile.js";
-import { registerCompileInspectTools } from "../../mcp/tools/compile-inspect.js";
 import { registerTestRunnerTools } from "../../mcp/tools/test-runner.js";
-import { registerSlitherTools } from "../../mcp/tools/slither.js";
 import { registerNatSpecTools } from "../../mcp/tools/natspec.js";
-import { registerGasAnalysisTools } from "../../mcp/tools/gas-analysis.js";
-import { registerGasInspectionTools } from "../../mcp/tools/gas-inspection.js";
+import { registerGasTools } from "../../mcp/tools/gas-analysis.js";
 import { registerDeployTools } from "../../mcp/tools/deploy.js";
 import { registerStyleGuideTools } from "../../mcp/tools/style-guide.js";
-import { registerSCWESearchTools } from "../../mcp/tools/scwe-search.js";
-import { registerSCWECheckerTools } from "../../mcp/tools/scwe-checker.js";
+import { registerVulnerabilitySearchTools } from "../../mcp/tools/vulnerability-search.js";
+import { registerVulnerabilityPatternTools } from "../../mcp/tools/vulnerability-patterns.js";
+import { registerContractAnalysisTools } from "../../mcp/tools/contract-analysis.js";
 import { registerERCPatternPrompts } from "../../mcp/prompts/erc-patterns.js";
 import { registerERCResources } from "../../mcp/resources/erc-standards.js";
 import { registerSCWEResources } from "../../mcp/resources/scwe-resources.js";
 import { registerSecurityAuditPrompts } from "../../mcp/prompts/security-audit.js";
 import { registerCodeReviewPrompts } from "../../mcp/prompts/code-review.js";
 import { registerGasOptimizationPrompts } from "../../mcp/prompts/gas-optimization.js";
-import { registerAdversarialTools } from "../../mcp/tools/adversarial.js";
 import { registerAdversarialPrompts } from "../../mcp/prompts/adversarial-analysis.js";
 import { registerAdversarialResources } from "../../mcp/resources/adversarial-resources.js";
+import { registerSlitherResources } from "../../mcp/resources/slither-resources.js";
+import { registerSolhintResources } from "../../mcp/resources/solhint-resources.js";
 
 describe("Full MCP Server Integration", () => {
   let server: McpServer;
@@ -40,29 +37,26 @@ describe("Full MCP Server Integration", () => {
     });
 
     registerTop10Resources(server);
-    registerPatternMatcherTool(server);
-    registerSolhintTools(server);
-    registerAderynTools(server);
+    registerSecurityScanTools(server);
     registerCompileTools(server);
-    registerCompileInspectTools(server);
     registerTestRunnerTools(server);
-    registerSlitherTools(server);
     registerNatSpecTools(server);
-    registerGasAnalysisTools(server);
-    registerGasInspectionTools(server);
+    registerGasTools(server);
     registerDeployTools(server);
     registerStyleGuideTools(server);
-    registerSCWESearchTools(server);
-    registerSCWECheckerTools(server);
+    registerVulnerabilitySearchTools(server);
+    registerVulnerabilityPatternTools(server);
+    registerContractAnalysisTools(server);
     registerERCPatternPrompts(server);
     registerERCResources(server);
     registerSCWEResources(server);
     registerSecurityAuditPrompts(server);
     registerCodeReviewPrompts(server);
     registerGasOptimizationPrompts(server);
-    registerAdversarialTools(server);
     registerAdversarialPrompts(server);
     registerAdversarialResources(server);
+    registerSlitherResources(server);
+    registerSolhintResources(server);
 
     [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
 
@@ -78,35 +72,21 @@ describe("Full MCP Server Integration", () => {
 
   describe("Tools", () => {
     const EXPECTED_TOOLS = [
-      "match_vulnerability_patterns",
-      "run_solhint",
-      "list_solhint_rules",
-      "run_aderyn",
+      "run_security_scan",
       "compile_contract",
-      "get_abi",
-      "get_bytecode",
       "run_tests",
-      "run_single_test",
-      "run_slither",
-      "list_slither_detectors",
-      "validate_natspec",
-      "generate_natspec",
-      "gas_snapshot",
-      "inspect_storage",
-      "estimate_gas",
-      "dry_run_deploy",
-      "check_deployment_status",
-      "check_style",
-      "format_code",
+      "analyze_gas",
+      "manage_deployment",
+      "check_natspec",
+      "check_code_style",
       "search_vulnerabilities",
-      "check_vulnerability",
-      "get_remediation",
-      "analyze_adversarial_scenarios",
+      "scan_vulnerability_patterns",
+      "analyze_contract",
     ];
 
-    it("should register 24 tools", async () => {
+    it("should register 10 tools", async () => {
       const result = await client.listTools();
-      expect(result.tools.length).toBe(24);
+      expect(result.tools.length).toBe(10);
     });
 
     it("should register all expected tools by name", async () => {
@@ -134,13 +114,14 @@ describe("Full MCP Server Integration", () => {
   });
 
   describe("Resources", () => {
-    it("should register static resources (sctop10://list, scwe://list)", async () => {
+    it("should register static resources (sctop10://list, scwe://list, erc://list)", async () => {
       const result = await client.listResources();
       const uris = result.resources.map((r) => r.uri);
 
       expect(uris).toContain("sctop10://list");
       expect(uris).toContain("scwe://list");
       expect(uris).toContain("adversarial://list");
+      expect(uris).toContain("erc://list");
     });
 
     it("should register resource templates", async () => {
@@ -155,11 +136,11 @@ describe("Full MCP Server Integration", () => {
       expect(templateUris).toContain("adversarial://scenario/{id}");
     });
 
-    it("should have at least 3 static resources and 6 resource templates", async () => {
+    it("should have at least 6 static resources and 6 resource templates", async () => {
       const resources = await client.listResources();
       const templates = await client.listResourceTemplates();
 
-      expect(resources.resources.length).toBeGreaterThanOrEqual(3);
+      expect(resources.resources.length).toBeGreaterThanOrEqual(6);
       expect(templates.resourceTemplates.length).toBeGreaterThanOrEqual(6);
     });
 

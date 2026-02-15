@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { execSync } from "child_process";
-import { registerAderynTools, type AderynFinding } from "../../mcp/tools/aderyn.js";
+import { registerSecurityScanTools, type AderynFinding } from "../../mcp/tools/security-scan.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 vi.mock("child_process");
@@ -24,20 +24,20 @@ describe("Aderyn Tool", () => {
 
   describe("Tool Registration", () => {
     it("registers run_aderyn tool", () => {
-      registerAderynTools(mockServer);
-      expect(registeredTools.has("run_aderyn")).toBe(true);
+      registerSecurityScanTools(mockServer);
+      expect(registeredTools.has("run_security_scan")).toBe(true);
     });
 
     it("tool has correct description", () => {
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
       expect(tool.description).toContain("Aderyn");
       expect(tool.description).toContain("security");
     });
 
     it.skip("tool has readOnlyHint annotation", () => {
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
       expect(tool.schema.annotations?.readOnlyHint).toBe(true);
     });
   });
@@ -48,9 +48,9 @@ describe("Aderyn Tool", () => {
         throw new Error("aderyn not found");
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      const result = await tool.handler({});
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      const result = await tool.handler({ tool: "aderyn" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("not installed");
@@ -91,9 +91,9 @@ describe("Aderyn Tool", () => {
         return mockOutput;
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      const result = await tool.handler({ outputFormat: "json" });
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      const result = await tool.handler({ tool: "aderyn", outputFormat: "json" });
 
       expect(result.isError).toBeFalsy();
       const content = result.content[0].text;
@@ -146,9 +146,9 @@ describe("Aderyn Tool", () => {
         return mockOutput;
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      const result = await tool.handler({ outputFormat: "json" });
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      const result = await tool.handler({ tool: "aderyn", outputFormat: "json" });
 
       const parsed = JSON.parse(result.content[0].text);
       expect(parsed.summary).toEqual({
@@ -168,9 +168,9 @@ describe("Aderyn Tool", () => {
         return mockOutput;
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      const result = await tool.handler({ outputFormat: "json" });
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      const result = await tool.handler({ tool: "aderyn", outputFormat: "json" });
 
       const parsed = JSON.parse(result.content[0].text);
       expect(parsed.summary.total).toBe(0);
@@ -210,9 +210,9 @@ describe("Aderyn Tool", () => {
         return mockOutput;
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      const result = await tool.handler({ outputFormat: "markdown" });
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      const result = await tool.handler({ tool: "aderyn", outputFormat: "markdown" });
 
       const markdown = result.content[0].text;
       expect(markdown).toContain("# Aderyn Security Analysis Results");
@@ -257,9 +257,9 @@ describe("Aderyn Tool", () => {
         return mockOutput;
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      const result = await tool.handler({ outputFormat: "markdown" });
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      const result = await tool.handler({ tool: "aderyn", outputFormat: "markdown" });
 
       const markdown = result.content[0].text;
       const criticalIndex = markdown.indexOf("## Critical");
@@ -278,9 +278,9 @@ describe("Aderyn Tool", () => {
         return mockOutput;
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      const result = await tool.handler({ outputFormat: "markdown" });
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      const result = await tool.handler({ tool: "aderyn", outputFormat: "markdown" });
 
       const markdown = result.content[0].text;
       expect(markdown).toContain("No security findings detected");
@@ -296,9 +296,9 @@ describe("Aderyn Tool", () => {
         return mockOutput;
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      await tool.handler({ path: "/path/to/contracts" });
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      await tool.handler({ tool: "aderyn", path: "/path/to/contracts" });
 
       const calls = vi.mocked(execSync).mock.calls;
       const analysisCall = calls.find(
@@ -315,9 +315,9 @@ describe("Aderyn Tool", () => {
         return mockOutput;
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      await tool.handler({});
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      await tool.handler({ tool: "aderyn" });
 
       const calls = vi.mocked(execSync).mock.calls;
       const analysisCall = calls.find((c) => c[0].includes("aderyn") && c[0].includes("."));
@@ -332,9 +332,9 @@ describe("Aderyn Tool", () => {
         throw new Error("Analysis failed");
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      const result = await tool.handler({});
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      const result = await tool.handler({ tool: "aderyn" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Error running Aderyn");
@@ -346,9 +346,9 @@ describe("Aderyn Tool", () => {
         return "invalid json {";
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      const result = await tool.handler({ outputFormat: "json" });
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      const result = await tool.handler({ tool: "aderyn", outputFormat: "json" });
 
       const parsed = JSON.parse(result.content[0].text);
       expect(parsed.summary.total).toBe(0);
@@ -378,9 +378,9 @@ describe("Aderyn Tool", () => {
         return mockOutput;
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      const result = await tool.handler({ outputFormat: "json" });
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      const result = await tool.handler({ tool: "aderyn", outputFormat: "json" });
 
       const parsed = JSON.parse(result.content[0].text);
       const finding = parsed.findings[0];
@@ -407,9 +407,9 @@ describe("Aderyn Tool", () => {
         return mockOutput;
       });
 
-      registerAderynTools(mockServer);
-      const tool = registeredTools.get("run_aderyn");
-      const result = await tool.handler({ outputFormat: "json" });
+      registerSecurityScanTools(mockServer);
+      const tool = registeredTools.get("run_security_scan");
+      const result = await tool.handler({ tool: "aderyn", outputFormat: "json" });
 
       const parsed = JSON.parse(result.content[0].text);
       const finding = parsed.findings[0];

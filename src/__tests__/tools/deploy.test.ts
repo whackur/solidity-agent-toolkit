@@ -27,30 +27,15 @@ describe("Deploy Tools", () => {
   });
 
   describe("Tool Registration", () => {
-    it("registers dry_run_deploy tool", () => {
+    it("registers manage_deployment tool", () => {
       registerDeployTools(mockServer);
-      expect(registeredTools.has("dry_run_deploy")).toBe(true);
+      expect(registeredTools.has("manage_deployment")).toBe(true);
     });
 
-    it("registers check_deployment_status tool", () => {
+    it("manage_deployment has correct description", () => {
       registerDeployTools(mockServer);
-      expect(registeredTools.has("check_deployment_status")).toBe(true);
-    });
-
-    it("dry_run_deploy has correct description", () => {
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
-      expect(tool.description).toContain("Simulate");
-      expect(tool.description).toContain("DRY-RUN ONLY");
-      expect(tool.description).toContain("NEVER broadcast");
-    });
-
-    it.skip("all tools have readOnlyHint annotation", () => {
-      registerDeployTools(mockServer);
-      expect(registeredTools.get("dry_run_deploy").schema.annotations?.readOnlyHint).toBe(true);
-      expect(registeredTools.get("check_deployment_status").schema.annotations?.readOnlyHint).toBe(
-        true,
-      );
+      const tool = registeredTools.get("manage_deployment");
+      expect(tool.description).toContain("Manage");
     });
   });
 
@@ -61,8 +46,8 @@ describe("Deploy Tools", () => {
       });
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
-      const result = await tool.handler({ scriptPath: "script/Deploy.s.sol" });
+      const tool = registeredTools.get("manage_deployment");
+      const result = await tool.handler({ action: "simulate", scriptPath: "script/Deploy.s.sol" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Forge is not installed");
@@ -77,8 +62,8 @@ describe("Deploy Tools", () => {
       });
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
-      const result = await tool.handler({ scriptPath: "script/Deploy.s.sol" });
+      const tool = registeredTools.get("manage_deployment");
+      const result = await tool.handler({ action: "simulate", scriptPath: "script/Deploy.s.sol" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Not a Foundry Project");
@@ -94,8 +79,8 @@ describe("Deploy Tools", () => {
       });
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
-      const result = await tool.handler({ scriptPath: "script/Deploy.s.sol" });
+      const tool = registeredTools.get("manage_deployment");
+      const result = await tool.handler({ action: "simulate", scriptPath: "script/Deploy.s.sol" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Script Not Found");
@@ -107,11 +92,12 @@ describe("Deploy Tools", () => {
       vi.mocked(existsSync).mockReturnValue(true);
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
+      const tool = registeredTools.get("manage_deployment");
 
       const maliciousCommand = "forge script script/Deploy.s.sol --broadcast";
 
       const result = await tool.handler({
+        action: "simulate",
         scriptPath: "script/Deploy.s.sol --broadcast",
       });
 
@@ -146,8 +132,9 @@ SIMULATION COMPLETE
       });
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
+      const tool = registeredTools.get("manage_deployment");
       const result = await tool.handler({
+        action: "simulate",
         scriptPath: "script/Deploy.s.sol",
         rpcUrl: "http://localhost:8545",
       });
@@ -176,8 +163,8 @@ SIMULATION COMPLETE
       });
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
-      await tool.handler({ scriptPath: "script/Deploy.s.sol" });
+      const tool = registeredTools.get("manage_deployment");
+      await tool.handler({ action: "simulate", scriptPath: "script/Deploy.s.sol" });
 
       expect(capturedCommand).toContain("--fork-url http://localhost:8545");
     });
@@ -199,8 +186,9 @@ SIMULATION COMPLETE
       });
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
+      const tool = registeredTools.get("manage_deployment");
       await tool.handler({
+        action: "simulate",
         scriptPath: "script/Deploy.s.sol",
         rpcUrl: "http://localhost:8545",
         forkBlockNumber: 12345678,
@@ -236,8 +224,9 @@ Script ran successfully
       });
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
+      const tool = registeredTools.get("manage_deployment");
       const result = await tool.handler({
+        action: "simulate",
         scriptPath: "script/Deploy.s.sol",
         rpcUrl: "http://localhost:8545",
       });
@@ -271,8 +260,9 @@ failed to deploy
       });
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
+      const tool = registeredTools.get("manage_deployment");
       const result = await tool.handler({
+        action: "simulate",
         scriptPath: "script/Deploy.s.sol",
         rpcUrl: "http://localhost:8545",
       });
@@ -287,8 +277,8 @@ failed to deploy
       vi.mocked(existsSync).mockReturnValue(false);
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("check_deployment_status");
-      const result = await tool.handler({});
+      const tool = registeredTools.get("manage_deployment");
+      const result = await tool.handler({ action: "status" });
 
       expect(result.isError).toBe(false);
       expect(result.content[0].text).toContain("No Broadcast Files Found");
@@ -320,8 +310,8 @@ failed to deploy
       vi.mocked(readFileSync).mockReturnValue(JSON.stringify(mockBroadcastData));
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("check_deployment_status");
-      const result = await tool.handler({});
+      const tool = registeredTools.get("manage_deployment");
+      const result = await tool.handler({ action: "status" });
 
       expect(result.content[0].text).toContain("Deployment Status");
       expect(result.content[0].text).toContain("Chain ID:** 1");
@@ -356,8 +346,8 @@ failed to deploy
       vi.mocked(readFileSync).mockReturnValue(JSON.stringify(mockBroadcastData));
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("check_deployment_status");
-      const result = await tool.handler({});
+      const tool = registeredTools.get("manage_deployment");
+      const result = await tool.handler({ action: "status" });
 
       expect(result.content[0].text).toContain("Chain ID:** 31337");
       expect(result.content[0].text).toContain("Token");
@@ -390,8 +380,8 @@ failed to deploy
       vi.mocked(readFileSync).mockReturnValue(JSON.stringify(mockBroadcastData));
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("check_deployment_status");
-      const result = await tool.handler({});
+      const tool = registeredTools.get("manage_deployment");
+      const result = await tool.handler({ action: "status" });
 
       expect(result.content[0].text).toContain("FAILED");
       expect(result.content[0].text).toContain("FailedContract");
@@ -404,8 +394,8 @@ failed to deploy
       });
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("check_deployment_status");
-      const result = await tool.handler({ broadcastDir: "custom-broadcast" });
+      const tool = registeredTools.get("manage_deployment");
+      const result = await tool.handler({ action: "status", broadcastDir: "custom-broadcast" });
 
       expect(result.content[0].text).toContain("custom-broadcast");
     });
@@ -417,7 +407,7 @@ failed to deploy
       vi.mocked(existsSync).mockReturnValue(true);
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
+      const tool = registeredTools.get("manage_deployment");
 
       const testCases = [
         "script/Deploy.s.sol --broadcast",
@@ -426,7 +416,7 @@ failed to deploy
       ];
 
       for (const scriptPath of testCases) {
-        const result = await tool.handler({ scriptPath });
+        const result = await tool.handler({ action: "simulate", scriptPath });
         expect(result.isError).toBe(true);
         expect(result.content[0].text).toContain("SAFETY VIOLATION");
       }
@@ -447,8 +437,9 @@ failed to deploy
       });
 
       registerDeployTools(mockServer);
-      const tool = registeredTools.get("dry_run_deploy");
+      const tool = registeredTools.get("manage_deployment");
       const result = await tool.handler({
+        action: "simulate",
         scriptPath: "script/Deploy.s.sol",
         rpcUrl: "http://localhost:8545",
       });

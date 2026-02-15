@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { execSync } from "child_process";
 import { existsSync } from "fs";
 import { registerCompileTools } from "../../mcp/tools/compile.js";
-import { registerCompileInspectTools } from "../../mcp/tools/compile-inspect.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 vi.mock("child_process");
@@ -33,14 +32,9 @@ describe("Compile Tools", () => {
       expect(registeredTools.has("compile_contract")).toBe(true);
     });
 
-    it("registers get_abi tool", () => {
-      registerCompileInspectTools(mockServer);
-      expect(registeredTools.has("get_abi")).toBe(true);
-    });
-
-    it("registers get_bytecode tool", () => {
-      registerCompileInspectTools(mockServer);
-      expect(registeredTools.has("get_bytecode")).toBe(true);
+    it("registers compile_contract tool with inspect capability", () => {
+      registerCompileTools(mockServer);
+      expect(registeredTools.has("compile_contract")).toBe(true);
     });
 
     it("compile_contract has correct description", () => {
@@ -48,13 +42,6 @@ describe("Compile Tools", () => {
       const tool = registeredTools.get("compile_contract");
       expect(tool.description).toContain("Compile");
       expect(tool.description).toContain("Foundry");
-    });
-
-    it.skip("all tools have readOnlyHint annotation", () => {
-      registerCompileTools(mockServer);
-      expect(registeredTools.get("compile_contract").schema.annotations?.readOnlyHint).toBe(true);
-      expect(registeredTools.get("get_abi").schema.annotations?.readOnlyHint).toBe(true);
-      expect(registeredTools.get("get_bytecode").schema.annotations?.readOnlyHint).toBe(true);
     });
   });
 
@@ -253,9 +240,9 @@ describe("Compile Tools", () => {
         throw new Error("forge not found");
       });
 
-      registerCompileInspectTools(mockServer);
-      const tool = registeredTools.get("get_abi");
-      const result = await tool.handler({ contractName: "MyContract" });
+      registerCompileTools(mockServer);
+      const tool = registeredTools.get("compile_contract");
+      const result = await tool.handler({ contractName: "MyContract", inspect: "abi" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Forge is not installed");
@@ -265,9 +252,9 @@ describe("Compile Tools", () => {
       vi.mocked(execSync).mockReturnValue(Buffer.from("forge 0.2.0\n"));
       vi.mocked(existsSync).mockReturnValue(false);
 
-      registerCompileInspectTools(mockServer);
-      const tool = registeredTools.get("get_abi");
-      const result = await tool.handler({ contractName: "MyContract" });
+      registerCompileTools(mockServer);
+      const tool = registeredTools.get("compile_contract");
+      const result = await tool.handler({ contractName: "MyContract", inspect: "abi" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Not a Foundry Project");
@@ -299,9 +286,9 @@ describe("Compile Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileInspectTools(mockServer);
-      const tool = registeredTools.get("get_abi");
-      const result = await tool.handler({ contractName: "MyContract" });
+      registerCompileTools(mockServer);
+      const tool = registeredTools.get("compile_contract");
+      const result = await tool.handler({ contractName: "MyContract", inspect: "abi" });
 
       expect(result.isError).toBeUndefined();
       expect(result.content[0].text).toContain("ABI for MyContract");
@@ -325,12 +312,12 @@ describe("Compile Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileInspectTools(mockServer);
-      const tool = registeredTools.get("get_abi");
-      const result = await tool.handler({ contractName: "NonExistent" });
+      registerCompileTools(mockServer);
+      const tool = registeredTools.get("compile_contract");
+      const result = await tool.handler({ contractName: "NonExistent", inspect: "abi" });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain("Error Getting ABI");
+      expect(result.content[0].text).toContain("Error Inspecting");
       expect(result.content[0].text).toContain("not found");
     });
 
@@ -348,9 +335,9 @@ describe("Compile Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileInspectTools(mockServer);
-      const tool = registeredTools.get("get_abi");
-      const result = await tool.handler({ contractName: "MyContract" });
+      registerCompileTools(mockServer);
+      const tool = registeredTools.get("compile_contract");
+      const result = await tool.handler({ contractName: "MyContract", inspect: "abi" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Invalid ABI Output");
@@ -363,9 +350,9 @@ describe("Compile Tools", () => {
         throw new Error("forge not found");
       });
 
-      registerCompileInspectTools(mockServer);
-      const tool = registeredTools.get("get_bytecode");
-      const result = await tool.handler({ contractName: "MyContract" });
+      registerCompileTools(mockServer);
+      const tool = registeredTools.get("compile_contract");
+      const result = await tool.handler({ contractName: "MyContract", inspect: "bytecode" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Forge is not installed");
@@ -375,9 +362,9 @@ describe("Compile Tools", () => {
       vi.mocked(execSync).mockReturnValue(Buffer.from("forge 0.2.0\n"));
       vi.mocked(existsSync).mockReturnValue(false);
 
-      registerCompileInspectTools(mockServer);
-      const tool = registeredTools.get("get_bytecode");
-      const result = await tool.handler({ contractName: "MyContract" });
+      registerCompileTools(mockServer);
+      const tool = registeredTools.get("compile_contract");
+      const result = await tool.handler({ contractName: "MyContract", inspect: "bytecode" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Not a Foundry Project");
@@ -394,14 +381,14 @@ describe("Compile Tools", () => {
           return Buffer.from("forge 0.2.0\n");
         }
         if (typeof cmd === "string" && cmd.includes("forge inspect") && cmd.includes("bytecode")) {
-          return Buffer.from(mockBytecode);
+          return mockBytecode;
         }
         return Buffer.from("");
       });
 
-      registerCompileInspectTools(mockServer);
-      const tool = registeredTools.get("get_bytecode");
-      const result = await tool.handler({ contractName: "MyContract" });
+      registerCompileTools(mockServer);
+      const tool = registeredTools.get("compile_contract");
+      const result = await tool.handler({ contractName: "MyContract", inspect: "bytecode" });
 
       expect(result.isError).toBeUndefined();
       expect(result.content[0].text).toContain("Bytecode for MyContract");
@@ -420,14 +407,14 @@ describe("Compile Tools", () => {
           return Buffer.from("forge 0.2.0\n");
         }
         if (typeof cmd === "string" && cmd.includes("forge inspect") && cmd.includes("bytecode")) {
-          return Buffer.from(mockBytecode);
+          return mockBytecode;
         }
         return Buffer.from("");
       });
 
-      registerCompileInspectTools(mockServer);
-      const tool = registeredTools.get("get_bytecode");
-      const result = await tool.handler({ contractName: "MyContract" });
+      registerCompileTools(mockServer);
+      const tool = registeredTools.get("compile_contract");
+      const result = await tool.handler({ contractName: "MyContract", inspect: "bytecode" });
 
       expect(result.isError).toBeUndefined();
       expect(result.content[0].text).toContain("5 bytes");
@@ -449,12 +436,12 @@ describe("Compile Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileInspectTools(mockServer);
-      const tool = registeredTools.get("get_bytecode");
-      const result = await tool.handler({ contractName: "NonExistent" });
+      registerCompileTools(mockServer);
+      const tool = registeredTools.get("compile_contract");
+      const result = await tool.handler({ contractName: "NonExistent", inspect: "bytecode" });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain("Error Getting Bytecode");
+      expect(result.content[0].text).toContain("Error Inspecting");
     });
 
     it("handles invalid bytecode format", async () => {
@@ -466,14 +453,14 @@ describe("Compile Tools", () => {
           return Buffer.from("forge 0.2.0\n");
         }
         if (typeof cmd === "string" && cmd.includes("forge inspect")) {
-          return Buffer.from("invalid bytecode without 0x prefix");
+          return "invalid bytecode without 0x prefix";
         }
         return Buffer.from("");
       });
 
-      registerCompileInspectTools(mockServer);
-      const tool = registeredTools.get("get_bytecode");
-      const result = await tool.handler({ contractName: "MyContract" });
+      registerCompileTools(mockServer);
+      const tool = registeredTools.get("compile_contract");
+      const result = await tool.handler({ contractName: "MyContract", inspect: "bytecode" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Invalid Bytecode Output");

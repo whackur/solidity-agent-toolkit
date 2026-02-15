@@ -503,31 +503,20 @@ describe("Style Guide", () => {
       } as any;
     });
 
-    it("registers check_style tool", () => {
+    it("registers check_code_style tool", () => {
       registerStyleGuideTools(mockServer);
-      expect(registeredTools.has("check_style")).toBe(true);
+      expect(registeredTools.has("check_code_style")).toBe(true);
     });
 
-    it("registers format_code tool", () => {
+    it.skip("check_code_style has readOnlyHint annotation", () => {
       registerStyleGuideTools(mockServer);
-      expect(registeredTools.has("format_code")).toBe(true);
-    });
-
-    it.skip("check_style has readOnlyHint annotation", () => {
-      registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("check_style");
+      const tool = registeredTools.get("check_code_style");
       expect(tool.schema.annotations?.readOnlyHint).toBe(true);
     });
 
-    it.skip("format_code has idempotentHint annotation", () => {
+    it("check_code_style returns violations for bad code", async () => {
       registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("format_code");
-      expect(tool.schema.annotations?.idempotentHint).toBe(true);
-    });
-
-    it("check_style returns violations for bad code", async () => {
-      registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("check_style");
+      const tool = registeredTools.get("check_code_style");
 
       const result = await tool.handler({
         code: "\tcontract my_contract {\n    function MyFunc() public {}\n}",
@@ -537,9 +526,9 @@ describe("Style Guide", () => {
       expect(result.content[0].text).toContain("style violation");
     });
 
-    it("check_style returns no violations for clean code", async () => {
+    it("check_code_style returns no violations for clean code", async () => {
       registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("check_style");
+      const tool = registeredTools.get("check_code_style");
 
       const result = await tool.handler({
         code: [
@@ -557,20 +546,20 @@ describe("Style Guide", () => {
       expect(result.content[0].text).toContain("No style violations found");
     });
 
-    it("format_code returns error when forge not installed", async () => {
+    it("check_code_style with fix returns error when forge not installed", async () => {
       vi.mocked(execSync).mockImplementation(() => {
         throw new Error("forge not found");
       });
 
       registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("format_code");
-      const result = await tool.handler({ code: "contract Foo {}" });
+      const tool = registeredTools.get("check_code_style");
+      const result = await tool.handler({ code: "contract Foo {}", fix: true });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("forge fmt is not available");
     });
 
-    it("format_code returns formatted code when forge is available", async () => {
+    it("check_code_style with fix returns formatted code when forge is available", async () => {
       const formattedCode = "contract Foo {\n}\n";
       vi.mocked(execSync).mockImplementation((cmd) => {
         if (cmd === "forge --version") {
@@ -583,14 +572,14 @@ describe("Style Guide", () => {
       });
 
       registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("format_code");
-      const result = await tool.handler({ code: "contract Foo{}" });
+      const tool = registeredTools.get("check_code_style");
+      const result = await tool.handler({ code: "contract Foo{}", fix: true });
 
       expect(result.isError).toBe(false);
       expect(result.content[0].text).toBe(formattedCode);
     });
 
-    it("format_code handles forge fmt errors", async () => {
+    it("check_code_style with fix handles forge fmt errors", async () => {
       vi.mocked(execSync).mockImplementation((cmd) => {
         if (cmd === "forge --version") {
           return Buffer.from("forge 0.2.0\n");
@@ -604,8 +593,8 @@ describe("Style Guide", () => {
       });
 
       registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("format_code");
-      const result = await tool.handler({ code: "invalid solidity {{{{" });
+      const tool = registeredTools.get("check_code_style");
+      const result = await tool.handler({ code: "invalid solidity {{{{", fix: true });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("forge fmt error");
