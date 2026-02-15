@@ -14,9 +14,15 @@ import {
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+const PATTERN_DEBOUNCE_MS = 200;
 const CLI_DEBOUNCE_MS = 500;
+const patternTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
 const lastPatternDiagnostics = new Map<string, Diagnostic[]>();
+
+export function getCachedPatternDiagnostics(uri: string): Diagnostic[] | undefined {
+  return lastPatternDiagnostics.get(uri);
+}
 
 function deduplicateDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
   const seen = new Set<string>();
@@ -41,12 +47,24 @@ export function setupDiagnostics(
   documents: TextDocuments<TextDocument>,
 ): void {
   documents.onDidChangeContent((change: TextDocumentChangeEvent<TextDocument>) => {
-    const patternDiags = getPatternDiagnostics(change.document);
-    lastPatternDiagnostics.set(change.document.uri, patternDiags);
-    connection.sendDiagnostics({
-      uri: change.document.uri,
-      diagnostics: patternDiags,
-    });
+    const uri = change.document.uri;
+
+    const existingPattern = patternTimers.get(uri);
+    if (existingPattern) clearTimeout(existingPattern);
+
+    patternTimers.set(
+      uri,
+      setTimeout(() => {
+        patternTimers.delete(uri);
+
+        const doc = documents.get(uri);
+        if (!doc) return;
+
+        const patternDiags = getPatternDiagnostics(doc);
+        lastPatternDiagnostics.set(uri, patternDiags);
+        connection.sendDiagnostics({ uri, diagnostics: patternDiags });
+      }, PATTERN_DEBOUNCE_MS),
+    );
   });
 
   documents.onDidSave((change: TextDocumentChangeEvent<TextDocument>) => {
@@ -79,9 +97,14 @@ export function setupDiagnostics(
 
   documents.onDidClose((event: TextDocumentChangeEvent<TextDocument>) => {
     const uri = event.document.uri;
-    const timer = debounceTimers.get(uri);
-    if (timer) {
-      clearTimeout(timer);
+    const patternTimer = patternTimers.get(uri);
+    if (patternTimer) {
+      clearTimeout(patternTimer);
+      patternTimers.delete(uri);
+    }
+    const cliTimer = debounceTimers.get(uri);
+    if (cliTimer) {
+      clearTimeout(cliTimer);
       debounceTimers.delete(uri);
     }
     lastPatternDiagnostics.delete(uri);

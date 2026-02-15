@@ -27,9 +27,16 @@ function matchToDiagnostic(match: PatternMatch, document: TextDocument): Diagnos
   };
 }
 
+const MAX_LINES_FOR_PATTERNS = 2000;
+const MAX_LENGTH_FOR_PATTERNS = 200_000;
+
 export function getPatternDiagnostics(document: TextDocument): Diagnostic[] {
   const code = document.getText();
   if (!code.trim()) return [];
+
+  if (code.length > MAX_LENGTH_FOR_PATTERNS || document.lineCount > MAX_LINES_FOR_PATTERNS) {
+    return [];
+  }
 
   const matches = matchPatterns(code);
   return matches

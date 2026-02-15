@@ -6,6 +6,7 @@ import {
 import { type TextDocument } from "vscode-languageserver-textdocument";
 import { type TextDocuments } from "vscode-languageserver/node.js";
 import { getSCWEById } from "../knowledge/scwe-parser.js";
+import { getCachedPatternDiagnostics } from "./diagnostics.js";
 import { getPatternDiagnostics } from "./pattern-diagnostics.js";
 
 function buildScweHoverContent(scweId: string): string | null {
@@ -41,7 +42,8 @@ export function setupHoverProvider(
     const document = documents.get(params.textDocument.uri);
     if (!document) return null;
 
-    const diagnostics = getPatternDiagnostics(document);
+    const diagnostics =
+      getCachedPatternDiagnostics(params.textDocument.uri) ?? getPatternDiagnostics(document);
     const position = params.position;
 
     const matchedDiag = diagnostics.find(
