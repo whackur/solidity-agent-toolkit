@@ -33,7 +33,7 @@ description: What + when + triggers  # ≤1024 chars, trigger keywords here
 license: MIT
 metadata:
   author: whackur
-  version: "1.0.0"
+  version: "0.1.0"
 ---
 # H1 Title
 
@@ -48,6 +48,15 @@ metadata:
 ## References
 - Links to references/ files
 ```
+
+## VERSIONING
+
+Skill versions and package version (`package.json`) are **independent**. They start at the same value but evolve separately.
+
+- **Package version** — bump when MCP/LSP code changes (tools, resources, prompts, server logic)
+- **Skill version** — bump when SKILL.md content changes (guidelines, examples, references)
+
+**Rule: If you edit a SKILL.md, bump that skill's `metadata.version`.** Do NOT bump `package.json` for skill-only changes, and vice versa.
 
 ## ADDING A NEW SKILL
 

@@ -4,7 +4,7 @@ description: Foundry development workflow for Solidity smart contracts. Use when
 license: MIT
 metadata:
   author: whackur
-  version: "1.0.0"
+  version: "0.1.0"
 ---
 
 # Foundry Development Guide

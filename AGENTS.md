@@ -110,6 +110,17 @@ pnpm lint             # eslint src/
 pnpm format           # prettier --write .
 ```
 
+## VERSIONING
+
+Two independent version tracks:
+
+| Artifact | Version location | Bump when |
+| -------- | ---------------- | --------- |
+| MCP/LSP package | `package.json` `version` | Code in `src/` or `bin/` changes |
+| Agent Skills | Each `skills/*/SKILL.md` `metadata.version` | That skill's content changes |
+
+They start at the same value but evolve independently. Do NOT bump package version for skill-only changes, and vice versa. See `skills/AGENTS.md` for details.
+
 ## NOTES
 
 - **Git submodule required**: `git submodule update --init` before running/testing
