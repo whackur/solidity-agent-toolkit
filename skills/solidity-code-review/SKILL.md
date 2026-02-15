@@ -93,6 +93,7 @@ Before beginning the manual review, ensure the following items are addressed:
 
 - Code follows the official Solidity style guide conventions.
 - Naming conventions: PascalCase (contracts), camelCase (functions), UPPER_CASE (constants).
+- Function ordering: by visibility (external → public → internal → private), then by mutability (state-changing → view → pure) within each group.
 - Function modifier order: visibility, mutability, virtual, override, custom.
 - See the [Solidity Style Guide Reference](./references/solidity-style-guide.md) for the full checklist.
 

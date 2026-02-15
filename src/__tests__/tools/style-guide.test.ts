@@ -156,6 +156,76 @@ describe("Style Guide", () => {
       const violations = functionOrderRule.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
     });
+
+    it("detects view before state-changing within same visibility", () => {
+      const code = [
+        "contract MyContract {",
+        "    function foo() external view returns (uint256) {}",
+        "    function bar() external {}",
+        "}",
+      ].join("\n");
+      const violations = functionOrderRule.check(code, code.split("\n"));
+      expect(violations).toHaveLength(1);
+      expect(violations[0].message).toContain("external");
+    });
+
+    it("detects pure before view within same visibility", () => {
+      const code = [
+        "contract MyContract {",
+        "    function foo() external pure returns (uint256) {}",
+        "    function bar() external view returns (uint256) {}",
+        "}",
+      ].join("\n");
+      const violations = functionOrderRule.check(code, code.split("\n"));
+      expect(violations).toHaveLength(1);
+    });
+
+    it("passes correct mutability ordering within same visibility", () => {
+      const code = [
+        "contract MyContract {",
+        "    function a() external {}",
+        "    function b() external view returns (uint256) {}",
+        "    function c() external pure returns (uint256) {}",
+        "}",
+      ].join("\n");
+      const violations = functionOrderRule.check(code, code.split("\n"));
+      expect(violations).toHaveLength(0);
+    });
+
+    it("passes full Solidity style guide ordering", () => {
+      const code = [
+        "contract MyContract {",
+        "    constructor() {}",
+        "    receive() external payable {}",
+        "    fallback() external {}",
+        "    function a() external {}",
+        "    function b() external view returns (uint256) {}",
+        "    function c() external pure returns (uint256) {}",
+        "    function d() public {}",
+        "    function e() public view returns (uint256) {}",
+        "    function f() public pure returns (uint256) {}",
+        "    function g() internal {}",
+        "    function h() internal view returns (uint256) {}",
+        "    function i() internal pure returns (uint256) {}",
+        "    function j() private {}",
+        "    function k() private view returns (uint256) {}",
+        "    function l() private pure returns (uint256) {}",
+        "}",
+      ].join("\n");
+      const violations = functionOrderRule.check(code, code.split("\n"));
+      expect(violations).toHaveLength(0);
+    });
+
+    it("detects private pure before internal", () => {
+      const code = [
+        "contract MyContract {",
+        "    function foo() private pure returns (uint256) {}",
+        "    function bar() internal {}",
+        "}",
+      ].join("\n");
+      const violations = functionOrderRule.check(code, code.split("\n"));
+      expect(violations).toHaveLength(1);
+    });
   });
 
   describe("modifierOrderRule", () => {

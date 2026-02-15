@@ -183,19 +183,29 @@ export const functionOrderRule: StyleRule = {
   id: "style-function-order",
   name: "Function Ordering",
   description:
-    "Functions should be ordered: constructor → receive → fallback → external → public → internal → private",
+    "Functions should be ordered: constructor → receive → fallback → external (→ view → pure) → public (→ view → pure) → internal (→ view → pure) → private (→ view → pure)",
   check: (_code: string, lines: string[]): StyleViolation[] => {
     const violations: StyleViolation[] = [];
 
-    const visibilityOrder: Record<string, number> = {
+    const functionOrder: Record<string, number> = {
       constructor: 0,
       receive: 1,
       fallback: 2,
       external: 3,
-      public: 4,
-      internal: 5,
-      private: 6,
+      "external-view": 4,
+      "external-pure": 5,
+      public: 6,
+      "public-view": 7,
+      "public-pure": 8,
+      internal: 9,
+      "internal-view": 10,
+      "internal-pure": 11,
+      private: 12,
+      "private-view": 13,
+      "private-pure": 14,
     };
+
+    const displayKey = (key: string): string => key.replace(/-/g, " ");
 
     const functionDefs: { visibility: string; line: number; order: number }[] = [];
 
@@ -223,9 +233,9 @@ export const functionOrderRule: StyleRule = {
             violations.push({
               ruleId: "style-function-order",
               line: functionDefs[j].line,
-              message: `Function with '${functionDefs[j].visibility}' visibility should come before '${functionDefs[j - 1].visibility}' functions`,
+              message: `'${displayKey(functionDefs[j].visibility)}' function should come before '${displayKey(functionDefs[j - 1].visibility)}'`,
               severity: "warning",
-              fix: `Reorder functions: constructor → receive → fallback → external → public → internal → private`,
+              fix: `Reorder: constructor → receive → fallback → external (→ view → pure) → public (→ view → pure) → internal (→ view → pure) → private (→ view → pure)`,
             });
           }
         }
@@ -257,10 +267,16 @@ export const functionOrderRule: StyleRule = {
         else if (/\binternal\b/.test(lineStr)) visibility = "internal";
         else if (/\bprivate\b/.test(lineStr)) visibility = "private";
 
+        let mutability = "";
+        if (/\bpure\b/.test(lineStr)) mutability = "pure";
+        else if (/\bview\b/.test(lineStr)) mutability = "view";
+
+        const orderKey = mutability ? `${visibility}-${mutability}` : visibility;
+
         functionDefs.push({
-          visibility,
+          visibility: orderKey,
           line: i + 1,
-          order: visibilityOrder[visibility] ?? 4,
+          order: functionOrder[orderKey] ?? 9,
         });
       }
     }
@@ -270,9 +286,9 @@ export const functionOrderRule: StyleRule = {
         violations.push({
           ruleId: "style-function-order",
           line: functionDefs[i].line,
-          message: `Function with '${functionDefs[i].visibility}' visibility should come before '${functionDefs[i - 1].visibility}' functions`,
+          message: `'${displayKey(functionDefs[i].visibility)}' function should come before '${displayKey(functionDefs[i - 1].visibility)}'`,
           severity: "warning",
-          fix: `Reorder functions: constructor → receive → fallback → external → public → internal → private`,
+          fix: `Reorder: constructor → receive → fallback → external (→ view → pure) → public (→ view → pure) → internal (→ view → pure) → private (→ view → pure)`,
         });
       }
     }

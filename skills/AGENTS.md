@@ -57,12 +57,12 @@ metadata:
 
 ## VERSIONING
 
-Skill versions and package version (`package.json`) are **independent**. They start at the same value but evolve separately.
+Skill versions and package version (`package.json`) are **independent** tracks but follow the same release cadence.
 
 - **Package version** — bump when MCP/LSP code changes (tools, resources, prompts, server logic)
-- **Skill version** — bump when SKILL.md content changes (guidelines, examples, references)
+- **Skill version** — bump at **release time** (tag-based), NOT on every edit
 
-**Rule: If you edit a SKILL.md, bump that skill's `metadata.version`.** Do NOT bump `package.json` for skill-only changes, and vice versa.
+**Rule: Do NOT bump `metadata.version` on every SKILL.md edit.** Version bumps happen at release time based on git tags. During development, all skills stay at the current version. Do NOT bump `package.json` for skill-only changes, and vice versa.
 
 ## ADDING A NEW SKILL
 

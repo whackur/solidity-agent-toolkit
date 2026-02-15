@@ -24,16 +24,24 @@ Elements should be ordered as follows:
 
 ## Function Ordering
 
-Order functions within a contract based on their visibility:
+Order functions within a contract by visibility, then by mutability within each visibility group (state-changing → view → pure):
 
 1. constructor
 2. receive function (if exists)
 3. fallback function (if exists)
 4. external
-5. public
-6. internal
-7. private
-   (`style-function-order`)
+5. external view
+6. external pure
+7. public
+8. public view
+9. public pure
+10. internal
+11. internal view
+12. internal pure
+13. private
+14. private view
+15. private pure
+    (`style-function-order`)
 
 ## Function Declaration
 

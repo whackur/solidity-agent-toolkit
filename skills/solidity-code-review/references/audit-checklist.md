@@ -25,6 +25,7 @@ This checklist is organized by OWASP SCSVS (Smart Contract Security Verification
 - [ ] **Variable Shadowing**: No shadowing of state variables or inherited variables (SCWE-111).
 - [ ] **Data Location**: Correct use of `memory`, `storage`, and `calldata` to avoid unnecessary copies.
 - [ ] **Naming Conventions**: Adherence to Solidity style guide (CapWords for contracts, mixedCase for functions).
+- [ ] **Function Ordering**: Functions ordered by visibility then mutability per Solidity style guide (SCWE-128).
 
 > **Automate with:** `check_style`, `run_solhint`, `validate_natspec`, `format_code`
 

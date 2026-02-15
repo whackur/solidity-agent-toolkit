@@ -157,12 +157,12 @@ export function registerXxxTools(server: McpServer): void {
 
 ## VERSIONING
 
-| Artifact        | Version location                            | Bump when                        |
-| --------------- | ------------------------------------------- | -------------------------------- |
-| MCP/LSP package | `package.json` `version`                    | Code in `src/` or `bin/` changes |
-| Agent Skills    | Each `skills/*/SKILL.md` `metadata.version` | That skill's content changes     |
+| Artifact        | Version location                            | Bump when                                 |
+| --------------- | ------------------------------------------- | ----------------------------------------- |
+| MCP/LSP package | `package.json` `version`                    | Code in `src/` or `bin/` changes          |
+| Agent Skills    | Each `skills/*/SKILL.md` `metadata.version` | At release time (tag-based), not per edit |
 
-Independent tracks. Do NOT cross-bump.
+Independent tracks. Do NOT cross-bump. Skill versions are bumped at release, not on every content edit.
 
 ## NOTES
 

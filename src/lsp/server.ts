@@ -6,6 +6,7 @@ import {
   type InitializeResult,
 } from "vscode-languageserver/node.js";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { notifyIfUpdateAvailable } from "../core/version-checker.js";
 import { setupDiagnostics } from "./diagnostics.js";
 import { setupHoverProvider } from "./hover-provider.js";
 import { setupCodeActions } from "./code-actions.js";
@@ -29,5 +30,6 @@ connection.onInitialized(() => {
   setupCodeActions(connection);
 });
 
+notifyIfUpdateAvailable();
 documents.listen(connection);
 connection.listen();

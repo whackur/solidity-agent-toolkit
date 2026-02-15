@@ -21,6 +21,7 @@ import { registerGasOptimizationPrompts } from "./prompts/gas-optimization.js";
 import { registerAdversarialTools } from "./tools/adversarial.js";
 import { registerAdversarialPrompts } from "./prompts/adversarial-analysis.js";
 import { registerAdversarialResources } from "./resources/adversarial-resources.js";
+import { notifyIfUpdateAvailable } from "../core/version-checker.js";
 
 export function createMcpServer(): McpServer {
   const server = new McpServer({
@@ -54,6 +55,7 @@ export function createMcpServer(): McpServer {
 }
 
 export async function startMcpServer(): Promise<void> {
+  notifyIfUpdateAvailable();
   const server = createMcpServer();
   const transport = new StdioServerTransport();
   await server.connect(transport);
