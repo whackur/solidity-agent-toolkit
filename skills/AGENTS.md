@@ -57,12 +57,11 @@ metadata:
 
 ## VERSIONING
 
-Skill versions and package version (`package.json`) are **independent** tracks but follow the same release cadence.
+Skill versions are **synced** with `package.json` — a single `pnpm version <semver>` bumps both.
 
-- **Package version** — bump when MCP/LSP code changes (tools, resources, prompts, server logic)
-- **Skill version** — bump at **release time** (tag-based), NOT on every edit
+The `version` lifecycle hook in `package.json` runs `scripts/sync-skill-versions.mjs` which updates every `skills/*/SKILL.md` frontmatter `metadata.version` automatically.
 
-**Rule: Do NOT bump `metadata.version` on every SKILL.md edit.** Version bumps happen at release time based on git tags. During development, all skills stay at the current version. Do NOT bump `package.json` for skill-only changes, and vice versa.
+**Rule: Do NOT bump `metadata.version` manually.** Always use `pnpm version`.
 
 ## ADDING A NEW SKILL
 

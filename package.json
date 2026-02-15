@@ -1,6 +1,6 @@
 {
   "name": "solidity-agent-toolkit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "MCP server providing Solidity smart contract security analysis tools, OWASP knowledge base, and development utilities for AI agents",
   "type": "module",
   "main": "./dist/src/index.js",
@@ -31,7 +31,8 @@
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "fix": "pnpm run lint:fix && pnpm run format"
+    "fix": "pnpm run lint:fix && pnpm run format",
+    "version": "node scripts/sync-skill-versions.mjs && git add skills/"
   },
   "keywords": [
     "solidity",

@@ -157,12 +157,16 @@ export function registerXxxTools(server: McpServer): void {
 
 ## VERSIONING
 
-| Artifact        | Version location                            | Bump when                                 |
-| --------------- | ------------------------------------------- | ----------------------------------------- |
-| MCP/LSP package | `package.json` `version`                    | Code in `src/` or `bin/` changes          |
-| Agent Skills    | Each `skills/*/SKILL.md` `metadata.version` | At release time (tag-based), not per edit |
+Package and skill versions are **synced** — a single `pnpm version <semver>` bumps both.
 
-Independent tracks. Do NOT cross-bump. Skill versions are bumped at release, not on every content edit.
+```bash
+pnpm version 0.4.0        # bumps package.json + all SKILL.md to 0.4.0
+pnpm version patch         # 0.3.0 → 0.3.1, all SKILL.md follow
+```
+
+The `version` lifecycle hook runs `scripts/sync-skill-versions.mjs` which reads the new version from `package.json` and updates every `skills/*/SKILL.md` frontmatter `metadata.version`.
+
+Do NOT bump `metadata.version` in SKILL.md files manually — always use `pnpm version`.
 
 ## NOTES
 
