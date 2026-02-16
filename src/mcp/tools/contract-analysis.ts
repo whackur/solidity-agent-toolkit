@@ -24,6 +24,8 @@ export type {
   ImportDependency,
   InheritanceDependency,
   LibraryUsage,
+  ContractInfo,
+  AssociationDependency,
   DependencyGraph,
 } from "../../core/dependency-graph.js";
 

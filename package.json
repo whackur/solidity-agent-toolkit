@@ -1,7 +1,15 @@
 {
   "name": "solidity-agent-toolkit",
-  "version": "0.5.1",
+  "version": "0.5.3",
   "description": "MCP server providing Solidity smart contract security analysis tools, OWASP knowledge base, and development utilities for AI agents",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/whackur/solidity-agent-toolkit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/whackur/solidity-agent-toolkit/issues"
+  },
+  "homepage": "https://github.com/whackur/solidity-agent-toolkit#readme",
   "type": "module",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -16,7 +24,7 @@
     "skills/"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "scripts": {
     "build": "tsc",
@@ -60,6 +68,7 @@
   "packageManager": "pnpm@10.29.3",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",
+    "@solidity-parser/parser": "^0.20.2",
     "gray-matter": "^4.0.3",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.12",
