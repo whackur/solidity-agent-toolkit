@@ -10,34 +10,37 @@ export type { AderynFinding } from "../../core/aderyn.js";
 export type { SolhintViolation } from "../../core/solhint.js";
 
 export function registerSecurityScanTools(server: McpServer): void {
-  server.tool(
+  server.registerTool(
     "run_security_scan",
-    "Run security analysis on Solidity contracts using Slither, Aderyn, or Solhint. " +
-      "Select the tool parameter to choose which analyzer to run.",
     {
-      tool: z.enum(["slither", "aderyn", "solhint"]).describe("Security tool to run"),
-      path: z
-        .string()
-        .optional()
-        .describe("Path to Solidity project or file (default: current directory)"),
-      detectors: z
-        .array(z.string())
-        .optional()
-        .describe('Slither detectors to run (e.g., ["reentrancy-eth"])'),
-      exclude: z.array(z.string()).optional().describe("Slither detectors to exclude"),
-      jsonOutput: z.boolean().optional().describe("Return raw JSON output (Slither only)"),
-      outputFormat: z
-        .enum(["json", "markdown"])
-        .optional()
-        .describe("Output format for Aderyn results"),
-      files: z
-        .array(z.string())
-        .optional()
-        .describe('Solhint files to lint (e.g., ["contracts/*.sol"])'),
-      rules: z
-        .record(z.string(), z.string())
-        .optional()
-        .describe("Solhint rule configuration overrides"),
+      description:
+        "Run security analysis on Solidity contracts using Slither, Aderyn, or Solhint. " +
+        "Select the tool parameter to choose which analyzer to run.",
+      inputSchema: {
+        tool: z.enum(["slither", "aderyn", "solhint"]).describe("Security tool to run"),
+        path: z
+          .string()
+          .optional()
+          .describe("Path to Solidity project or file (default: current directory)"),
+        detectors: z
+          .array(z.string())
+          .optional()
+          .describe('Slither detectors to run (e.g., ["reentrancy-eth"])'),
+        exclude: z.array(z.string()).optional().describe("Slither detectors to exclude"),
+        jsonOutput: z.boolean().optional().describe("Return raw JSON output (Slither only)"),
+        outputFormat: z
+          .enum(["json", "markdown"])
+          .optional()
+          .describe("Output format for Aderyn results"),
+        files: z
+          .array(z.string())
+          .optional()
+          .describe('Solhint files to lint (e.g., ["contracts/*.sol"])'),
+        rules: z
+          .record(z.string(), z.string())
+          .optional()
+          .describe("Solhint rule configuration overrides"),
+      },
     },
     async ({ tool, path, detectors, exclude, jsonOutput, outputFormat, files }) => {
       switch (tool) {

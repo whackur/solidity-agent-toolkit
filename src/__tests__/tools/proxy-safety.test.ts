@@ -226,4 +226,91 @@ contract Foo {
       expect(result.findings).toHaveLength(0);
     });
   });
+
+  describe("proxy contract detection (false positive prevention)", () => {
+    it("does NOT flag constructor or immutables on EIP-7702 style proxy", () => {
+      const code = `
+import {Proxy} from "@openzeppelin/contracts/proxy/Proxy.sol";
+import {ERC1967Utils} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Utils.sol";
+contract EIP7702Proxy is Proxy {
+    address public immutable nonceTracker;
+    address internal immutable _receiver;
+    address internal immutable _proxy;
+    constructor(address nonceTracker_, address receiver) {
+        nonceTracker = nonceTracker_;
+        _receiver = receiver;
+        _proxy = address(this);
+    }
+    function setImplementation(address newImpl, bytes calldata data) external {
+        ERC1967Utils.upgradeToAndCall(newImpl, data);
+    }
+    function _implementation() internal view override returns (address impl) {
+        impl = ERC1967Utils.getImplementation();
+        if (impl == address(0)) impl = _receiver;
+    }
+}`;
+      const result = analyzeProxySafety(code);
+      expect(result.isUpgradeable).toBe(true);
+      expect(result.isProxyContract).toBe(true);
+      expect(result.findings.some((f) => f.id === "PROXY-002")).toBe(false);
+      expect(result.findings.some((f) => f.id === "PROXY-007")).toBe(false);
+    });
+
+    it("does NOT flag constructor on OZ-style ERC1967Proxy", () => {
+      const code = `
+import {Proxy} from "@openzeppelin/contracts/proxy/Proxy.sol";
+contract MyProxy is ERC1967Proxy {
+    constructor(address impl, bytes memory data) ERC1967Proxy(impl, data) {}
+    function upgradeTo(address newImpl) external {}
+}`;
+      const result = analyzeProxySafety(code);
+      expect(result.isProxyContract).toBe(true);
+      expect(result.findings.some((f) => f.id === "PROXY-002")).toBe(false);
+    });
+
+    it("still flags selfdestruct even on proxy contracts (appliesTo: both)", () => {
+      const code = `
+import {Proxy} from "@openzeppelin/contracts/proxy/Proxy.sol";
+contract BadProxy is Proxy {
+    function _implementation() internal view override returns (address) { return address(0); }
+    function kill() external { selfdestruct(payable(msg.sender)); }
+    function upgradeTo(address newImpl) external {}
+}`;
+      const result = analyzeProxySafety(code);
+      expect(result.isProxyContract).toBe(true);
+      expect(result.findings.some((f) => f.id === "PROXY-004")).toBe(true);
+    });
+
+    it("still flags constructor on implementation contracts (not proxies)", () => {
+      const code = `
+contract MyImpl is UUPSUpgradeable {
+    uint256 public value;
+    constructor(uint256 _val) { value = _val; }
+    function upgradeTo(address newImpl) external { _upgradeTo(newImpl); }
+}`;
+      const result = analyzeProxySafety(code);
+      expect(result.isProxyContract).toBe(false);
+      expect(result.findings.some((f) => f.id === "PROXY-002")).toBe(true);
+    });
+
+    it("detects proxy via _fallback function", () => {
+      const code = `
+contract CustomProxy {
+    function _fallback() internal { delegatecall(...); }
+    function upgradeTo(address newImpl) external {}
+}`;
+      const result = analyzeProxySafety(code);
+      expect(result.isProxyContract).toBe(true);
+    });
+
+    it("detects proxy via _delegate function", () => {
+      const code = `
+contract CustomProxy {
+    function _delegate(address impl) internal {}
+    function upgradeTo(address newImpl) external {}
+}`;
+      const result = analyzeProxySafety(code);
+      expect(result.isProxyContract).toBe(true);
+    });
+  });
 });

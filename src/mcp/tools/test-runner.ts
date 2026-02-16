@@ -30,22 +30,30 @@ export {
 } from "../../core/test-runner.js";
 
 export function registerTestRunnerTools(server: McpServer): void {
-  server.tool(
+  server.registerTool(
     "run_tests",
-    "Run Foundry tests and return results. Optionally specify testContract and testFunction " +
-      "to run a single test with detailed trace output.",
     {
-      testFilter: z.string().optional().describe("Optional test name filter (regex pattern)"),
-      verbosity: z.number().min(0).max(5).optional().describe("Verbosity level (0-5, default: 0)"),
-      fuzz: z.boolean().optional().describe("Enable fuzzing with 1000 runs"),
-      testContract: z
-        .string()
-        .optional()
-        .describe("Run a specific test contract (requires testFunction)"),
-      testFunction: z
-        .string()
-        .optional()
-        .describe("Run a specific test function (requires testContract)"),
+      description:
+        "Run Foundry tests and return results. Optionally specify testContract and testFunction " +
+        "to run a single test with detailed trace output.",
+      inputSchema: {
+        testFilter: z.string().optional().describe("Optional test name filter (regex pattern)"),
+        verbosity: z
+          .number()
+          .min(0)
+          .max(5)
+          .optional()
+          .describe("Verbosity level (0-5, default: 0)"),
+        fuzz: z.boolean().optional().describe("Enable fuzzing with 1000 runs"),
+        testContract: z
+          .string()
+          .optional()
+          .describe("Run a specific test contract (requires testFunction)"),
+        testFunction: z
+          .string()
+          .optional()
+          .describe("Run a specific test function (requires testContract)"),
+      },
     },
     async ({ testFilter, verbosity, fuzz, testContract, testFunction }) => {
       const forgeCheck = checkForgeInstalled();

@@ -14,8 +14,12 @@ describe("Compile Tools", () => {
   beforeEach(() => {
     registeredTools = new Map();
     mockServer = {
-      tool: vi.fn((name: string, description: string, schema: any, handler: any) => {
-        registeredTools.set(name, { description, schema, handler });
+      registerTool: vi.fn((name: string, config: any, handler: any) => {
+        registeredTools.set(name, {
+          description: config.description,
+          schema: config.inputSchema,
+          handler,
+        });
       }),
     } as any;
     vi.clearAllMocks();

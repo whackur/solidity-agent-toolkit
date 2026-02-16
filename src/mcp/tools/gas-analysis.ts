@@ -33,11 +33,14 @@ const AnalyzeGasSchema = z.object({
 });
 
 export function registerGasTools(server: McpServer): void {
-  server.tool(
+  server.registerTool(
     "analyze_gas",
-    "Analyze gas usage of Solidity contracts. Use 'snapshot' mode for gas snapshots, " +
-      "or 'report' mode for function-level gas estimates.",
-    AnalyzeGasSchema.shape,
+    {
+      description:
+        "Analyze gas usage of Solidity contracts. Use 'snapshot' mode for gas snapshots, " +
+        "or 'report' mode for function-level gas estimates.",
+      inputSchema: AnalyzeGasSchema.shape,
+    },
     async ({ mode, contractName, functionName, compare }) => {
       try {
         if (!checkForgeInstalled()) {

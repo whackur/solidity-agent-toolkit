@@ -12,6 +12,7 @@ export interface ProxySafetyFinding {
 
 export interface ProxySafetyResult {
   isUpgradeable: boolean;
+  isProxyContract: boolean;
   proxyPattern: "UUPS" | "Transparent" | "Beacon" | "unknown" | "none";
   findings: ProxySafetyFinding[];
 }
@@ -29,8 +30,23 @@ const UPGRADEABLE_INDICATORS = [
   /\bIBeacon\b/,
 ];
 
+const PROXY_CONTRACT_INDICATORS = [
+  /\bis\s+(?:\w+\s*,\s*)*Proxy\b/,
+  /import\s+\{[^}]*Proxy[^}]*\}\s+from\s+["'][^"']*\/proxy\/Proxy\.sol["']/,
+  /\bfunction\s+_implementation\s*\(/,
+  /\bfunction\s+_fallback\s*\(/,
+  /\bfunction\s+_delegate\s*\(/,
+  /\bis\s+(?:\w+\s*,\s*)*ERC1967Proxy\b/,
+  /\bis\s+(?:\w+\s*,\s*)*TransparentUpgradeableProxy\b/,
+  /\bis\s+(?:\w+\s*,\s*)*BeaconProxy\b/,
+];
+
 function detectUpgradeable(code: string): boolean {
   return UPGRADEABLE_INDICATORS.some((re) => re.test(code));
+}
+
+function detectIsProxyContract(code: string): boolean {
+  return PROXY_CONTRACT_INDICATORS.some((re) => re.test(code));
 }
 
 function detectProxyPattern(code: string): ProxySafetyResult["proxyPattern"] {
@@ -40,12 +56,19 @@ function detectProxyPattern(code: string): ProxySafetyResult["proxyPattern"] {
   return "unknown";
 }
 
-function matchAntiPatterns(code: string): ProxySafetyFinding[] {
+function shouldApply(pattern: ProxyAntiPattern, isProxyContract: boolean): boolean {
+  if (pattern.appliesTo === "both") return true;
+  if (isProxyContract) return pattern.appliesTo === "proxy";
+  return pattern.appliesTo === "implementation";
+}
+
+function matchAntiPatterns(code: string, isProxyContract: boolean): ProxySafetyFinding[] {
   const lines = code.split("\n");
   const findings: ProxySafetyFinding[] = [];
   const hasGap = /__gap/.test(code);
 
   for (const pattern of PROXY_ANTI_PATTERNS) {
+    if (!shouldApply(pattern, isProxyContract)) continue;
     if (pattern.id === "PROXY-006" && hasGap) continue;
     if (pattern.id === "PROXY-006" && !pattern.patterns[0].test(code)) continue;
 
@@ -90,18 +113,19 @@ function matchAntiPatterns(code: string): ProxySafetyFinding[] {
 
 export function analyzeProxySafety(code: string): ProxySafetyResult {
   if (!code.trim()) {
-    return { isUpgradeable: false, proxyPattern: "none", findings: [] };
+    return { isUpgradeable: false, isProxyContract: false, proxyPattern: "none", findings: [] };
   }
 
   const isUpgradeable = detectUpgradeable(code);
   if (!isUpgradeable) {
-    return { isUpgradeable: false, proxyPattern: "none", findings: [] };
+    return { isUpgradeable: false, isProxyContract: false, proxyPattern: "none", findings: [] };
   }
 
+  const isProxyContract = detectIsProxyContract(code);
   const proxyPattern = detectProxyPattern(code);
-  const findings = matchAntiPatterns(code);
+  const findings = matchAntiPatterns(code, isProxyContract);
 
-  return { isUpgradeable, proxyPattern, findings };
+  return { isUpgradeable, isProxyContract, proxyPattern, findings };
 }
 
 export function formatProxySafetyResult(result: ProxySafetyResult): string {
@@ -109,10 +133,12 @@ export function formatProxySafetyResult(result: ProxySafetyResult): string {
     return "No proxy/upgrade patterns detected. This contract does not appear to be upgradeable.";
   }
 
+  const roleLabel = result.isProxyContract ? " (proxy contract)" : " (implementation contract)";
+
   if (result.findings.length === 0) {
     return (
       `# Proxy Safety Analysis\n\n` +
-      `**Proxy Pattern:** ${result.proxyPattern}\n\n` +
+      `**Proxy Pattern:** ${result.proxyPattern}${roleLabel}\n\n` +
       `No proxy anti-patterns detected. The contract follows upgrade safety best practices.`
     );
   }
@@ -122,7 +148,7 @@ export function formatProxySafetyResult(result: ProxySafetyResult): string {
 
   const header =
     `# Proxy Safety Analysis\n\n` +
-    `**Proxy Pattern:** ${result.proxyPattern}\n` +
+    `**Proxy Pattern:** ${result.proxyPattern}${roleLabel}\n` +
     `**Findings:** ${result.findings.length} issue(s) — ` +
     `${severityCounts.critical} critical, ${severityCounts.high} high, ` +
     `${severityCounts.medium} medium, ${severityCounts.low} low\n`;

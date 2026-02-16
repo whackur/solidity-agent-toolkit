@@ -28,23 +28,26 @@ export type {
 } from "../../core/dependency-graph.js";
 
 export function registerContractAnalysisTools(server: McpServer): void {
-  server.tool(
+  server.registerTool(
     "analyze_contract",
-    "Analyze Solidity contract code for adversarial scenarios, proxy/upgrade safety, " +
-      "ERC compliance, access control patterns, or dependency graphs.",
     {
-      analysis: z
-        .enum(["adversarial", "proxy_safety", "erc_compliance", "access_control", "dependencies"])
-        .describe("Type of analysis to perform"),
-      code: z.string().describe("Solidity source code to analyze"),
-      categories: z
-        .array(z.string())
-        .optional()
-        .describe("Filter by attack categories (adversarial only)"),
-      standard: z
-        .string()
-        .optional()
-        .describe("ERC standard to check against (erc_compliance only, e.g., ERC20)"),
+      description:
+        "Analyze Solidity contract code for adversarial scenarios, proxy/upgrade safety, " +
+        "ERC compliance, access control patterns, or dependency graphs.",
+      inputSchema: {
+        analysis: z
+          .enum(["adversarial", "proxy_safety", "erc_compliance", "access_control", "dependencies"])
+          .describe("Type of analysis to perform"),
+        code: z.string().describe("Solidity source code to analyze"),
+        categories: z
+          .array(z.string())
+          .optional()
+          .describe("Filter by attack categories (adversarial only)"),
+        standard: z
+          .string()
+          .optional()
+          .describe("ERC standard to check against (erc_compliance only, e.g., ERC20)"),
+      },
     },
     async ({ analysis, code, categories, standard }) => {
       switch (analysis) {

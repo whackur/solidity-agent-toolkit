@@ -18,11 +18,14 @@ const ManageDeploymentSchema = z.object({
 });
 
 export function registerDeployTools(server: McpServer): void {
-  server.tool(
+  server.registerTool(
     "manage_deployment",
-    "Manage Solidity contract deployments. Use 'simulate' to dry-run a deployment script " +
-      "(NEVER broadcasts), or 'status' to check previous deployment results.",
-    ManageDeploymentSchema.shape,
+    {
+      description:
+        "Manage Solidity contract deployments. Use 'simulate' to dry-run a deployment script " +
+        "(NEVER broadcasts), or 'status' to check previous deployment results.",
+      inputSchema: ManageDeploymentSchema.shape,
+    },
     async ({ action, scriptPath, rpcUrl, forkBlockNumber, broadcastDir }) => {
       try {
         if (action === "simulate") {

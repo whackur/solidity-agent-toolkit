@@ -4,7 +4,7 @@ description: Smart contract code review and security audit methodology for Solid
 license: MIT
 metadata:
   author: whackur
-  version: "0.5.0"
+  version: "0.5.1"
 ---
 
 # Solidity Code Review Guide
