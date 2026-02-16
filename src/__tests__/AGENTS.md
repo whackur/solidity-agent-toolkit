@@ -89,6 +89,20 @@ vi.mocked(existsSync).mockReturnValue(true);
 vi.mocked(readFileSync).mockReturnValue('{"abi": [...]}');
 ```
 
+### MCP Server mock (tool registration)
+
+```typescript
+mockServer = {
+  registerTool: vi.fn((name: string, config: any, handler: any) => {
+    registeredTools.set(name, {
+      description: config.description,
+      schema: config.inputSchema,
+      handler,
+    });
+  }),
+} as any;
+```
+
 ### MCP Server internals (private access)
 
 ```typescript

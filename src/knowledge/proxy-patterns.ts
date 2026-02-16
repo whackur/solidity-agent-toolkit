@@ -2,6 +2,7 @@ export interface ProxyAntiPattern {
   id: string;
   name: string;
   severity: "critical" | "high" | "medium" | "low";
+  appliesTo: "implementation" | "proxy" | "both";
   patterns: RegExp[];
   description: string;
   recommendation: string;
@@ -17,6 +18,7 @@ export const PROXY_ANTI_PATTERNS: ProxyAntiPattern[] = [
     id: "PROXY-001",
     name: "Unprotected Initializer",
     severity: "critical",
+    appliesTo: "implementation",
     patterns: [
       // initialize/init function without `initializer` modifier (OZ v4+v5)
       /function\s+initialize\s*\([^)]*\)\s+(?:public|external)(?!\s+initializer)\b/,
@@ -33,6 +35,7 @@ export const PROXY_ANTI_PATTERNS: ProxyAntiPattern[] = [
     id: "PROXY-002",
     name: "Constructor in Upgradeable Contract",
     severity: "critical",
+    appliesTo: "implementation",
     patterns: [
       // constructor with parameters (state-setting logic, not just _disableInitializers)
       /constructor\s*\([^)]+\)\s*\{/,
@@ -50,6 +53,7 @@ export const PROXY_ANTI_PATTERNS: ProxyAntiPattern[] = [
     id: "PROXY-003",
     name: "Missing _disableInitializers in Constructor",
     severity: "high",
+    appliesTo: "implementation",
     patterns: [
       // constructor that does NOT call _disableInitializers()
       /constructor\s*\(\s*\)\s*\{(?:(?!_disableInitializers)[\s\S])*?\}/,
@@ -65,6 +69,7 @@ export const PROXY_ANTI_PATTERNS: ProxyAntiPattern[] = [
     id: "PROXY-004",
     name: "Selfdestruct in Upgradeable Implementation",
     severity: "critical",
+    appliesTo: "both",
     patterns: [/selfdestruct\s*\(/, /suicide\s*\(/],
     description:
       "selfdestruct in an upgradeable implementation can destroy the implementation contract, " +
@@ -78,6 +83,7 @@ export const PROXY_ANTI_PATTERNS: ProxyAntiPattern[] = [
     id: "PROXY-005",
     name: "Unprotected upgradeTo Function",
     severity: "critical",
+    appliesTo: "both",
     patterns: [
       // upgradeTo or upgradeToAndCall without access control modifiers
       /function\s+upgradeTo\s*\([^)]*\)\s+(?:public|external)(?!\s*(?:onlyOwner|onlyRole|onlyAdmin|onlyProxy))/,
@@ -94,6 +100,7 @@ export const PROXY_ANTI_PATTERNS: ProxyAntiPattern[] = [
     id: "PROXY-006",
     name: "Missing Storage Gap",
     severity: "medium",
+    appliesTo: "implementation",
     patterns: [
       // Heuristic: contract is Initializable/upgradeable but has no __gap declaration
       // This pattern checks for ABSENCE — handled specially in analysis logic
@@ -110,6 +117,7 @@ export const PROXY_ANTI_PATTERNS: ProxyAntiPattern[] = [
     id: "PROXY-007",
     name: "Immutable Variable in Upgradeable Contract",
     severity: "medium",
+    appliesTo: "implementation",
     patterns: [
       // immutable keyword in a contract with upgrade-related inheritance
       /\bimmutable\b/,
@@ -125,6 +133,7 @@ export const PROXY_ANTI_PATTERNS: ProxyAntiPattern[] = [
     id: "PROXY-008",
     name: "Direct Storage Slot Access Without ERC-1967",
     severity: "high",
+    appliesTo: "both",
     patterns: [
       // sload/sstore with hardcoded or non-ERC-1967 slots
       /assembly\s*\{[^}]*sload\s*\(\s*0x[0-9a-fA-F]+\s*\)/,

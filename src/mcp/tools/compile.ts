@@ -100,12 +100,15 @@ function handleInspect(mode: "abi" | "bytecode" | "storage", contractName: strin
 }
 
 export function registerCompileTools(server: McpServer): void {
-  server.tool(
+  server.registerTool(
     "compile_contract",
-    "Compile Solidity contracts using Foundry, or inspect a compiled contract's ABI, bytecode, " +
-      "or storage layout. Set the inspect parameter to skip compilation and inspect artifacts " +
-      "instead.",
-    CompileContractSchema.shape,
+    {
+      description:
+        "Compile Solidity contracts using Foundry, or inspect a compiled contract's ABI, bytecode, " +
+        "or storage layout. Set the inspect parameter to skip compilation and inspect artifacts " +
+        "instead.",
+      inputSchema: CompileContractSchema.shape,
+    },
     async ({ path, contractName, inspect }) => {
       try {
         if (!checkForgeInstalled()) {

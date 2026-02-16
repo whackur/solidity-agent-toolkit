@@ -5,16 +5,19 @@ import { checkForgeInstalled } from "../../core/compile.js";
 import { checkAllRules, formatStyleViolations } from "../../knowledge/style-rules.js";
 
 export function registerStyleGuideTools(server: McpServer): void {
-  server.tool(
+  server.registerTool(
     "check_code_style",
-    "Check Solidity code against the official Style Guide, or format it using forge fmt. " +
-      "Set fix=true to auto-format instead of checking.",
     {
-      code: z.string().describe("Solidity source code to check or format"),
-      fix: z
-        .boolean()
-        .optional()
-        .describe("If true, format the code using forge fmt instead of checking style rules"),
+      description:
+        "Check Solidity code against the official Style Guide, or format it using forge fmt. " +
+        "Set fix=true to auto-format instead of checking.",
+      inputSchema: {
+        code: z.string().describe("Solidity source code to check or format"),
+        fix: z
+          .boolean()
+          .optional()
+          .describe("If true, format the code using forge fmt instead of checking style rules"),
+      },
     },
     async ({ code, fix }) => {
       if (fix) {

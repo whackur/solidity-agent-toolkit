@@ -11,16 +11,19 @@ export {
 } from "../../core/natspec.js";
 
 export function registerNatSpecTools(server: McpServer): void {
-  server.tool(
+  server.registerTool(
     "check_natspec",
-    "Check NatSpec documentation in Solidity code for missing tags, or generate documentation " +
-      "templates. Set generate=true to produce NatSpec templates instead of validating.",
     {
-      code: z.string().describe("Solidity source code to check"),
-      generate: z
-        .boolean()
-        .optional()
-        .describe("If true, generate NatSpec templates instead of validating"),
+      description:
+        "Check NatSpec documentation in Solidity code for missing tags, or generate documentation " +
+        "templates. Set generate=true to produce NatSpec templates instead of validating.",
+      inputSchema: {
+        code: z.string().describe("Solidity source code to check"),
+        generate: z
+          .boolean()
+          .optional()
+          .describe("If true, generate NatSpec templates instead of validating"),
+      },
     },
     async ({ code, generate }) => {
       if (generate) {
