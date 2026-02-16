@@ -7,9 +7,9 @@
 | [Node.js](https://nodejs.org/) 18+              | Runtime                                     | [nodejs.org](https://nodejs.org/)                           |
 | [pnpm](https://pnpm.io/) 10.x                   | Package manager                             | `npm install -g pnpm`                                       |
 | [Foundry](https://book.getfoundry.sh/)          | Compilation, testing, gas, deployment tools | `curl -L https://foundry.paradigm.xyz \| bash && foundryup` |
-| [Slither](https://github.com/crytic/slither)    | `run_slither`, `list_slither_detectors`     | `pip3 install slither-analyzer`                             |
-| [Aderyn](https://github.com/Cyfrin/aderyn)      | `run_aderyn`                                | `brew install cyfrin/tap/aderyn`                            |
-| [Solhint](https://github.com/protofire/solhint) | `run_solhint`, `list_solhint_rules`         | `pnpm add -g solhint`                                       |
+| [Slither](https://github.com/crytic/slither)    | `run_security_scan` (tool: slither)         | `pip3 install slither-analyzer`                             |
+| [Aderyn](https://github.com/Cyfrin/aderyn)      | `run_security_scan` (tool: aderyn)          | `brew install cyfrin/tap/aderyn`                            |
+| [Solhint](https://github.com/protofire/solhint) | `run_security_scan` (tool: solhint)         | `pnpm add -g solhint`                                       |
 
 Foundry, Slither, Aderyn, and Solhint are **optional** — features that don't require them (pattern matching, SCWE search, NatSpec validation, style checking, all resources, and all prompts) work out of the box.
 
@@ -43,23 +43,23 @@ pnpm fix              # ESLint fix + Prettier format (combined)
 
 ```
 src/
-├── index.ts           # MCP entry point (facade)
-├── core/              # Shared analysis logic (CLI wrappers, parsers)
-├── mcp/               # MCP server (tools, resources, prompts)
-│   ├── server.ts      # Server creation + registration
-│   ├── tools/         # MCP tool wrappers (thin, import from core/)
-│   ├── resources/     # Resource providers (scwe://, sctop10://, erc://)
-│   └── prompts/       # Prompt templates
+├── index.ts           # MCP entry point (≤5 lines, wiring only)
+├── core/              # Shared analysis logic (CLI wrappers, parsers) — 23 files
+├── mcp/               # MCP server: 10 tools, 12 resources, 7 prompts
+│   ├── server.ts      # createMcpServer() — all registrations
+│   ├── tools/         # 11 files → 10 consolidated tools
+│   ├── resources/     # 6 files → 12 resources
+│   └── prompts/       # 8 files → 7 prompts
 ├── lsp/               # LSP server (diagnostics, hover, code actions)
 │   ├── server.ts      # LSP connection + capabilities
-│   ├── diagnostics.ts # Diagnostic aggregator
-│   └── ...
-├── knowledge/         # OWASP data parsers + vulnerability patterns
-└── __tests__/         # Test files (mirrors src/ structure)
+│   ├── diagnostics.ts # Diagnostic aggregator (pattern + CLI)
+│   └── ...            # hover, code actions, severity mapping
+├── knowledge/         # OWASP data parsers, vulnerability patterns, style rules — 12 files
+└── __tests__/         # Test files (mirrors src/ structure) — 45 files
 
-skills/                # Agent Skills (agentskills.io spec)
+skills/                # 7 Agent Skills (agentskills.io spec)
 bin/                   # CLI entry points (MCP + LSP)
-data/owasp-scs/        # Git submodule — OWASP SCS docs
+data/owasp-scs/        # Git submodule — OWASP SCS docs (read-only)
 ```
 
 ### Import Rules
@@ -76,7 +76,7 @@ lsp/        ->  core/ + knowledge/
 ## Testing
 
 ```bash
-pnpm test                                         # Run all tests (~420 tests)
+pnpm test                                         # Run all tests (~636 tests, 45 files)
 pnpm test -- src/__tests__/tools/slither.test.ts   # Run a single test file
 pnpm test -- -t "maps reentrancy"                  # Run tests matching name pattern
 pnpm test:watch                                    # Watch mode

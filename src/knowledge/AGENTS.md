@@ -12,6 +12,23 @@ data/owasp-scs/docs/sctop10/*.md →  top10-parser.ts  →  SCTop10Entry[]
                                     index.ts          →  unified search API
 ```
 
+## FILES
+
+| File                        | Purpose                                          | LOC Exempt? |
+| --------------------------- | ------------------------------------------------ | ----------- |
+| `index.ts`                  | Unified entry point — re-exports all parsers     | —           |
+| `scwe-parser.ts`            | Parses 156 SCWE entries from submodule markdown  | —           |
+| `top10-parser.ts`           | Parses SC Top 10 categories from submodule       | —           |
+| `vulnerability-patterns.ts` | 32+ heuristic regex patterns for vuln detection  | ✅ data     |
+| `adversarial-scenarios.ts`  | 17 detailed attack scenarios (flash loans, etc.) | ✅ data     |
+| `style-rules.ts`            | Solidity style guide rules + regex checks        | ✅ data     |
+| `slither-mappings.ts`       | Maps 80+ Slither detector IDs → SCWE IDs         | ✅ data     |
+| `top10-scwe-mappings.ts`    | Maps SC Top 10 categories → SCWE IDs             | ✅ data     |
+| `erc-interfaces.ts`         | ERC-20/721/1155/4626 interface specs             | ✅ data     |
+| `contract-features.ts`      | Regex patterns for contract type detection       | ✅ data     |
+| `proxy-patterns.ts`         | 8 anti-patterns for upgradeable/proxy contracts  | ✅ data     |
+| `markdown-section.ts`       | Internal utility for regex escaping in parsing   | —           |
+
 ## KEY TYPES
 
 | Type                           | Source                      | Used By                             |
@@ -24,16 +41,20 @@ data/owasp-scs/docs/sctop10/*.md →  top10-parser.ts  →  SCTop10Entry[]
 
 ## ENTRY POINTS FOR CONSUMERS
 
-| Function                  | File                        | Purpose                          |
-| ------------------------- | --------------------------- | -------------------------------- |
-| `loadAllSCWE()`           | `scwe-parser.ts`            | Load all 156 entries (cached)    |
-| `getSCWEById(id)`         | `scwe-parser.ts`            | Single entry lookup              |
-| `searchSCWE(query)`       | `scwe-parser.ts`            | Text search in title/description |
-| `loadAllTop10()`          | `top10-parser.ts`           | Load all 10 SC Top 10 entries    |
-| `getTop10ById(id)`        | `top10-parser.ts`           | Single Top 10 lookup             |
-| `VULNERABILITY_PATTERNS`  | `vulnerability-patterns.ts` | 32+ regex patterns array         |
-| `getScweIdForDetector(d)` | `slither-mappings.ts`       | Slither detector → SCWE mapping  |
-| `checkAllRules(code)`     | `style-rules.ts`            | Run all style checks             |
+| Function                    | File                        | Purpose                          |
+| --------------------------- | --------------------------- | -------------------------------- |
+| `loadAllSCWE()`             | `scwe-parser.ts`            | Load all 156 entries (cached)    |
+| `getSCWEById(id)`           | `scwe-parser.ts`            | Single entry lookup              |
+| `searchSCWE(query)`         | `scwe-parser.ts`            | Text search in title/description |
+| `loadAllTop10()`            | `top10-parser.ts`           | Load all 10 SC Top 10 entries    |
+| `getTop10ById(id)`          | `top10-parser.ts`           | Single Top 10 lookup             |
+| `VULNERABILITY_PATTERNS`    | `vulnerability-patterns.ts` | 32+ regex patterns array         |
+| `ADVERSARIAL_SCENARIOS`     | `adversarial-scenarios.ts`  | 17 attack scenario definitions   |
+| `PROXY_ANTI_PATTERNS`       | `proxy-patterns.ts`         | 8 proxy safety patterns          |
+| `ERC_STANDARDS`             | `erc-interfaces.ts`         | ERC interface specifications     |
+| `CONTRACT_FEATURE_PATTERNS` | `contract-features.ts`      | Feature detection patterns       |
+| `getScweIdForDetector(d)`   | `slither-mappings.ts`       | Slither detector → SCWE mapping  |
+| `checkAllRules(code)`       | `style-rules.ts`            | Run all style checks             |
 
 ## PARSING GOTCHAS
 

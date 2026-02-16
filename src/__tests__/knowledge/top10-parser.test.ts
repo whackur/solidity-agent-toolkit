@@ -82,6 +82,25 @@ describe("searchTop10", () => {
   });
 });
 
+describe("Top 10 SCWE enrichment", () => {
+  it("populates relatedSCWE for all entries", () => {
+    const entries = loadAllTop10();
+    for (const entry of entries) {
+      expect(entry.relatedSCWE.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("SC08 has SCWE-046 in relatedSCWE", () => {
+    const entry = getTop10ById("SC08")!;
+    expect(entry.relatedSCWE).toContain("SCWE-046");
+  });
+
+  it("SC01 relatedSCWE includes SCWE-048", () => {
+    const entry = getTop10ById("SC01")!;
+    expect(entry.relatedSCWE).toContain("SCWE-048");
+  });
+});
+
 describe("SC Top 10 content parsing", () => {
   it("extracts code examples from SC01", () => {
     const entry = getTop10ById("SC01")!;

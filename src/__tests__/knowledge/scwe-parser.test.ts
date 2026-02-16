@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { loadAllSCWE, getSCWEById, searchSCWE, _resetCache } from "../../knowledge/scwe-parser.js";
+import {
+  loadAllSCWE,
+  getSCWEById,
+  searchSCWE,
+  getScweByCwe,
+  _resetCache,
+} from "../../knowledge/scwe-parser.js";
 
 beforeEach(() => {
   _resetCache();
@@ -98,6 +104,26 @@ describe("searchSCWE", () => {
 
   it("returns empty array for nonsense query", () => {
     expect(searchSCWE("xyzzy_nonexistent_12345")).toEqual([]);
+  });
+});
+
+describe("getScweByCwe", () => {
+  it("returns SCWE-046 for CWE-367", () => {
+    const results = getScweByCwe(367);
+    const ids = results.map((e) => e.id);
+    expect(ids).toContain("SCWE-046");
+  });
+
+  it("returns empty array for nonexistent CWE", () => {
+    expect(getScweByCwe(99999)).toEqual([]);
+  });
+
+  it("returns multiple entries when CWE maps to several SCWEs", () => {
+    const results = getScweByCwe(367);
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    for (const entry of results) {
+      expect(entry.mappings.cwe).toContain(367);
+    }
   });
 });
 

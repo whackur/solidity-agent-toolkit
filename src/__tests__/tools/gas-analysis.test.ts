@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { execSync } from "child_process";
 import { existsSync } from "fs";
-import { registerGasAnalysisTools } from "../../mcp/tools/gas-analysis.js";
+import { registerGasTools } from "../../mcp/tools/gas-analysis.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 vi.mock("child_process");
@@ -26,26 +26,26 @@ describe("Gas Analysis Tools", () => {
   });
 
   describe("Tool Registration", () => {
-    it("registers gas_snapshot tool", () => {
-      registerGasAnalysisTools(mockServer);
-      expect(registeredTools.has("gas_snapshot")).toBe(true);
+    it("registers analyze_gas tool", () => {
+      registerGasTools(mockServer);
+      expect(registeredTools.has("analyze_gas")).toBe(true);
     });
 
     it.skip("all tools have readOnlyHint annotation", () => {
-      registerGasAnalysisTools(mockServer);
-      expect(registeredTools.get("gas_snapshot").schema.annotations?.readOnlyHint).toBe(true);
+      registerGasTools(mockServer);
+      expect(registeredTools.get("analyze_gas").schema.annotations?.readOnlyHint).toBe(true);
     });
   });
 
-  describe("gas_snapshot tool", () => {
+  describe("analyze_gas tool (snapshot mode)", () => {
     it("returns installation instructions when forge not installed", async () => {
       vi.mocked(execSync).mockImplementation(() => {
         throw new Error("forge not found");
       });
 
-      registerGasAnalysisTools(mockServer);
-      const tool = registeredTools.get("gas_snapshot");
-      const result = await tool.handler({});
+      registerGasTools(mockServer);
+      const tool = registeredTools.get("analyze_gas");
+      const result = await tool.handler({ mode: "snapshot" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Forge is not installed");
@@ -55,9 +55,9 @@ describe("Gas Analysis Tools", () => {
       vi.mocked(execSync).mockReturnValue(Buffer.from("forge 0.2.0\n"));
       vi.mocked(existsSync).mockReturnValue(false);
 
-      registerGasAnalysisTools(mockServer);
-      const tool = registeredTools.get("gas_snapshot");
-      const result = await tool.handler({});
+      registerGasTools(mockServer);
+      const tool = registeredTools.get("analyze_gas");
+      const result = await tool.handler({ mode: "snapshot" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Not a Foundry Project");
@@ -80,9 +80,9 @@ CounterTest:testSetNumber() (gas: 27553)`;
         return Buffer.from("");
       });
 
-      registerGasAnalysisTools(mockServer);
-      const tool = registeredTools.get("gas_snapshot");
-      const result = await tool.handler({});
+      registerGasTools(mockServer);
+      const tool = registeredTools.get("analyze_gas");
+      const result = await tool.handler({ mode: "snapshot" });
 
       expect(result.isError).toBeUndefined();
       expect(result.content[0].text).toContain("Gas Snapshot");

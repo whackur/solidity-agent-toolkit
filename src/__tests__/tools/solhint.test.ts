@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { execSync } from "child_process";
-import type { SolhintViolation } from "../../mcp/tools/solhint.js";
+import type { SolhintViolation } from "../../core/solhint.js";
 
 vi.mock("child_process");
 
@@ -39,7 +39,7 @@ describe("Solhint Tool", () => {
 
       vi.mocked(execSync).mockReturnValue(mockOutput);
 
-      const { parseSolhintOutput } = await import("../../mcp/tools/solhint.js");
+      const { parseSolhintOutput } = await import("../../core/solhint.js");
       const violations = parseSolhintOutput(mockOutput);
 
       expect(violations).toHaveLength(2);
@@ -71,7 +71,7 @@ describe("Solhint Tool", () => {
         },
       ]);
 
-      const { parseSolhintOutput } = await import("../../mcp/tools/solhint.js");
+      const { parseSolhintOutput } = await import("../../core/solhint.js");
       const violations = parseSolhintOutput(mockOutput);
 
       expect(violations).toHaveLength(0);
@@ -105,7 +105,7 @@ describe("Solhint Tool", () => {
         },
       ]);
 
-      const { parseSolhintOutput } = await import("../../mcp/tools/solhint.js");
+      const { parseSolhintOutput } = await import("../../core/solhint.js");
       const violations = parseSolhintOutput(mockOutput);
 
       expect(violations[0].file).toBe("contracts/A.sol");
@@ -129,14 +129,14 @@ describe("Solhint Tool", () => {
         },
       ]);
 
-      const { parseSolhintOutput } = await import("../../mcp/tools/solhint.js");
+      const { parseSolhintOutput } = await import("../../core/solhint.js");
       const violations = parseSolhintOutput(mockOutput);
 
       expect(violations[0].fix).toBe("double-quotes");
     });
 
     it("throws error on invalid JSON", async () => {
-      const { parseSolhintOutput } = await import("../../mcp/tools/solhint.js");
+      const { parseSolhintOutput } = await import("../../core/solhint.js");
 
       expect(() => parseSolhintOutput("invalid json")).toThrow("Failed to parse solhint output");
     });
@@ -153,7 +153,7 @@ describe("Solhint Tool", () => {
         },
       ]);
 
-      const { parseSolhintOutput } = await import("../../mcp/tools/solhint.js");
+      const { parseSolhintOutput } = await import("../../core/solhint.js");
       const violations = parseSolhintOutput(mockOutput);
 
       expect(violations[0]).toEqual({
@@ -172,7 +172,7 @@ describe("Solhint Tool", () => {
     it("returns true when solhint is installed", async () => {
       vi.mocked(execSync).mockReturnValue("solhint 3.4.0");
 
-      const { checkSolhintInstalled } = await import("../../mcp/tools/solhint.js");
+      const { checkSolhintInstalled } = await import("../../core/solhint.js");
       const installed = checkSolhintInstalled();
 
       expect(installed).toBe(true);
@@ -186,7 +186,7 @@ describe("Solhint Tool", () => {
         throw new Error("Command not found");
       });
 
-      const { checkSolhintInstalled } = await import("../../mcp/tools/solhint.js");
+      const { checkSolhintInstalled } = await import("../../core/solhint.js");
       const installed = checkSolhintInstalled();
 
       expect(installed).toBe(false);
@@ -195,13 +195,13 @@ describe("Solhint Tool", () => {
 
   describe("SOLHINT_RULES", () => {
     it("includes at least 20 common rules", async () => {
-      const { SOLHINT_RULES } = await import("../../mcp/tools/solhint.js");
+      const { SOLHINT_RULES } = await import("../../core/solhint.js");
 
       expect(SOLHINT_RULES.length).toBeGreaterThanOrEqual(20);
     });
 
     it("all rules have required fields", async () => {
-      const { SOLHINT_RULES } = await import("../../mcp/tools/solhint.js");
+      const { SOLHINT_RULES } = await import("../../core/solhint.js");
 
       for (const rule of SOLHINT_RULES) {
         expect(rule.name).toBeDefined();
@@ -212,7 +212,7 @@ describe("Solhint Tool", () => {
     });
 
     it("includes critical security rules", async () => {
-      const { SOLHINT_RULES } = await import("../../mcp/tools/solhint.js");
+      const { SOLHINT_RULES } = await import("../../core/solhint.js");
 
       const ruleNames = SOLHINT_RULES.map((r) => r.name);
       expect(ruleNames).toContain("no-tx-origin");
@@ -221,7 +221,7 @@ describe("Solhint Tool", () => {
     });
 
     it("includes style and naming convention rules", async () => {
-      const { SOLHINT_RULES } = await import("../../mcp/tools/solhint.js");
+      const { SOLHINT_RULES } = await import("../../core/solhint.js");
 
       const ruleNames = SOLHINT_RULES.map((r) => r.name);
       expect(ruleNames).toContain("var-name-mixedcase");
@@ -231,7 +231,7 @@ describe("Solhint Tool", () => {
     });
 
     it("rules are categorized", async () => {
-      const { SOLHINT_RULES } = await import("../../mcp/tools/solhint.js");
+      const { SOLHINT_RULES } = await import("../../core/solhint.js");
 
       const categories = new Set(SOLHINT_RULES.map((r) => r.category));
       expect(categories.size).toBeGreaterThan(0);
@@ -243,14 +243,14 @@ describe("Solhint Tool", () => {
 
   describe("formatViolations", () => {
     it("formats empty violations list", async () => {
-      const { formatViolations } = await import("../../mcp/tools/solhint.js");
+      const { formatViolations } = await import("../../core/solhint.js");
 
       const formatted = formatViolations([]);
       expect(formatted).toBe("No linting violations found.");
     });
 
     it("formats violations grouped by file", async () => {
-      const { formatViolations } = await import("../../mcp/tools/solhint.js");
+      const { formatViolations } = await import("../../core/solhint.js");
 
       const violations: SolhintViolation[] = [
         {
@@ -282,7 +282,7 @@ describe("Solhint Tool", () => {
     });
 
     it("includes severity in formatted output", async () => {
-      const { formatViolations } = await import("../../mcp/tools/solhint.js");
+      const { formatViolations } = await import("../../core/solhint.js");
 
       const violations: SolhintViolation[] = [
         {

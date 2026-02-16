@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { registerAdversarialTools } from "../../mcp/tools/adversarial.js";
+import { registerContractAnalysisTools } from "../../mcp/tools/contract-analysis.js";
 
 describe("Adversarial Scenario Analysis Tools", () => {
   let server: McpServer;
@@ -13,15 +13,15 @@ describe("Adversarial Scenario Analysis Tools", () => {
   });
 
   describe("Tool Registration", () => {
-    it("registerAdversarialTools does not throw", () => {
-      expect(() => registerAdversarialTools(server)).not.toThrow();
+    it("registerContractAnalysisTools does not throw", () => {
+      expect(() => registerContractAnalysisTools(server)).not.toThrow();
     });
 
     it("registers analyze_adversarial_scenarios tool", () => {
-      registerAdversarialTools(server);
+      registerContractAnalysisTools(server);
 
       // @ts-expect-error — accessing private for testing
-      const tool = server._registeredTools["analyze_adversarial_scenarios"];
+      const tool = server._registeredTools["analyze_contract"];
       expect(tool).toBeDefined();
       expect(tool.description).toContain("adversarial");
     });
@@ -29,7 +29,7 @@ describe("Adversarial Scenario Analysis Tools", () => {
 
   describe("analyze_adversarial_scenarios tool", () => {
     beforeEach(() => {
-      registerAdversarialTools(server);
+      registerContractAnalysisTools(server);
     });
 
     it("returns formatted analysis for code with detectable features", async () => {
@@ -45,8 +45,8 @@ contract Vulnerable {
 }`;
 
       // @ts-expect-error — accessing private for testing
-      const tool = server._registeredTools["analyze_adversarial_scenarios"];
-      const result = await tool.handler({ code });
+      const tool = server._registeredTools["analyze_contract"];
+      const result = await tool.handler({ analysis: "adversarial", code });
 
       expect(result.isError).toBe(false);
       expect(result.content).toHaveLength(1);
@@ -68,8 +68,8 @@ contract Vulnerable {
 }`;
 
       // @ts-expect-error — accessing private for testing
-      const tool = server._registeredTools["analyze_adversarial_scenarios"];
-      const result = await tool.handler({ code });
+      const tool = server._registeredTools["analyze_contract"];
+      const result = await tool.handler({ analysis: "adversarial", code });
 
       expect(result.content[0].text).toContain("Adversarial Scenario");
     });
@@ -84,8 +84,8 @@ contract Foo {
 }`;
 
       // @ts-expect-error — accessing private for testing
-      const tool = server._registeredTools["analyze_adversarial_scenarios"];
-      const result = await tool.handler({ code });
+      const tool = server._registeredTools["analyze_contract"];
+      const result = await tool.handler({ analysis: "adversarial", code });
 
       expect(result.isError).toBe(false);
       expect(result.content[0].text).toContain("No adversarial scenarios");
@@ -104,8 +104,12 @@ contract Vulnerable {
 }`;
 
       // @ts-expect-error — accessing private for testing
-      const tool = server._registeredTools["analyze_adversarial_scenarios"];
-      const result = await tool.handler({ code, categories: ["reentrancy"] });
+      const tool = server._registeredTools["analyze_contract"];
+      const result = await tool.handler({
+        analysis: "adversarial",
+        code,
+        categories: ["reentrancy"],
+      });
 
       expect(result.isError).toBe(false);
       expect(result.content[0].text).toBeTruthy();
@@ -124,8 +128,9 @@ contract Vulnerable {
 }`;
 
       // @ts-expect-error — accessing private for testing
-      const tool = server._registeredTools["analyze_adversarial_scenarios"];
+      const tool = server._registeredTools["analyze_contract"];
       const result = await tool.handler({
+        analysis: "adversarial",
         code,
         categories: ["nonexistent-category"],
       });

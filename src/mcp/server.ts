@@ -1,29 +1,26 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { registerTop10Resources } from "./resources/top10-resources.js";
-import { registerPatternMatcherTool } from "./tools/vuln-pattern-matcher.js";
-import { registerSolhintTools } from "./tools/solhint.js";
-import { registerAderynTools } from "./tools/aderyn.js";
-import { registerCompileTools } from "./tools/compile.js";
-import { registerCompileInspectTools } from "./tools/compile-inspect.js";
-import { registerTestRunnerTools } from "./tools/test-runner.js";
-import { registerSlitherTools } from "./tools/slither.js";
-import { registerNatSpecTools } from "./tools/natspec.js";
-import { registerGasAnalysisTools } from "./tools/gas-analysis.js";
-import { registerGasInspectionTools } from "./tools/gas-inspection.js";
-import { registerDeployTools } from "./tools/deploy.js";
-import { registerStyleGuideTools } from "./tools/style-guide.js";
-import { registerSCWESearchTools } from "./tools/scwe-search.js";
-import { registerSCWECheckerTools } from "./tools/scwe-checker.js";
-import { registerERCPatternPrompts } from "./prompts/erc-patterns.js";
 import { registerERCResources } from "./resources/erc-standards.js";
 import { registerSCWEResources } from "./resources/scwe-resources.js";
+import { registerAdversarialResources } from "./resources/adversarial-resources.js";
+import { registerSlitherResources } from "./resources/slither-resources.js";
+import { registerSolhintResources } from "./resources/solhint-resources.js";
+import { registerSecurityScanTools } from "./tools/security-scan.js";
+import { registerCompileTools } from "./tools/compile.js";
+import { registerTestRunnerTools } from "./tools/test-runner.js";
+import { registerGasTools } from "./tools/gas-analysis.js";
+import { registerDeployTools } from "./tools/deploy.js";
+import { registerNatSpecTools } from "./tools/natspec.js";
+import { registerStyleGuideTools } from "./tools/style-guide.js";
+import { registerVulnerabilitySearchTools } from "./tools/vulnerability-search.js";
+import { registerVulnerabilityPatternTools } from "./tools/vulnerability-patterns.js";
+import { registerContractAnalysisTools } from "./tools/contract-analysis.js";
+import { registerERCPatternPrompts } from "./prompts/erc-patterns.js";
 import { registerSecurityAuditPrompts } from "./prompts/security-audit.js";
 import { registerCodeReviewPrompts } from "./prompts/code-review.js";
 import { registerGasOptimizationPrompts } from "./prompts/gas-optimization.js";
-import { registerAdversarialTools } from "./tools/adversarial.js";
 import { registerAdversarialPrompts } from "./prompts/adversarial-analysis.js";
-import { registerAdversarialResources } from "./resources/adversarial-resources.js";
 import { notifyIfUpdateAvailable } from "../core/version-checker.js";
 
 export function createMcpServer(): McpServer {
@@ -32,30 +29,32 @@ export function createMcpServer(): McpServer {
     version: "0.2.0",
   });
 
+  // Resources (6 registration groups → 12 resources)
   registerTop10Resources(server);
-  registerPatternMatcherTool(server);
-  registerSolhintTools(server);
-  registerAderynTools(server);
-  registerCompileTools(server);
-  registerCompileInspectTools(server);
-  registerTestRunnerTools(server);
-  registerSlitherTools(server);
-  registerNatSpecTools(server);
-  registerGasAnalysisTools(server);
-  registerGasInspectionTools(server);
-  registerDeployTools(server);
-  registerStyleGuideTools(server);
-  registerSCWESearchTools(server);
-  registerSCWECheckerTools(server);
-  registerERCPatternPrompts(server);
   registerERCResources(server);
   registerSCWEResources(server);
+  registerAdversarialResources(server);
+  registerSlitherResources(server);
+  registerSolhintResources(server);
+
+  // Tools (10 consolidated tools)
+  registerSecurityScanTools(server);
+  registerCompileTools(server);
+  registerTestRunnerTools(server);
+  registerGasTools(server);
+  registerDeployTools(server);
+  registerNatSpecTools(server);
+  registerStyleGuideTools(server);
+  registerVulnerabilitySearchTools(server);
+  registerVulnerabilityPatternTools(server);
+  registerContractAnalysisTools(server);
+
+  // Prompts (5 registration groups → 7 prompts)
+  registerERCPatternPrompts(server);
   registerSecurityAuditPrompts(server);
   registerCodeReviewPrompts(server);
   registerGasOptimizationPrompts(server);
   registerAdversarialPrompts(server);
-  registerAdversarialTools(server);
-  registerAdversarialResources(server);
 
   return server;
 }

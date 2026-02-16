@@ -12,36 +12,34 @@ export {
 
 export function registerNatSpecTools(server: McpServer): void {
   server.tool(
-    "validate_natspec",
-    "Validate NatSpec documentation in Solidity code, checking for missing @notice, @param, and @return tags",
+    "check_natspec",
+    "Check NatSpec documentation in Solidity code for missing tags, or generate documentation " +
+      "templates. Set generate=true to produce NatSpec templates instead of validating.",
     {
-      code: z.string().describe("Solidity source code to validate"),
+      code: z.string().describe("Solidity source code to check"),
+      generate: z
+        .boolean()
+        .optional()
+        .describe("If true, generate NatSpec templates instead of validating"),
     },
-    async ({ code }) => {
+    async ({ code, generate }) => {
+      if (generate) {
+        const result = generateNatSpec(code);
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "Generated NatSpec templates:\n\n```solidity\n" + result + "\n```",
+            },
+          ],
+          isError: false,
+          _meta: { readOnlyHint: true },
+        };
+      }
+
       const issues = validateNatSpec(code);
       return {
         content: [{ type: "text" as const, text: formatValidationResults(issues) }],
-        isError: false,
-        _meta: { readOnlyHint: true },
-      };
-    },
-  );
-
-  server.tool(
-    "generate_natspec",
-    "Generate NatSpec documentation templates for functions missing documentation",
-    {
-      code: z.string().describe("Solidity source code to add NatSpec to"),
-    },
-    async ({ code }) => {
-      const result = generateNatSpec(code);
-      return {
-        content: [
-          {
-            type: "text" as const,
-            text: "Generated NatSpec templates:\n\n```solidity\n" + result + "\n```",
-          },
-        ],
         isError: false,
         _meta: { readOnlyHint: true },
       };
