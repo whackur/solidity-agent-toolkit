@@ -11,7 +11,7 @@ Failures in restricting access to sensitive functions or data. This allows unaut
 - Ensure all state-changing functions have modifiers
 - Audit visibility of internal/private functions
 
-**Related SCWE IDs:** SCWE-048, SCWE-018, SCWE-038
+**Related SCWE IDs:** SCWE-016, SCWE-018, SCWE-049
 
 > For code examples and detailed remediation, use `get_remediation` with any SCWE ID above, or browse `scwe://category/SCSVS-AUTH`.
 
@@ -26,7 +26,7 @@ Flaws in the design or implementation of the contract's logic. These are often u
 - Peer review of economic models
 - Use of invariant testing (fuzzing)
 
-**Related SCWE IDs:** SCWE-067, SCWE-030
+**Related SCWE IDs:** SCWE-067, SCWE-083
 
 > For code examples and detailed remediation, use `get_remediation` with any SCWE ID above.
 
@@ -41,9 +41,9 @@ Relying on a single, manipulatable source for asset prices. Attackers can use fl
 - Check for price staleness and deviation
 - Use multiple independent price sources
 
-**Related SCWE IDs:** SCWE-063, SCWE-015
+**Related SCWE IDs:** SCWE-028, SCWE-029
 
-> For code examples and detailed remediation, use `get_remediation` with any SCWE ID above, or browse `scwe://category/SCSVS-DEFI`.
+> For code examples and detailed remediation, use `get_remediation` with any SCWE ID above, or browse `scwe://category/SCSVS-ORACLE`.
 
 ## SC04: Flash Loan Attacks
 
@@ -56,7 +56,7 @@ Exploiting a contract's logic using large amounts of capital borrowed and repaid
 - Use TWAP oracles
 - Add reentrancy guards to sensitive functions
 
-**Related SCWE IDs:** SCWE-063, SCWE-046
+**Related SCWE IDs:** SCWE-046, SCWE-101
 
 > For code examples and detailed remediation, use `get_remediation` with any SCWE ID above, or browse `scwe://category/SCSVS-DEFI`.
 
@@ -71,7 +71,7 @@ Failing to properly sanitize or validate data provided by users. This can lead t
 - Check array lengths and bounds
 - Use custom errors for gas efficiency
 
-**Related SCWE IDs:** SCWE-043, SCWE-025, SCWE-035
+**Related SCWE IDs:** SCWE-143, SCWE-145, SCWE-091
 
 > For code examples and detailed remediation, use `get_remediation` with any SCWE ID above, or browse `scwe://category/SCSVS-CODE`.
 
@@ -86,9 +86,9 @@ Calling external contracts without handling potential failures or malicious beha
 - Use the pull-over-push pattern for payments
 - Limit gas forwarded to external calls
 
-**Related SCWE IDs:** SCWE-109, SCWE-100, SCWE-030
+**Related SCWE IDs:** SCWE-048, SCWE-004
 
-> For code examples and detailed remediation, use `get_remediation` with any SCWE ID above, or browse `scwe://category/SCSVS-COMM`.
+> For code examples and detailed remediation, use `get_remediation` with any SCWE ID above, or browse `scwe://category/SCSVS-CODE`.
 
 ## SC07: Arithmetic Errors
 
@@ -101,7 +101,7 @@ Errors in mathematical operations, such as division by zero or precision loss. W
 - Use high-precision libraries for complex math
 - Check for division by zero explicitly
 
-**Related SCWE IDs:** SCWE-106, SCWE-067
+**Related SCWE IDs:** SCWE-047, SCWE-124
 
 > For code examples and detailed remediation, use `get_remediation` with any SCWE ID above.
 
@@ -116,9 +116,9 @@ An external call hijacks the control flow to call back into the original contrac
 - Update state before making external calls
 - Avoid calling untrusted contracts
 
-**Related SCWE IDs:** SCWE-046, SCWE-077
+**Related SCWE IDs:** SCWE-046, SCWE-137
 
-> For code examples and detailed remediation, use `get_remediation` with any SCWE ID above, or browse `scwe://category/SCSVS-COMM`.
+> For code examples and detailed remediation, use `get_remediation` with any SCWE ID above, or browse `scwe://category/SCSVS-CODE`.
 
 ## SC09: Integer Overflow/Underflow
 
@@ -131,7 +131,7 @@ Mathematical operations that exceed the storage capacity of the variable type. I
 - Be aware of 'unchecked' blocks in 0.8+
 - Use appropriate uint sizes (uint256 preferred)
 
-**Related SCWE IDs:** SCWE-106
+**Related SCWE IDs:** SCWE-047
 
 > For code examples and detailed remediation, use `get_remediation` with the SCWE ID above.
 
@@ -146,7 +146,7 @@ Risks associated with delegating logic to other contracts. Includes storage coll
 - Use storage gaps in base contracts
 - Validate implementation addresses before upgrading
 
-**Related SCWE IDs:** SCWE-053, SCWE-035, SCWE-043
+**Related SCWE IDs:** SCWE-005, SCWE-098, SCWE-099
 
 > For code examples and detailed remediation, use `get_remediation` with any SCWE ID above, or browse `scwe://category/SCSVS-ARCH`.
 
@@ -156,15 +156,15 @@ Risks associated with delegating logic to other contracts. Includes storage coll
 
 The most frequently encountered vulnerabilities across all categories. Use `get_remediation` with the SCWE ID for detailed fix guidance including code examples.
 
-| SCWE ID  | Vulnerability                                  | Quick Fix                                      |
-| :------- | :--------------------------------------------- | :--------------------------------------------- |
-| SCWE-046 | Reentrancy (external call before state update) | Apply CEI pattern or add ReentrancyGuard       |
-| SCWE-048 | Incorrect access control                       | Use OpenZeppelin AccessControl or Ownable      |
-| SCWE-109 | Unchecked external call return value           | Use SafeERC20 or check return with `require`   |
-| SCWE-018 | tx.origin authentication                       | Replace with `msg.sender`                      |
-| SCWE-035 | Insecure delegatecall usage                    | Validate target address, use immutable targets |
-| SCWE-053 | Unprotected initializer                        | Add `initializer` modifier                     |
-| SCWE-106 | Integer overflow/underflow                     | Use Solidity 0.8+ or SafeMath                  |
-| SCWE-015 | Weak randomness                                | Use Chainlink VRF or commit-reveal             |
-| SCWE-020 | Signature replay attack                        | Use nonces and EIP-712                         |
-| SCWE-058 | Floating pragma                                | Lock pragma to specific version                |
+| SCWE ID  | Vulnerability                                                 | Quick Fix                                      |
+| :------- | :------------------------------------------------------------ | :--------------------------------------------- |
+| SCWE-046 | Reentrancy Attacks                                            | Apply CEI pattern or add ReentrancyGuard       |
+| SCWE-016 | Insufficient Authorization Checks                             | Use OpenZeppelin AccessControl or Ownable      |
+| SCWE-048 | Unchecked Call Return Value                                   | Use SafeERC20 or check return with `require`   |
+| SCWE-018 | Use of tx.origin for Authorization                            | Replace with `msg.sender`                      |
+| SCWE-035 | Insecure Delegatecall Usage                                   | Validate target address, use immutable targets |
+| SCWE-098 | Initialization Front-Running in Upgradeable Contracts         | Add `initializer` modifier, use OZ Upgrades    |
+| SCWE-047 | Integer Overflows and Underflows                              | Use Solidity 0.8+ or SafeMath                  |
+| SCWE-024 | Weak Randomness Sources                                       | Use Chainlink VRF or commit-reveal             |
+| SCWE-105 | Permit Signature Replay via Missing Domain Separator or Nonce | Use nonces and EIP-712                         |
+| SCWE-028 | Price Oracle Manipulation                                     | Use Chainlink, TWAP, or multiple sources       |

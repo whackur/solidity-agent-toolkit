@@ -95,9 +95,9 @@ describe("Top 10 SCWE enrichment", () => {
     expect(entry.relatedSCWE).toContain("SCWE-046");
   });
 
-  it("SC01 relatedSCWE includes SCWE-048", () => {
+  it("SC01 relatedSCWE includes SCWE-016", () => {
     const entry = getTop10ById("SC01")!;
-    expect(entry.relatedSCWE).toContain("SCWE-048");
+    expect(entry.relatedSCWE).toContain("SCWE-016");
   });
 });
 

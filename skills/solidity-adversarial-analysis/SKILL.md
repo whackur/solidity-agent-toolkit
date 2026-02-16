@@ -4,7 +4,7 @@ description: Adversarial scenario analysis and threat modeling for Solidity smar
 license: MIT
 metadata:
   author: whackur
-  version: "0.5.1"
+  version: "0.5.3"
 ---
 
 # Solidity Adversarial Scenario Analysis
