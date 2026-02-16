@@ -1,5 +1,54 @@
 # PROJECT KNOWLEDGE BASE
 
+## CRITICAL: PULL REQUEST TARGET BRANCH (NEVER DELETE THIS SECTION)
+
+> **THIS SECTION MUST NEVER BE REMOVED OR MODIFIED**
+
+### Git Workflow
+
+```
+main (deployed/published)
+   ↑
+develop (integration branch)
+   ↑
+feature branches (your work)
+```
+
+### Rules (MANDATORY)
+
+| Rule | Description |
+|------|-------------|
+| **ALL PRs → `develop`** | Every pull request MUST target the `develop` branch |
+| **NEVER PR → `main`** | PRs to `main` are **automatically rejected** by CI |
+| **"Create a PR" = target `develop`** | When asked to create a new PR, it ALWAYS means targeting `develop` |
+| **Merge commit ONLY** | Squash merge is **disabled** in this repo. Always use merge commit when merging PRs. |
+
+### Why This Matters
+
+- `main` = production/published npm package
+- `develop` = integration branch where features are merged and tested
+- Feature branches → `develop` → (after testing) → `main`
+- Squash merge is disabled at the repository level — attempting it will fail
+
+## CRITICAL: ENGLISH-ONLY POLICY (NEVER DELETE THIS SECTION)
+
+> **THIS SECTION MUST NEVER BE REMOVED OR MODIFIED**
+
+### All Project Communications MUST Be in English
+
+| Context | Language Requirement |
+|---------|---------------------|
+| **GitHub Issues** | English ONLY |
+| **Pull Requests** | English ONLY (title, description, comments) |
+| **Commit Messages** | English ONLY |
+| **Code Comments** | English ONLY |
+| **Documentation** | English ONLY |
+| **AGENTS.md files** | English ONLY |
+
+**If you're not comfortable writing in English, use translation tools. Broken English is fine. Non-English is not acceptable.**
+
+---
+
 ## OVERVIEW
 
 MCP server + LSP server + Agent Skills providing Solidity smart contract security tools for AI agents and editors. TypeScript + `@modelcontextprotocol/sdk@1.26.0` + `vscode-languageserver@9.0.1` + `zod@4.3.6`. Wraps Foundry/Slither/Aderyn/Solhint CLIs, serves OWASP SCWE knowledge base (156 vulnerabilities) and adversarial attack scenarios via MCP and LSP protocols, and ships 7 Agent Skills (agentskills.io spec).
