@@ -30,17 +30,17 @@ Protocol-agnostic analysis logic reusable by both MCP and LSP. Each file wraps o
 
 ### Analysis (Pure Logic)
 
-| File                       | Purpose                              | Key Exports                                   |
-| -------------------------- | ------------------------------------ | --------------------------------------------- |
-| `pattern-matcher.ts`       | Regex vulnerability detection        | `matchPatterns()`, `PatternMatch`             |
-| `scwe-search.ts`           | SCWE knowledge base search           | `searchVulnerabilities()`, `getRemediation()` |
-| `erc-compliance.ts`        | ERC standard compliance checking     | `checkERCCompliance()`                        |
-| `proxy-safety.ts`          | Proxy/upgrade anti-pattern detection | `checkProxySafety()`                          |
-| `adversarial-analysis.ts`  | Feature → attack scenario mapping    | `analyzeAdversarialScenarios()`               |
-| `access-control-matrix.ts` | Function visibility/modifier matrix  | `generateAccessControlMatrix()`               |
-| `dependency-graph.ts`      | Import/inheritance graph + Mermaid   | `extractContractDependencies()`               |
-| `natspec.ts`               | NatSpec validation/generation        | `validateNatSpec()`, `generateNatSpec()`      |
-| `natspec-parser.ts`        | NatSpec comment extraction           | `parseNatSpecComments()`                      |
+| File                       | Purpose                                | Key Exports                                          |
+| -------------------------- | -------------------------------------- | ---------------------------------------------------- |
+| `pattern-matcher.ts`       | Heuristic regex detection + disclaimer | `matchPatterns()`, `formatMatches()`, `PatternMatch` |
+| `scwe-search.ts`           | SCWE knowledge base search             | `searchVulnerabilities()`, `getRemediation()`        |
+| `erc-compliance.ts`        | ERC standard compliance checking       | `checkERCCompliance()`                               |
+| `proxy-safety.ts`          | Proxy/upgrade anti-pattern detection   | `checkProxySafety()`                                 |
+| `adversarial-analysis.ts`  | Feature → attack scenario mapping      | `analyzeAdversarialScenarios()`                      |
+| `access-control-matrix.ts` | Function visibility/modifier matrix    | `generateAccessControlMatrix()`                      |
+| `dependency-graph.ts`      | Import/inheritance graph + Mermaid     | `extractContractDependencies()`                      |
+| `natspec.ts`               | NatSpec validation/generation          | `validateNatSpec()`, `generateNatSpec()`             |
+| `natspec-parser.ts`        | NatSpec comment extraction             | `parseNatSpecComments()`                             |
 
 ### Utilities
 
@@ -57,3 +57,4 @@ Protocol-agnostic analysis logic reusable by both MCP and LSP. Each file wraps o
 - `execSync` calls are acceptable here (MCP tools use sync; LSP uses `cli-runner.ts` for async)
 - Returns result objects (`{ success, findings, error }`) — never throws for expected failures
 - I/O separated from pure logic: execution (`run*`) vs. parsing/formatting (`parse*`, `format*`)
+- `pattern-matcher.ts` outputs include a disclaimer header marking results as heuristic (not authoritative)

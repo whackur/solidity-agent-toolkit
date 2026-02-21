@@ -5,7 +5,10 @@ import { buildAdversarialPrompt } from "./adversarial-analysis-logic.js";
 export function registerAdversarialPrompts(server: McpServer): void {
   server.prompt(
     "adversarial_analysis",
-    "Guided adversarial scenario analysis for Solidity contracts — identifies attack vectors from an attacker's perspective",
+    "Generate an attacker-perspective threat analysis for a Solidity contract. " +
+      "Maps detected contract features to 17 real-world attack scenarios with concrete attack steps. " +
+      "Optionally focus on a specific category (e.g., reentrancy, flash-loan, mev-frontrunning). " +
+      "Use when: 'think like an attacker', 'threat model this contract', 'what could go wrong?'.",
     {
       contractCode: z.string().describe("The Solidity contract code to analyze"),
       focusCategory: z

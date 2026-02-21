@@ -21,3 +21,5 @@ export {
   enrichTop10WithSCWE,
   getScweIdsForTop10,
 } from "./top10-scwe-mappings.js";
+
+export { getScweIdsForCategories, getCategoriesForScweId } from "./feature-scwe-mappings.js";

@@ -85,7 +85,10 @@ ${storageLayout}
 export function registerGasOptimizationPrompts(server: McpServer) {
   server.prompt(
     "optimize_gas",
-    "Analyze Solidity code for gas optimizations",
+    "Generate a gas optimization analysis for Solidity code with a 10-point checklist. " +
+      "Covers storage packing, calldata vs memory, unchecked arithmetic, loop optimizations, and more. " +
+      "Optionally accepts storage layout JSON for slot-level packing analysis. " +
+      "Use when: 'optimize gas', 'reduce gas costs', 'how to make this cheaper'.",
     {
       code: z.string().describe("The Solidity contract code to analyze"),
       storageLayout: z

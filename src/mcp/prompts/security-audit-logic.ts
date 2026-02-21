@@ -1,5 +1,7 @@
 import { loadAllTop10 } from "../../knowledge/top10-parser.js";
 import { getSCWEById, loadAllSCWE } from "../../knowledge/scwe-parser.js";
+import { detectContractFeatures } from "../../core/adversarial-analysis.js";
+import { getScweIdsForCategories } from "../../knowledge/feature-scwe-mappings.js";
 
 export function buildAuditPrompt(
   contractCode: string,
@@ -13,10 +15,29 @@ export function buildAuditPrompt(
       "OWASP Smart Contract Top 10 Checklist:\n" +
       top10.map((e) => `- ${e.id}: ${e.title}\n  Description: ${e.description}`).join("\n\n");
   } else {
-    const scwe = loadAllSCWE();
-    knowledgeBase =
-      "Smart Contract Weakness Enumeration (SCWE) Knowledge Base:\n" +
-      scwe.map((e) => `- ${e.id}: ${e.title}\n  Description: ${e.description}`).join("\n\n");
+    // Detect contract features to prioritize relevant SCWE entries
+    const features = detectContractFeatures(contractCode);
+    const detectedCategories = features.map((f) => f.category);
+    const priorityScweIds = new Set(getScweIdsForCategories(detectedCategories));
+
+    const allScwe = loadAllSCWE();
+    const prioritized = allScwe.filter((e) => priorityScweIds.has(e.id));
+    const remaining = allScwe.filter((e) => !priorityScweIds.has(e.id));
+
+    knowledgeBase = "";
+    if (prioritized.length > 0) {
+      const featureNames = features.map((f) => f.name).join(", ");
+      knowledgeBase +=
+        `Detected contract features: ${featureNames}\n\n` +
+        "**Priority SCWE entries (matched to detected features):**\n" +
+        prioritized
+          .map((e) => `- ${e.id}: ${e.title}\n  Description: ${e.description}`)
+          .join("\n\n") +
+        "\n\n";
+    }
+    knowledgeBase +=
+      "Full SCWE Knowledge Base:\n" +
+      remaining.map((e) => `- ${e.id}: ${e.title}\n  Description: ${e.description}`).join("\n\n");
   }
 
   const system =

@@ -37,8 +37,10 @@ export function registerGasTools(server: McpServer): void {
     "analyze_gas",
     {
       description:
-        "Analyze gas usage of Solidity contracts. Use 'snapshot' mode for gas snapshots, " +
-        "or 'report' mode for function-level gas estimates.",
+        "Analyze gas consumption of Solidity contracts. Requires Foundry CLI. " +
+        "'report' mode (default): run tests and show per-function gas estimates (min/avg/median/max). " +
+        "'snapshot' mode: generate gas snapshot, optionally compare with previous snapshot to detect regressions. " +
+        "Use when: 'how much gas does this use?', 'gas report', 'compare gas usage', 'optimize gas'.",
       inputSchema: AnalyzeGasSchema.shape,
     },
     async ({ mode, contractName, functionName, compare }) => {

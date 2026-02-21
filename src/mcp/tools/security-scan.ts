@@ -14,10 +14,21 @@ export function registerSecurityScanTools(server: McpServer): void {
     "run_security_scan",
     {
       description:
-        "Run security analysis on Solidity contracts using Slither, Aderyn, or Solhint. " +
-        "Select the tool parameter to choose which analyzer to run.",
+        "PRIMARY tool for deep security analysis of Solidity files and projects. " +
+        "Runs professional static analyzers: Slither (90+ detectors, most comprehensive), " +
+        "Aderyn (Rust-based, fast pattern detection), or Solhint (linting and security rules). " +
+        "Requires external CLI tools installed on the system. " +
+        "Use when: 'find vulnerabilities', 'audit my contract', 'run security scan', 'analyze for bugs'. " +
+        "NOT for: vulnerability lookups by name (use search_vulnerabilities) or quick " +
+        "inline scanning without CLI tools (use scan_vulnerability_patterns).",
       inputSchema: {
-        tool: z.enum(["slither", "aderyn", "solhint"]).describe("Security tool to run"),
+        tool: z
+          .enum(["slither", "aderyn", "solhint"])
+          .describe(
+            "slither: most comprehensive, 90+ vulnerability detectors (Python) | " +
+              "aderyn: fast Rust-based pattern detection | " +
+              "solhint: linting, style, and basic security rules (Node.js)",
+          ),
         path: z
           .string()
           .optional()

@@ -27,6 +27,7 @@ data/owasp-scs/docs/sctop10/*.md →  top10-parser.ts  →  SCTop10Entry[]
 | `erc-interfaces.ts`         | ERC-20/721/1155/4626 interface specs             | ✅ data     |
 | `contract-features.ts`      | Regex patterns for contract type detection       | ✅ data     |
 | `proxy-patterns.ts`         | 8 anti-patterns for upgradeable/proxy contracts  | ✅ data     |
+| `feature-scwe-mappings.ts`  | AdversarialCategory → SCWE ID bidirectional maps | —           |
 | `markdown-section.ts`       | Internal utility for regex escaping in parsing   | —           |
 
 ## KEY TYPES
@@ -55,6 +56,8 @@ data/owasp-scs/docs/sctop10/*.md →  top10-parser.ts  →  SCTop10Entry[]
 | `CONTRACT_FEATURE_PATTERNS` | `contract-features.ts`      | Feature detection patterns       |
 | `getScweIdForDetector(d)`   | `slither-mappings.ts`       | Slither detector → SCWE mapping  |
 | `checkAllRules(code)`       | `style-rules.ts`            | Run all style checks             |
+| `getScweIdsForCategories()` | `feature-scwe-mappings.ts`  | Categories → SCWE IDs            |
+| `getCategoriesForScweId()`  | `feature-scwe-mappings.ts`  | SCWE ID → Categories (reverse)   |
 
 ## PARSING GOTCHAS
 

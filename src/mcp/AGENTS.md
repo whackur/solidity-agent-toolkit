@@ -39,6 +39,24 @@ mcp/
     └── adversarial-analysis-logic.ts  # adversarial_analysis generation logic
 ```
 
+## TOOL DESCRIPTION FORMAT
+
+All 10 tool descriptions and 7 prompt descriptions follow a structured format designed for AI client routing (Claude, Cursor, etc.):
+
+```
+[ROLE_PHRASE]. [HOW_IT_WORKS]. [EXTERNAL_DEP if applicable].
+
+Trigger: "[example user queries]"
+NOT for: "[disambiguation vs similar tools]"    ← only for confusion clusters
+```
+
+**Key conventions:**
+
+- 150–400 chars per description — enough for routing, not overwhelming
+- Trigger phrases match natural user queries (e.g., "분석해줘", "취약점 진단해줘")
+- Negative routing (`NOT for:`) used only for the 3-tool vulnerability cluster (`run_security_scan`, `scan_vulnerability_patterns`, `search_vulnerabilities`)
+- `inputSchema` field-level descriptions provide sub-routing within consolidated tools (e.g., `mode`, `analysis`, `action` enums)
+
 ## CONVENTIONS
 
 - Tool files are thin wrappers: import from `../../core/xxx.js`, call `server.registerTool(name, { description, inputSchema }, handler)`

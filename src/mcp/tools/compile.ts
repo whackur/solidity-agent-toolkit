@@ -104,9 +104,11 @@ export function registerCompileTools(server: McpServer): void {
     "compile_contract",
     {
       description:
-        "Compile Solidity contracts using Foundry, or inspect a compiled contract's ABI, bytecode, " +
-        "or storage layout. Set the inspect parameter to skip compilation and inspect artifacts " +
-        "instead.",
+        "Compile Solidity contracts using Foundry (forge build), or inspect compiled artifacts. " +
+        "Requires Foundry CLI installed. " +
+        "Default: compile contracts and report errors/warnings. " +
+        "Set 'inspect' to retrieve ABI, bytecode, or storage layout of a compiled contract. " +
+        "Use when: 'compile my contract', 'show ABI', 'get bytecode', 'inspect storage layout'.",
       inputSchema: CompileContractSchema.shape,
     },
     async ({ path, contractName, inspect }) => {

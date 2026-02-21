@@ -22,8 +22,10 @@ export function registerDeployTools(server: McpServer): void {
     "manage_deployment",
     {
       description:
-        "Manage Solidity contract deployments. Use 'simulate' to dry-run a deployment script " +
-        "(NEVER broadcasts), or 'status' to check previous deployment results.",
+        "Manage Solidity contract deployments safely. Requires Foundry CLI. " +
+        "'simulate': dry-run a deployment script against a forked network — NEVER broadcasts a real transaction. " +
+        "'status': parse previous broadcast logs to check deployment results. " +
+        "Use when: 'deploy my contract', 'simulate deployment', 'check deployment status', 'dry run'.",
       inputSchema: ManageDeploymentSchema.shape,
     },
     async ({ action, scriptPath, rpcUrl, forkBlockNumber, broadcastDir }) => {

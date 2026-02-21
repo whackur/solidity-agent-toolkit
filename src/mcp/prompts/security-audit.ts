@@ -5,7 +5,10 @@ import { buildAuditPrompt, buildVulnerabilityFixPrompt } from "./security-audit-
 export function registerSecurityAuditPrompts(server: McpServer) {
   server.prompt(
     "security_audit",
-    "Comprehensive security audit for Solidity contracts",
+    "Generate a structured security audit methodology for a Solidity contract. " +
+      "Produces a step-by-step audit checklist using OWASP Top 10 (quick) or full SCWE knowledge base (deep). " +
+      "Use AFTER running run_security_scan to organize findings into a comprehensive report. " +
+      "Use when: 'audit this contract', 'perform security review', 'generate audit report'.",
     {
       contractCode: z.string().describe("The Solidity contract code to audit"),
       auditLevel: z
@@ -39,7 +42,9 @@ export function registerSecurityAuditPrompts(server: McpServer) {
 
   server.prompt(
     "vulnerability_fix",
-    "Remediation guide and fix for a specific vulnerability",
+    "Generate a targeted remediation guide for a specific SCWE vulnerability in Solidity code. " +
+      "Returns the vulnerability description, official remediation steps, and a task to produce fixed code. " +
+      "Use when: 'fix this vulnerability', 'how to remediate SCWE-046', 'patch reentrancy bug'.",
     {
       code: z.string().describe("The vulnerable Solidity code snippet"),
       vulnerabilityId: z.string().describe("The SCWE ID (e.g., SCWE-101)"),

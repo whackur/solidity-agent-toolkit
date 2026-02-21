@@ -83,7 +83,7 @@ src/
 │   ├── tools/         # 11 files → 10 consolidated tools
 │   ├── resources/     # 6 files → 12 resources
 │   └── prompts/       # 8 files → 7 prompts
-├── lsp/               # LSP server (diagnostics, hover, code actions)
+├── lsp/               # LSP server (heuristic diagnostics, CLI diagnostics, hover, code actions)
 ├── knowledge/         # OWASP data parsers, vulnerability patterns, style rules
 └── __tests__/         # Mirrors src/ structure
 skills/                # 7 Agent Skills (agentskills.io spec, SKILL.md files)
@@ -230,6 +230,24 @@ Package and skill versions are **synced** — a single `pnpm version <semver>` b
 - **NEVER** add `Co-authored-by`, `Signed-off-by`, or any git trailers that attribute authorship to accounts not explicitly specified by the user.
 - Commit messages must only reflect the actual author configured in local git config.
 - If the user explicitly provides a `Co-authored-by` trailer, include it verbatim — never modify, add, or remove names/emails.
+
+## DIAGNOSTIC HIERARCHY
+
+Regex-based pattern detection is **heuristic-level** — not authoritative:
+
+1. **CLI tools** (Slither/Aderyn/Solhint) = authoritative, highest priority
+2. **Pattern diagnostics** (regex) = heuristic, labeled `[Heuristic]`, downgraded severity (Warning/Info/Hint)
+3. On save: if CLI tools report on the same line, pattern diagnostics are **suppressed** for that line
+4. MCP `scan_vulnerability_patterns` output includes a disclaimer header
+
+## MCP DESCRIPTION CONVENTIONS
+
+Tool and prompt descriptions are structured for AI client routing:
+
+- 150–400 chars with trigger phrases matching user queries
+- Negative routing (`NOT for:`) only on the 3-tool vulnerability cluster
+- `inputSchema` field descriptions for sub-routing within consolidated tools
+- See `src/mcp/AGENTS.md` for full format specification
 
 ## NOTES
 

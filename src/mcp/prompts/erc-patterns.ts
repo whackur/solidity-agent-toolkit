@@ -6,7 +6,10 @@ export function registerERCPatternPrompts(server: McpServer): void {
   server.registerPrompt(
     "generate_erc",
     {
-      description: "Generate guidance for implementing an ERC standard",
+      description:
+        "Generate implementation guidance for an ERC standard (ERC20, ERC721, ERC1155, ERC4626). " +
+        "Returns required interface, security considerations, and optional feature recommendations. " +
+        "Use when: 'how to implement ERC20', 'create a token', 'build an NFT contract'.",
       argsSchema: {
         standard: z
           .enum(["ERC20", "ERC721", "ERC1155", "ERC4626"])

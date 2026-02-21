@@ -24,6 +24,14 @@ export function getCachedPatternDiagnostics(uri: string): Diagnostic[] | undefin
   return lastPatternDiagnostics.get(uri);
 }
 
+function suppressOverlappingPatterns(
+  patterns: Diagnostic[],
+  cliDiagnostics: Diagnostic[],
+): Diagnostic[] {
+  const cliLines = new Set(cliDiagnostics.map((d) => d.range.start.line));
+  return patterns.filter((p) => !cliLines.has(p.range.start.line));
+}
+
 function deduplicateDiagnostics(diagnostics: Diagnostic[]): Diagnostic[] {
   const seen = new Set<string>();
   return diagnostics.filter((d) => {
@@ -87,8 +95,16 @@ export function setupDiagnostics(
           getAderynDiagnostics(filePath, cwd),
         ]);
 
+        const cliDiagnostics = [...slither, ...solhint, ...aderyn];
+
+        // When CLI tools return results, suppress overlapping pattern diagnostics
+        // CLI tools (Slither/Aderyn/Solhint) are authoritative; regex patterns are heuristic
         const patterns = lastPatternDiagnostics.get(uri) ?? [];
-        const merged = deduplicateDiagnostics([...patterns, ...slither, ...solhint, ...aderyn]);
+        const filteredPatterns =
+          cliDiagnostics.length > 0
+            ? suppressOverlappingPatterns(patterns, cliDiagnostics)
+            : patterns;
+        const merged = deduplicateDiagnostics([...filteredPatterns, ...cliDiagnostics]);
 
         connection.sendDiagnostics({ uri, diagnostics: merged });
       }, CLI_DEBOUNCE_MS),

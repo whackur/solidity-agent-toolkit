@@ -34,8 +34,10 @@ export function registerTestRunnerTools(server: McpServer): void {
     "run_tests",
     {
       description:
-        "Run Foundry tests and return results. Optionally specify testContract and testFunction " +
-        "to run a single test with detailed trace output.",
+        "Run Foundry (forge test) test suite and return pass/fail results with gas usage. " +
+        "Requires Foundry CLI installed. " +
+        "Default: run all tests. Set testContract + testFunction for a single test with trace output. " +
+        "Use when: 'run tests', 'test my contract', 'check if tests pass', 'run specific test'.",
       inputSchema: {
         testFilter: z.string().optional().describe("Optional test name filter (regex pattern)"),
         verbosity: z

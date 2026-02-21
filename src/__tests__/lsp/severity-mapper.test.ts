@@ -53,21 +53,21 @@ describe("mapToLspSeverity", () => {
     });
   });
 
-  describe("pattern", () => {
-    it("maps critical to Error", () => {
-      expect(mapToLspSeverity("pattern", "critical")).toBe(DiagnosticSeverity.Error);
+  describe("pattern (downgraded — heuristic-only)", () => {
+    it("maps critical to Warning (downgraded from Error)", () => {
+      expect(mapToLspSeverity("pattern", "critical")).toBe(DiagnosticSeverity.Warning);
     });
 
-    it("maps high to Error", () => {
-      expect(mapToLspSeverity("pattern", "high")).toBe(DiagnosticSeverity.Error);
+    it("maps high to Warning (downgraded from Error)", () => {
+      expect(mapToLspSeverity("pattern", "high")).toBe(DiagnosticSeverity.Warning);
     });
 
-    it("maps medium to Warning", () => {
-      expect(mapToLspSeverity("pattern", "medium")).toBe(DiagnosticSeverity.Warning);
+    it("maps medium to Information (downgraded from Warning)", () => {
+      expect(mapToLspSeverity("pattern", "medium")).toBe(DiagnosticSeverity.Information);
     });
 
-    it("maps low to Information", () => {
-      expect(mapToLspSeverity("pattern", "low")).toBe(DiagnosticSeverity.Information);
+    it("maps low to Hint (downgraded from Information)", () => {
+      expect(mapToLspSeverity("pattern", "low")).toBe(DiagnosticSeverity.Hint);
     });
   });
 
