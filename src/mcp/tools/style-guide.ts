@@ -9,8 +9,10 @@ export function registerStyleGuideTools(server: McpServer): void {
     "check_code_style",
     {
       description:
-        "Check Solidity code against the official Style Guide, or format it using forge fmt. " +
-        "Set fix=true to auto-format instead of checking.",
+        "Check Solidity code against the official Solidity Style Guide (12 rules), or auto-format using forge fmt. " +
+        "Default: report style violations (naming, ordering, spacing). No external tools required. " +
+        "Set fix=true to auto-format the code (requires Foundry CLI for forge fmt). " +
+        "Use when: 'check code style', 'format my contract', 'fix naming conventions'.",
       inputSchema: {
         code: z.string().describe("Solidity source code to check or format"),
         fix: z

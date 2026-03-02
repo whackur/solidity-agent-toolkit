@@ -10,10 +10,8 @@ function matchToDiagnostic(match: PatternMatch, document: TextDocument): Diagnos
     end: { line, character: Number.MAX_SAFE_INTEGER },
   });
 
-  const message =
-    `[${match.name}] ${match.description}`.length > 200
-      ? `[${match.name}] ${match.description}`.slice(0, 197) + "..."
-      : `[${match.name}] ${match.description}`;
+  const raw = `[Heuristic] [${match.name}] ${match.description} — Verify with Slither/Aderyn for confirmation.`;
+  const message = raw.length > 200 ? raw.slice(0, 197) + "..." : raw;
 
   return {
     range: {

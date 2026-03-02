@@ -85,7 +85,10 @@ Provide a summary of which best practices are followed and which ones need impro
 export function registerCodeReviewPrompts(server: McpServer) {
   server.prompt(
     "code_review",
-    "Comprehensive Solidity code review focusing on security, gas, or style",
+    "Generate a structured code review checklist for Solidity. " +
+      "Covers security (OWASP Top 10 patterns), gas optimization, and style guide compliance. " +
+      "Set 'focus' to narrow the review scope: security, gas, style, or all (default). " +
+      "Use when: 'review my code', 'check my contract for issues', 'code review'.",
     {
       code: z.string().describe("The Solidity code to review"),
       focus: z
@@ -111,7 +114,9 @@ export function registerCodeReviewPrompts(server: McpServer) {
 
   server.prompt(
     "best_practices_check",
-    "Check Solidity code against modern best practices",
+    "Generate a best practices audit for Solidity 0.8+ code. " +
+      "Checks access control, reentrancy guards, event emission, error handling, upgradability, and more. " +
+      "Use when: 'check best practices', 'is my code following standards?', 'modernize my contract'.",
     {
       code: z.string().describe("The Solidity code to check"),
     },

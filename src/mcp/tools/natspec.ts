@@ -15,8 +15,10 @@ export function registerNatSpecTools(server: McpServer): void {
     "check_natspec",
     {
       description:
-        "Check NatSpec documentation in Solidity code for missing tags, or generate documentation " +
-        "templates. Set generate=true to produce NatSpec templates instead of validating.",
+        "Validate or generate NatSpec documentation for Solidity code. No external tools required. " +
+        "Default: check for missing @dev, @param, @return tags and report issues. " +
+        "Set generate=true to produce NatSpec templates for undocumented functions. " +
+        "Use when: 'check documentation', 'generate NatSpec', 'add comments to my contract'.",
       inputSchema: {
         code: z.string().describe("Solidity source code to check"),
         generate: z

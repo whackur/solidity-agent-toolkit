@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- **Node.js** 18 or later
+- **Node.js** 22 or later
 - **npm**, **pnpm**, or **yarn** package manager
 
 External tools (Foundry, Slither, Aderyn, Solhint) are optional — features that don't require them work out of the box.

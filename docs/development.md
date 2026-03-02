@@ -4,7 +4,7 @@
 
 | Tool                                            | Required For                                | Install                                                     |
 | ----------------------------------------------- | ------------------------------------------- | ----------------------------------------------------------- |
-| [Node.js](https://nodejs.org/) 18+              | Runtime                                     | [nodejs.org](https://nodejs.org/)                           |
+| [Node.js](https://nodejs.org/) 22+              | Runtime                                     | [nodejs.org](https://nodejs.org/)                           |
 | [pnpm](https://pnpm.io/) 10.x                   | Package manager                             | `npm install -g pnpm`                                       |
 | [Foundry](https://book.getfoundry.sh/)          | Compilation, testing, gas, deployment tools | `curl -L https://foundry.paradigm.xyz \| bash && foundryup` |
 | [Slither](https://github.com/crytic/slither)    | `run_security_scan` (tool: slither)         | `pip3 install slither-analyzer`                             |

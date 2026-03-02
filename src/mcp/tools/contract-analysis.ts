@@ -34,12 +34,23 @@ export function registerContractAnalysisTools(server: McpServer): void {
     "analyze_contract",
     {
       description:
-        "Analyze Solidity contract code for adversarial scenarios, proxy/upgrade safety, " +
-        "ERC compliance, access control patterns, or dependency graphs.",
+        "Structural analysis of Solidity contract code. Choose 'analysis' type based on intent: " +
+        "adversarial (map features to 17 real-world attack scenarios), proxy_safety (check upgradeability patterns), " +
+        "erc_compliance (verify ERC-20/721/1155/4626 interface, requires 'standard' param), " +
+        "access_control (access control patterns — function visibility/modifier matrix), " +
+        "dependencies (import/inheritance graph). " +
+        "Use when: 'analyze this contract', 'what attacks are possible?', 'is my proxy safe?', " +
+        "'does it implement ERC20?', 'show dependencies'.",
       inputSchema: {
         analysis: z
           .enum(["adversarial", "proxy_safety", "erc_compliance", "access_control", "dependencies"])
-          .describe("Type of analysis to perform"),
+          .describe(
+            "adversarial: map contract to 17 attack scenarios (reentrancy, flash loans, MEV, oracle manipulation) | " +
+              "proxy_safety: check initializers, storage gaps, selfdestruct risks | " +
+              "erc_compliance: verify standard interface (requires 'standard' param) | " +
+              "access_control: function visibility and modifier matrix | " +
+              "dependencies: import/inheritance graph with Mermaid diagram",
+          ),
         code: z.string().describe("Solidity source code to analyze"),
         categories: z
           .array(z.string())

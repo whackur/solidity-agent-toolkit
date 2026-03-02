@@ -83,6 +83,9 @@ export function formatMatches(matches: PatternMatch[]): string {
     return "No vulnerability patterns detected.";
   }
 
+  const disclaimer =
+    "**Note:** These are heuristic (regex-based) pattern matches that may include false positives. " +
+    "For authoritative results, verify findings with Slither or Aderyn.\n";
   const header = `Found ${matches.length} potential vulnerability pattern(s):\n`;
   const body = matches
     .map(
@@ -93,5 +96,5 @@ export function formatMatches(matches: PatternMatch[]): string {
     )
     .join("\n\n");
 
-  return header + "\n" + body;
+  return disclaimer + "\n" + header + "\n" + body;
 }

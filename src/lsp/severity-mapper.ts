@@ -23,10 +23,10 @@ const ADERYN_MAP: Record<string, DiagnosticSeverity> = {
 };
 
 const PATTERN_MAP: Record<string, DiagnosticSeverity> = {
-  critical: DiagnosticSeverity.Error,
-  high: DiagnosticSeverity.Error,
-  medium: DiagnosticSeverity.Warning,
-  low: DiagnosticSeverity.Information,
+  critical: DiagnosticSeverity.Warning,
+  high: DiagnosticSeverity.Warning,
+  medium: DiagnosticSeverity.Information,
+  low: DiagnosticSeverity.Hint,
 };
 
 const SOURCE_MAPS: Record<DiagnosticSource, Record<string, DiagnosticSeverity>> = {

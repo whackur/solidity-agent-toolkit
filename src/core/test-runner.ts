@@ -1,3 +1,4 @@
+import { execSync } from "child_process";
 import { isCliAvailable } from "./tool-checker.js";
 import {
   formatTestResults,
@@ -153,4 +154,65 @@ export function checkForgeInstalled(): { installed: boolean; message?: string } 
     installed: false,
     message: "Forge is not installed. Install Foundry from https://getfoundry.sh/",
   };
+}
+
+export interface RunTestsResult {
+  success: boolean;
+  result?: TestResult;
+  formatted?: string;
+  error?: string;
+}
+
+export function runTests(options: TestOptions): RunTestsResult {
+  const cmd = buildTestCommand(options);
+  try {
+    const output = execSync(cmd, {
+      encoding: "utf-8",
+      stdio: "pipe",
+      cwd: process.cwd(),
+    });
+    const result = parseTestResults(output);
+    return { success: true, result, formatted: formatTestResults(result) };
+  } catch (error: unknown) {
+    const execErr = error as Error & { stdout?: string | Buffer };
+    const stdout = execErr.stdout?.toString() || "";
+    if (stdout) {
+      try {
+        const result = parseTestResults(stdout);
+        if (result.totalTests > 0) {
+          return { success: true, result, formatted: formatTestResults(result) };
+        }
+      } catch {
+        // Fall through to error
+      }
+    }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+export function runSingleTest(options: SingleTestOptions): RunTestsResult {
+  const cmd = buildSingleTestCommand(options);
+  try {
+    const output = execSync(cmd, {
+      encoding: "utf-8",
+      stdio: "pipe",
+      cwd: process.cwd(),
+    });
+    const result = parseSingleTestOutput(output, options.testFunction, options.testContract);
+    return { success: true, formatted: formatSingleTestResult(result) };
+  } catch (error: unknown) {
+    const execErr = error as Error & { stdout?: string | Buffer };
+    const stdout = execErr.stdout?.toString() || "";
+    if (stdout && (stdout.includes("[PASS]") || stdout.includes("[FAIL]"))) {
+      const result = parseSingleTestOutput(stdout, options.testFunction, options.testContract);
+      return { success: true, formatted: formatSingleTestResult(result) };
+    }
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
