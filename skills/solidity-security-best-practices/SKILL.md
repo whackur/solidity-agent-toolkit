@@ -4,7 +4,7 @@ description: Smart contract security best practices for Solidity development. Us
 license: MIT
 metadata:
   author: whackur
-  version: "0.5.3"
+  version: "0.6.0"
 ---
 
 # Solidity Security Best Practices
