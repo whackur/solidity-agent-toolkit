@@ -1,4 +1,5 @@
 import { existsSync } from "fs";
+import { execSync } from "child_process";
 import { isCliAvailable } from "./tool-checker.js";
 
 export interface CompilationError {
@@ -104,6 +105,40 @@ export function parseCompilationOutput(output: string | Buffer): CompilationResu
         {
           severity: "error",
           message: `Failed to parse compilation output: ${error instanceof Error ? error.message : String(error)}`,
+        },
+      ],
+    };
+  }
+}
+
+export function runCompile(path?: string, contractName?: string): CompilationResult {
+  let command = "forge build --json";
+  if (path) {
+    command += ` ${path}`;
+  }
+  if (contractName) {
+    command += ` --contracts ${contractName}`;
+  }
+
+  try {
+    const output = execSync(command, {
+      encoding: "utf-8",
+      stdio: ["pipe", "pipe", "pipe"],
+      maxBuffer: 10 * 1024 * 1024,
+    });
+    return parseCompilationOutput(output);
+  } catch (error: unknown) {
+    const execErr = error as Error & { stdout?: string; stderr?: string };
+    const stdout = execErr.stdout || "";
+    if (stdout) {
+      return parseCompilationOutput(stdout);
+    }
+    return {
+      success: false,
+      errors: [
+        {
+          severity: "error",
+          message: `${execErr.message}\n\n${execErr.stderr || ""}`,
         },
       ],
     };

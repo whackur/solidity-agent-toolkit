@@ -1,15 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { execSync } from "child_process";
 import { z } from "zod";
-import {
-  buildTestCommand,
-  buildSingleTestCommand,
-  parseTestResults,
-  parseSingleTestOutput,
-  formatTestResults,
-  formatSingleTestResult,
-  checkForgeInstalled,
-} from "../../core/test-runner.js";
+import { checkForgeInstalled, runTests, runSingleTest } from "../../core/test-runner.js";
 
 export type {
   TestOptions,
@@ -68,97 +59,48 @@ export function registerTestRunnerTools(server: McpServer): void {
 
       // Single test mode
       if (testContract && testFunction) {
-        return runSingleTest(testContract, testFunction, verbosity ?? 3);
+        const result = runSingleTest({
+          testContract,
+          testFunction,
+          verbosity: verbosity ?? 3,
+        });
+        if (!result.success) {
+          return {
+            content: [{ type: "text" as const, text: `Failed to run test: ${result.error}` }],
+            isError: true,
+          };
+        }
+        return {
+          content: [{ type: "text" as const, text: result.formatted! }],
+          isError: false,
+        };
       }
 
       // Batch test mode
-      try {
-        const cmd = buildTestCommand({ testFilter, verbosity, fuzz });
-        const output = execSync(cmd, {
-          encoding: "utf-8",
-          stdio: "pipe",
-          cwd: process.cwd(),
-        });
-
-        const result = parseTestResults(output);
-
-        if (result.totalTests === 0) {
-          return {
-            content: [
-              {
-                type: "text" as const,
-                text: "No tests found. Make sure you have test files in the test/ directory.",
-              },
-            ],
-            isError: false,
-          };
-        }
-
+      const result = runTests({ testFilter, verbosity, fuzz });
+      if (!result.success) {
         return {
-          content: [{ type: "text" as const, text: formatTestResults(result) }],
-          isError: false,
-        };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-
-        if (error && typeof error === "object" && "stdout" in error) {
-          const execErr = error as Error & { stdout?: string | Buffer };
-          const stdout = execErr.stdout?.toString() || "";
-          if (stdout) {
-            try {
-              const result = parseTestResults(stdout);
-              if (result.totalTests > 0) {
-                return {
-                  content: [{ type: "text" as const, text: formatTestResults(result) }],
-                  isError: false,
-                };
-              }
-            } catch {
-              // Fall through to error handling
-            }
-          }
-        }
-
-        return {
-          content: [{ type: "text" as const, text: `Failed to run tests: ${errorMessage}` }],
+          content: [{ type: "text" as const, text: `Failed to run tests: ${result.error}` }],
           isError: true,
         };
       }
-    },
-  );
-}
 
-function runSingleTest(testContract: string, testFunction: string, verbosity: number) {
-  try {
-    const cmd = buildSingleTestCommand({ testContract, testFunction, verbosity });
-    const output = execSync(cmd, {
-      encoding: "utf-8",
-      stdio: "pipe",
-      cwd: process.cwd(),
-    });
-
-    const result = parseSingleTestOutput(output, testFunction, testContract);
-    return {
-      content: [{ type: "text" as const, text: formatSingleTestResult(result) }],
-      isError: false,
-    };
-  } catch (error) {
-    if (error && typeof error === "object" && "stdout" in error) {
-      const execErr = error as Error & { stdout?: string | Buffer };
-      const stdout = execErr.stdout?.toString() || "";
-      if (stdout && (stdout.includes("[PASS]") || stdout.includes("[FAIL]"))) {
-        const result = parseSingleTestOutput(stdout, testFunction, testContract);
+      if (result.result && result.result.totalTests === 0) {
         return {
-          content: [{ type: "text" as const, text: formatSingleTestResult(result) }],
+          content: [
+            {
+              type: "text" as const,
+              text: "No tests found. Make sure you have test files in the test/ directory.",
+            },
+          ],
           isError: false,
         };
       }
-    }
 
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return {
-      content: [{ type: "text" as const, text: `Failed to run test: ${errorMessage}` }],
-      isError: true,
-    };
-  }
+      return {
+        content: [{ type: "text" as const, text: result.formatted! }],
+        isError: false,
+      };
+    },
+  );
 }

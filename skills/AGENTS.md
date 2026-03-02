@@ -1,80 +1,39 @@
 # skills/ — Agent Skills
 
-## OVERVIEW
-
-7 Agent Skills following the [agentskills.io](https://agentskills.io) open specification. Auto-detectable by 35+ AI coding agents. Install via `npx skills add whackur/solidity-agent-toolkit`.
-
-## STRUCTURE
-
-```
-skills/
-├── solidity-security-best-practices/
-│   ├── SKILL.md                        # Security thinking framework, OWASP Top 10
-│   └── references/owasp-scwe-top10.md  # SC01–SC10 quick reference + MCP mappings
-├── solidity-foundry-development/
-│   ├── SKILL.md                        # Setup, testing, cheatcodes, deployment
-│   └── references/foundry-cheatsheet.md
-├── solidity-hardhat-development/
-│   ├── SKILL.md                        # Hardhat 3 setup, ESM, Ignition, multichain
-│   └── references/hardhat-cheatsheet.md
-├── solidity-gas-optimization/
-│   └── SKILL.md                        # Storage packing, custom errors, assembly, Solady
-├── solidity-code-review/
-│   ├── SKILL.md                        # Audit methodology, severity classification
-│   ├── references/audit-checklist.md   # 40+ checkbox items by SCSVS category
-│   └── references/solidity-style-guide.md  # Style conventions + check_style rule IDs
-├── solidity-erc-standards/
-│   ├── SKILL.md                        # ERC20/721/1155/4626 guidelines
-│   └── references/erc-interfaces.md    # Interface definitions + pitfall table + SCWE
-└── solidity-adversarial-analysis/
-    └── SKILL.md                        # Adversarial threat modeling, attack scenarios
-```
+7 Agent Skills following the [agentskills.io](https://agentskills.io) spec. Install via `npx skills add whackur/solidity-agent-toolkit`.
 
 ## SKILL.md FORMAT
 
 ```yaml
 ---
-name: lowercase-with-hyphens # ≤64 chars, MUST match directory name
-description: What + when + triggers # ≤1024 chars, trigger keywords here
+name: lowercase-with-hyphens # <=64 chars, must match directory name
+description: What + when + triggers # <=1024 chars
 license: MIT
 metadata:
   author: whackur
-  version: "0.1.0"
+  version: "0.5.3"
 ---
-# H1 Title
-
+# Title
 ## When to Apply
-- Bullet list of activation criteria
-
-## Content sections...
-
-## Enhanced with MCP
-- Optional section listing relevant MCP tools
-
-## References
-- Links to references/ files
+## Content...
+## Enhanced with MCP  (optional — list relevant MCP tools)
+## References         (links to references/ files)
 ```
 
 ## VERSIONING
 
-Skill versions are **synced** with `package.json` — a single `pnpm version <semver>` bumps both.
+Skill versions are **synced** with `package.json`. Use `pnpm version <semver>` — it auto-updates every `skills/*/SKILL.md` via `scripts/sync-skill-versions.mjs`. **Never bump `metadata.version` manually.**
 
-The `version` lifecycle hook in `package.json` runs `scripts/sync-skill-versions.mjs` which updates every `skills/*/SKILL.md` frontmatter `metadata.version` automatically.
+## ADDING A SKILL
 
-**Rule: Do NOT bump `metadata.version` manually.** Always use `pnpm version`.
-
-## ADDING A NEW SKILL
-
-1. Create `skills/{skill-name}/SKILL.md` — name = lowercase + hyphens only
-2. Add `references/` subdir if content exceeds 250 lines (progressive disclosure)
-3. Update `README.md` Agent Skills table
-4. Validate: frontmatter parses with `gray-matter`, body ≤250 lines, description ≤1024 chars
+1. Create `skills/{skill-name}/SKILL.md`
+2. Add `references/` subdir if content exceeds 250 lines
+3. Validate: frontmatter parses with gray-matter, body <=250 lines, description <=1024 chars
 
 ## ANTI-PATTERNS
 
-- **NO trigger keywords in body** — triggers belong ONLY in `description` frontmatter field
-- **NO MCP-dependent instructions** — skills must be useful standalone, MCP is optional enhancement
-- **NO body over 250 lines** — move detailed content to `references/` for progressive disclosure
-- **NO uppercase or spaces in `name` field** — spec requires lowercase alphanumeric + hyphens
-- **NO verbatim copy of MCP prompt templates** — skills provide guidelines, not prompt engineering
-- **NO duplicate content across skills** — if two skills cover similar ground, consolidate or cross-reference
+- No trigger keywords in body — triggers belong ONLY in `description` frontmatter
+- No MCP-dependent instructions — skills must work standalone
+- No body over 250 lines — move detail to `references/`
+- No uppercase or spaces in `name` field
+- No duplicate content across skills

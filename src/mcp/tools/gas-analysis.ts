@@ -1,17 +1,12 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { execSync } from "child_process";
 import {
   checkForgeInstalled,
   isFoundryProject,
   FORGE_INSTALL_INSTRUCTIONS,
 } from "../../core/compile.js";
-import {
-  parseGasSnapshot,
-  parseGasSnapshotDiff,
-  formatGasSnapshot,
-} from "../../core/gas-snapshot.js";
-import { parseGasReport, formatGasEstimates } from "../../core/gas-report.js";
+import { runGasSnapshot, formatGasSnapshot } from "../../core/gas-snapshot.js";
+import { runGasReport, formatGasEstimates } from "../../core/gas-report.js";
 
 export type { GasSnapshot } from "../../core/gas-snapshot.js";
 export type { GasEstimate } from "../../core/gas-report.js";
@@ -65,10 +60,33 @@ export function registerGasTools(server: McpServer): void {
         }
 
         if (mode === "snapshot") {
-          return handleSnapshot(compare);
+          const result = runGasSnapshot(compare);
+          if (!result.success) {
+            return {
+              content: [
+                { type: "text" as const, text: `❌ **Gas Snapshot Error**\n\n${result.error}` },
+              ],
+              isError: true,
+            };
+          }
+          const formatted = formatGasSnapshot(result.snapshots, result.compare);
+          return { content: [{ type: "text" as const, text: formatted }] };
         }
 
-        return handleReport(contractName, functionName);
+        const result = runGasReport(contractName, functionName);
+        if (!result.success) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: `❌ **Gas Report Error**\n\n${result.error}`,
+              },
+            ],
+            isError: true,
+          };
+        }
+        const formatted = formatGasEstimates(result.estimates);
+        return { content: [{ type: "text" as const, text: formatted }] };
       } catch (error) {
         return {
           content: [
@@ -86,60 +104,3 @@ export function registerGasTools(server: McpServer): void {
 
 // Backward compatibility alias
 export { registerGasTools as registerGasAnalysisTools };
-
-function handleSnapshot(compare?: boolean) {
-  const command = compare ? "forge snapshot --diff" : "forge snapshot";
-
-  let output: string;
-  try {
-    output = execSync(command, {
-      encoding: "utf-8",
-      stdio: ["pipe", "pipe", "pipe"],
-      maxBuffer: 10 * 1024 * 1024,
-    });
-  } catch (error: unknown) {
-    const execErr = error as Error & { stdout?: string; stderr?: string };
-    output = execErr.stdout || "";
-    if (!output && execErr.stderr) {
-      return {
-        content: [
-          { type: "text" as const, text: `❌ **Gas Snapshot Error**\n\n${execErr.stderr}` },
-        ],
-        isError: true,
-      };
-    }
-  }
-
-  const snapshots = compare ? parseGasSnapshotDiff(output) : parseGasSnapshot(output);
-  const formatted = formatGasSnapshot(snapshots, compare || false);
-  return { content: [{ type: "text" as const, text: formatted }] };
-}
-
-function handleReport(contractName?: string, functionName?: string) {
-  let output: string;
-  try {
-    output = execSync("forge test --gas-report", {
-      encoding: "utf-8",
-      stdio: ["pipe", "pipe", "pipe"],
-      maxBuffer: 10 * 1024 * 1024,
-    });
-  } catch (error: unknown) {
-    const execErr = error as Error & { stdout?: string; stderr?: string };
-    output = execErr.stdout || "";
-    if (!output) {
-      return {
-        content: [
-          {
-            type: "text" as const,
-            text: `❌ **Gas Report Error**\n\n${execErr.stderr || execErr.message}`,
-          },
-        ],
-        isError: true,
-      };
-    }
-  }
-
-  const estimates = parseGasReport(output, contractName, functionName);
-  const formatted = formatGasEstimates(estimates);
-  return { content: [{ type: "text" as const, text: formatted }] };
-}

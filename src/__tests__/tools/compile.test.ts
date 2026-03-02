@@ -344,7 +344,7 @@ describe("Compile Tools", () => {
       const result = await tool.handler({ contractName: "MyContract", inspect: "abi" });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain("Invalid ABI Output");
+      expect(result.content[0].text).toContain("Received non-JSON output from forge inspect");
     });
   });
 
@@ -467,7 +467,7 @@ describe("Compile Tools", () => {
       const result = await tool.handler({ contractName: "MyContract", inspect: "bytecode" });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain("Invalid Bytecode Output");
+      expect(result.content[0].text).toContain("Received unexpected output");
     });
   });
 });

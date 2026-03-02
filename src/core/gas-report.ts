@@ -1,3 +1,5 @@
+import { execSync } from "child_process";
+
 // Re-export storage layout types and functions for backward compatibility
 export type { StorageSlot } from "./storage-layout.js";
 export { parseStorageLayout, formatStorageLayout } from "./storage-layout.js";
@@ -129,4 +131,37 @@ export function formatGasEstimates(estimates: GasEstimate[]): string {
   }
 
   return output;
+}
+
+export interface GasReportRunResult {
+  success: boolean;
+  estimates: GasEstimate[];
+  error?: string;
+}
+
+export function runGasReport(
+  contractName?: string,
+  functionName?: string,
+): GasReportRunResult {
+  try {
+    const output = execSync("forge test --gas-report", {
+      encoding: "utf-8",
+      stdio: ["pipe", "pipe", "pipe"],
+      maxBuffer: 10 * 1024 * 1024,
+    });
+    const estimates = parseGasReport(output, contractName, functionName);
+    return { success: true, estimates };
+  } catch (error: unknown) {
+    const execErr = error as Error & { stdout?: string; stderr?: string };
+    const stdout = execErr.stdout || "";
+    if (stdout) {
+      const estimates = parseGasReport(stdout, contractName, functionName);
+      return { success: true, estimates };
+    }
+    return {
+      success: false,
+      estimates: [],
+      error: execErr.stderr || execErr.message || String(error),
+    };
+  }
 }

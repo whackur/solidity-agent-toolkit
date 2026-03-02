@@ -1,67 +1,31 @@
 # src/mcp/ — MCP Server
 
-## OVERVIEW
-
-MCP protocol layer. Thin wrappers around `core/` functions, registered via `server.registerTool()`, `server.resource()`, `server.prompt()`. 10 tools, 12 resources, 7 prompts.
-
-## STRUCTURE
-
-```
-mcp/
-├── server.ts              # createMcpServer() + startMcpServer() — all registrations
-├── tools/                 # One file per tool group (10 files → 10 tools)
-│   ├── security-scan.ts         # registerSecurityScanTools(server) — run_security_scan (slither/aderyn/solhint)
-│   ├── compile.ts               # registerCompileTools(server) — compile_contract (+ inspect abi/bytecode/storage)
-│   ├── test-runner.ts           # registerTestRunnerTools(server) — run_tests (+ single test via testContract/testFunction)
-│   ├── gas-analysis.ts          # registerGasTools(server) — analyze_gas (snapshot/report modes)
-│   ├── deploy.ts                # registerDeployTools(server) — manage_deployment (simulate/status actions)
-│   ├── deploy-handlers.ts       # Deploy handler helpers (simulate + status logic, split for LOC)
-│   ├── natspec.ts               # registerNatSpecTools(server) — check_natspec (validate or generate)
-│   ├── style-guide.ts           # registerStyleGuideTools(server) — check_code_style (check or fix)
-│   ├── vulnerability-search.ts  # registerVulnerabilitySearchTools(server) — search_vulnerabilities (+ remediation)
-│   ├── vulnerability-patterns.ts # registerVulnerabilityPatternTools(server) — scan_vulnerability_patterns (scwe/regex)
-│   └── contract-analysis.ts     # registerContractAnalysisTools(server) — analyze_contract (adversarial/proxy/erc/access/deps)
-├── resources/             # MCP Resource providers (6 files → 12 resources)
-│   ├── scwe-resources.ts  # scwe://list, scwe://{id}, scwe://category/{category}
-│   ├── top10-resources.ts # sctop10://list, sctop10://{id}
-│   ├── erc-standards.ts   # erc://list, erc://{standard}
-│   ├── adversarial-resources.ts  # adversarial://list, adversarial://category/{category}, adversarial://scenario/{id}
-│   ├── slither-resources.ts      # slither://detectors
-│   └── solhint-resources.ts      # solhint://rules
-└── prompts/               # MCP Prompt templates (8 files → 7 prompts)
-    ├── security-audit.ts        # security_audit prompt
-    ├── security-audit-logic.ts  # security_audit generation logic (split for LOC)
-    ├── code-review.ts           # code_review prompt
-    ├── gas-optimization.ts      # optimize_gas prompt
-    ├── erc-patterns.ts          # generate_erc prompt
-    ├── erc-patterns-logic.ts    # generate_erc generation logic (split for LOC)
-    ├── adversarial-analysis.ts        # adversarial_analysis prompt
-    └── adversarial-analysis-logic.ts  # adversarial_analysis generation logic
-```
-
-## TOOL DESCRIPTION FORMAT
-
-All 10 tool descriptions and 7 prompt descriptions follow a structured format designed for AI client routing (Claude, Cursor, etc.):
-
-```
-[ROLE_PHRASE]. [HOW_IT_WORKS]. [EXTERNAL_DEP if applicable].
-
-Trigger: "[example user queries]"
-NOT for: "[disambiguation vs similar tools]"    ← only for confusion clusters
-```
-
-**Key conventions:**
-
-- 150–400 chars per description — enough for routing, not overwhelming
-- Trigger phrases match natural user queries (e.g., "분석해줘", "취약점 진단해줘")
-- Negative routing (`NOT for:`) used only for the 3-tool vulnerability cluster (`run_security_scan`, `scan_vulnerability_patterns`, `search_vulnerabilities`)
-- `inputSchema` field-level descriptions provide sub-routing within consolidated tools (e.g., `mode`, `analysis`, `action` enums)
+MCP protocol layer. Thin wrappers around `core/` functions. 10 tools, 12 resources, 7 prompts.
 
 ## CONVENTIONS
 
-- Tool files are thin wrappers: import from `../../core/xxx.js`, call `server.registerTool(name, { description, inputSchema }, handler)`
-- MCP SDK v1.26.0 API — `server.registerTool()` for tools (`server.tool()` is deprecated)
+- Tool files are thin wrappers: import from `../../core/xxx.js`, call `server.registerTool()`
+- MCP SDK v1.26.0 — `server.registerTool()` for tools (`server.tool()` is deprecated)
 - `isError: true` = tool execution failure; absent or `false` = success
 - Schema uses Zod `.shape` property for inline schema extraction
 - Complex prompt logic split into `*-logic.ts` files to stay under 200 LOC
 - **NEVER import from `lsp/`**
+
+## TOOL DESCRIPTION FORMAT
+
+```
+[ROLE_PHRASE]. [HOW_IT_WORKS]. [EXTERNAL_DEP if applicable].
+Trigger: "[example user queries]"
+NOT for: "[disambiguation]"    <- only for 3-tool vuln cluster
+```
+
+- 150-400 chars per description
+- Negative routing (`NOT for:`) only on: `run_security_scan`, `scan_vulnerability_patterns`, `search_vulnerabilities`
+- `inputSchema` field descriptions provide sub-routing within consolidated tools
+
+## STRUCTURE
+
+- `server.ts` — `createMcpServer()` + `startMcpServer()`, all registrations
+- `tools/` — 11 files, 10 tools (deploy split into deploy.ts + deploy-handlers.ts for LOC)
+- `resources/` — 6 files, 12 resources (scwe://, sctop10://, erc://, adversarial://, slither://, solhint://)
+- `prompts/` — 8 files, 7 prompts (3 have split `*-logic.ts` files)

@@ -1,3 +1,5 @@
+import { execSync } from "child_process";
+
 export interface GasSnapshot {
   testName: string;
   gasUsed: number;
@@ -130,4 +132,38 @@ export function formatGasSnapshot(snapshots: GasSnapshotWithDiff[], compare: boo
   }
 
   return output;
+}
+
+export interface GasSnapshotRunResult {
+  success: boolean;
+  snapshots: GasSnapshotWithDiff[];
+  compare: boolean;
+  error?: string;
+}
+
+export function runGasSnapshot(compare?: boolean): GasSnapshotRunResult {
+  const command = compare ? "forge snapshot --diff" : "forge snapshot";
+
+  try {
+    const output = execSync(command, {
+      encoding: "utf-8",
+      stdio: ["pipe", "pipe", "pipe"],
+      maxBuffer: 10 * 1024 * 1024,
+    });
+    const snapshots = compare ? parseGasSnapshotDiff(output) : parseGasSnapshot(output);
+    return { success: true, snapshots, compare: compare || false };
+  } catch (error: unknown) {
+    const execErr = error as Error & { stdout?: string; stderr?: string };
+    const stdout = execErr.stdout || "";
+    if (stdout) {
+      const snapshots = compare ? parseGasSnapshotDiff(stdout) : parseGasSnapshot(stdout);
+      return { success: true, snapshots, compare: compare || false };
+    }
+    return {
+      success: false,
+      snapshots: [],
+      compare: compare || false,
+      error: execErr.stderr || execErr.message || String(error),
+    };
+  }
 }
