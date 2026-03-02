@@ -31,7 +31,7 @@ See [MCP Setup](docs/mcp-setup.md) for client-specific instructions.
 
 ## Features
 
-**10 MCP Tools** — Security analysis (Slither, Aderyn, Solhint, pattern matching), compilation & testing (Foundry), gas & storage inspection, dry-run deployment, code quality (NatSpec, style, formatting)
+**10 MCP Tools** — Security scanning (Slither, Aderyn, Solhint), heuristic pattern detection, OWASP SCWE knowledge search, contract structural analysis (adversarial, proxy safety, ERC compliance, access control, dependencies), compilation & inspection (Foundry), test runner, gas analysis, deployment simulation, code quality (NatSpec, style guide, formatting)
 
 **12 MCP Resources** — OWASP Smart Contract Top 10, SCWE vulnerability database (156 entries), ERC standard interfaces, adversarial scenarios, Slither detectors, Solhint rules
 
