@@ -3,7 +3,7 @@ name: solidity-adversarial-analysis
 description: Adversarial scenario analysis and threat modeling for Solidity smart contracts. Use when analyzing contracts from an attacker's perspective, identifying multi-step attack vectors, or performing threat modeling. Covers flash loan attacks, oracle manipulation, MEV/front-running, governance exploits, reentrancy scenarios, access control bypasses, economic logic exploits, and cross-contract composability risks. Triggers on tasks involving adversarial analysis, threat modeling, attack scenarios, attack vectors, exploit analysis, or red team review.
 license: MIT
 metadata:
-  author: whackur
+  author: whackur (whackur@gmail.com)
   version: "0.6.0"
 ---
 
