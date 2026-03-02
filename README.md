@@ -52,6 +52,10 @@ See [MCP Setup](docs/mcp-setup.md) for client-specific instructions.
 | [Agent Skills](docs/agent-skills.md)   | Skill descriptions and installation                |
 | [Development](docs/development.md)     | Prerequisites, commands, architecture              |
 
+## Contributing
+
+All GitHub Issues, PRs (title/description/comments), commit messages, code comments, and documentation **must be in English only**.
+
 ## License
 
 MIT

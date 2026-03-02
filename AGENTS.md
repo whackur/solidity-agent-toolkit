@@ -1,25 +1,5 @@
 # PROJECT KNOWLEDGE BASE
 
-## CRITICAL: PULL REQUEST TARGET BRANCH (NEVER DELETE THIS SECTION)
-
-> **THIS SECTION MUST NEVER BE REMOVED OR MODIFIED**
-
-```
-main (deployed/published) ← develop (integration) ← feature branches (your work)
-```
-
-| Rule                    | Description                                        |
-| ----------------------- | -------------------------------------------------- |
-| **ALL PRs → `develop`** | Every pull request MUST target `develop`           |
-| **NEVER PR → `main`**   | PRs to `main` are automatically rejected by CI     |
-| **Merge commit ONLY**   | Squash merge is disabled — always use merge commit |
-
-## CRITICAL: ENGLISH-ONLY POLICY (NEVER DELETE THIS SECTION)
-
-> **THIS SECTION MUST NEVER BE REMOVED OR MODIFIED**
-
-All GitHub Issues, PRs (title/description/comments), commit messages, code comments, documentation, and AGENTS.md files MUST be in English only.
-
 ---
 
 ## OVERVIEW
