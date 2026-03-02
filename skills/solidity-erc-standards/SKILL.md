@@ -4,7 +4,7 @@ description: ERC token standard implementation guidelines for Solidity. Use when
 license: MIT
 metadata:
   author: whackur
-  version: "0.5.3"
+  version: "0.6.0"
 ---
 
 # ERC Token Standard Guidelines
