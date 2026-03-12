@@ -29,44 +29,44 @@ export const SLITHER_SCWE_MAPPINGS: Record<string, string> = {
   // tx.origin authentication -> SCWE-018
   "tx-origin": "SCWE-018",
 
-  // Unchecked return values -> SCWE-104
-  "unchecked-transfer": "SCWE-104",
-  "unchecked-lowlevel": "SCWE-104",
-  "unchecked-send": "SCWE-104",
+  // Unchecked return values -> SCWE-048
+  "unchecked-transfer": "SCWE-048",
+  "unchecked-lowlevel": "SCWE-048",
+  "unchecked-send": "SCWE-048",
 
-  // State variable shadowing -> SCWE-119
-  "shadowing-state": "SCWE-119",
-  "shadowing-abstract": "SCWE-119",
-  "shadowing-builtin": "SCWE-119",
-  "shadowing-local": "SCWE-119",
+  // State variable shadowing -> SCWE-069
+  "shadowing-state": "SCWE-069",
+  "shadowing-abstract": "SCWE-069",
+  "shadowing-builtin": "SCWE-069",
+  "shadowing-local": "SCWE-069",
 
-  // Unused return values -> SCWE-104
-  "unused-return": "SCWE-104",
+  // Unused return values -> SCWE-048
+  "unused-return": "SCWE-048",
 
   // Unprotected selfdestruct -> SCWE-038
   suicidal: "SCWE-038",
 
-  // Delegatecall vulnerabilities -> SCWE-112
-  "controlled-delegatecall": "SCWE-112",
-  "delegatecall-loop": "SCWE-112",
+  // Delegatecall vulnerabilities -> SCWE-035
+  "controlled-delegatecall": "SCWE-035",
+  "delegatecall-loop": "SCWE-035",
 
-  // Access control issues -> SCWE-105
-  "unprotected-upgrade": "SCWE-105",
-  "arbitrary-send-eth": "SCWE-105",
-  "arbitrary-send-erc20": "SCWE-105",
+  // Access control issues
+  "unprotected-upgrade": "SCWE-005",
+  "arbitrary-send-eth": "SCWE-049",
+  "arbitrary-send-erc20": "SCWE-016",
 
-  // Integer overflow/underflow (pre-0.8.0) -> SCWE-101
-  "divide-before-multiply": "SCWE-101",
-  "weak-prng": "SCWE-120",
+  // Integer overflow/underflow (pre-0.8.0) -> SCWE-047
+  "divide-before-multiply": "SCWE-047",
+  "weak-prng": "SCWE-024",
 
-  // Timestamp dependence -> SCWE-116
-  timestamp: "SCWE-116",
-  "block-timestamp": "SCWE-116",
+  // Timestamp dependence -> SCWE-065
+  timestamp: "SCWE-065",
+  "block-timestamp": "SCWE-065",
 
-  // Uninitialized storage -> SCWE-109
-  "uninitialized-state": "SCWE-109",
-  "uninitialized-storage": "SCWE-109",
-  "uninitialized-local": "SCWE-109",
+  // Uninitialized storage -> SCWE-071
+  "uninitialized-state": "SCWE-071",
+  "uninitialized-storage": "SCWE-071",
+  "uninitialized-local": "SCWE-071",
 
   // Locked ether -> SCWE-140
   "locked-ether": "SCWE-140",
@@ -74,42 +74,42 @@ export const SLITHER_SCWE_MAPPINGS: Record<string, string> = {
   // Dangerous strict equalities -> SCWE-075
   "incorrect-equality": "SCWE-075",
 
-  // Assembly usage -> SCWE-127
-  assembly: "SCWE-127",
+  // Assembly usage -> SCWE-042
+  assembly: "SCWE-042",
 
-  // Low-level calls -> SCWE-107
-  "low-level-calls": "SCWE-107",
+  // Low-level calls -> SCWE-042
+  "low-level-calls": "SCWE-042",
 
-  // Naming convention issues -> SCWE-114
-  "naming-convention": "SCWE-114",
+  // Naming convention issues -> SCWE-097
+  "naming-convention": "SCWE-097",
 
-  // Pragma issues -> SCWE-103
-  pragma: "SCWE-103",
-  "solc-version": "SCWE-103",
+  // Pragma issues -> SCWE-060
+  pragma: "SCWE-060",
+  "solc-version": "SCWE-060",
 
   // Reentrancy read-before-write -> SCWE-046
   "reentrancy-readonly": "SCWE-046",
 
-  // Costly operations in loop -> SCWE-128
-  "costly-loop": "SCWE-128",
+  // Costly operations in loop -> SCWE-058
+  "costly-loop": "SCWE-058",
 
-  // External function calls in loop -> SCWE-113
-  "calls-loop": "SCWE-113",
+  // External function calls in loop -> SCWE-109
+  "calls-loop": "SCWE-109",
 
-  // Missing zero address validation -> SCWE-123
-  "missing-zero-check": "SCWE-123",
+  // Missing zero address validation -> SCWE-143
+  "missing-zero-check": "SCWE-143",
 
-  // Encode packed collision -> SCWE-133
-  "encode-packed-collision": "SCWE-133",
+  // Encode packed collision -> SCWE-074
+  "encode-packed-collision": "SCWE-074",
 
-  // Incorrect shift order -> SCWE-129
-  "incorrect-shift": "SCWE-129",
+  // Incorrect shift order -> SCWE-080
+  "incorrect-shift": "SCWE-080",
 
-  // Multiple constructor schemes -> SCWE-124
-  "multiple-constructors": "SCWE-124",
+  // Multiple constructor schemes -> SCWE-070
+  "multiple-constructors": "SCWE-070",
 
-  // Void constructor -> SCWE-125
-  "void-cst": "SCWE-125",
+  // Void constructor -> SCWE-070
+  "void-cst": "SCWE-070",
 };
 
 /**

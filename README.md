@@ -29,6 +29,18 @@ npx skills add whackur/solidity-agent-toolkit
 
 See [MCP Setup](docs/mcp-setup.md) for client-specific instructions.
 
+### Local Development
+
+```bash
+git clone --recurse-submodules https://github.com/whackur/solidity-agent-toolkit.git
+
+# If already cloned without submodules
+git submodule update --init
+
+# Update submodule to latest remote commit
+git submodule update --remote
+```
+
 ## Features
 
 **10 MCP Tools** — Security scanning (Slither, Aderyn, Solhint), heuristic pattern detection, OWASP SCWE knowledge search, contract structural analysis (adversarial, proxy safety, ERC compliance, access control, dependencies), compilation & inspection (Foundry), test runner, gas analysis, deployment simulation, code quality (NatSpec, style guide, formatting)

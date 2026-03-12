@@ -19,9 +19,9 @@ describe("TOP10_SCWE_MAPPINGS", () => {
     expect(TOP10_SCWE_MAPPINGS.SC08).toContain("SCWE-046");
   });
 
-  it("SC01 contains SCWE-016 and SCWE-018", () => {
+  it("SC01 contains SCWE-016 and SCWE-017", () => {
     expect(TOP10_SCWE_MAPPINGS.SC01).toContain("SCWE-016");
-    expect(TOP10_SCWE_MAPPINGS.SC01).toContain("SCWE-018");
+    expect(TOP10_SCWE_MAPPINGS.SC01).toContain("SCWE-017");
   });
 
   it("every mapping value is a valid SCWE ID format", () => {
@@ -37,7 +37,7 @@ describe("getScweIdsForTop10", () => {
   it("returns SCWE IDs for SC08", () => {
     const ids = getScweIdsForTop10("SC08");
     expect(ids).toContain("SCWE-046");
-    expect(ids).toContain("SCWE-137");
+    expect(ids).toContain("SCWE-102");
   });
 
   it("is case-insensitive", () => {
@@ -63,7 +63,7 @@ describe("enrichTop10WithSCWE", () => {
       },
     ];
     const enriched = enrichTop10WithSCWE(entries);
-    expect(enriched[0].relatedSCWE).toEqual(["SCWE-046", "SCWE-137"]);
+    expect(enriched[0].relatedSCWE).toEqual(["SCWE-046", "SCWE-102"]);
   });
 
   it("leaves relatedSCWE empty for unknown ids", () => {

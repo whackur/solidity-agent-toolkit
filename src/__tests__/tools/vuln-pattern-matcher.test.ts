@@ -25,12 +25,12 @@ describe("VULNERABILITY_PATTERNS", () => {
       "SCWE-050",
       "SCWE-046",
       "SCWE-065",
-      "SCWE-109",
+      "SCWE-048",
       "SCWE-035",
-      "SCWE-106",
-      "SCWE-128",
-      "SCWE-136",
-      "SCWE-015",
+      "SCWE-047",
+      "SCWE-097",
+      "SCWE-021",
+      "SCWE-024",
     ];
     for (const id of top10Ids) {
       expect(definedIds).toContain(id);
@@ -123,18 +123,18 @@ contract Proxy {
     expect(scwe035[0].severity).toBe("critical");
   });
 
-  it("detects integer overflow risk with old pragma (SCWE-106)", () => {
+  it("detects integer overflow risk with old pragma (SCWE-047)", () => {
     const code = `pragma solidity ^0.7.6;
 contract OldContract {
     uint8 public counter;
     function increment() public { counter += 1; }
 }`;
     const matches = matchPatterns(code);
-    const scwe106 = matches.filter((m) => m.scweId === "SCWE-106");
-    expect(scwe106.length).toBeGreaterThan(0);
+    const scwe047 = matches.filter((m) => m.scweId === "SCWE-047");
+    expect(scwe047.length).toBeGreaterThan(0);
   });
 
-  it("detects weak randomness (SCWE-015)", () => {
+  it("detects weak randomness (SCWE-024)", () => {
     const code = `
 contract Lottery {
     function random() public view returns (uint) {
@@ -142,11 +142,11 @@ contract Lottery {
     }
 }`;
     const matches = matchPatterns(code);
-    const scwe015 = matches.filter((m) => m.scweId === "SCWE-015");
-    expect(scwe015.length).toBeGreaterThan(0);
+    const scwe024 = matches.filter((m) => m.scweId === "SCWE-024");
+    expect(scwe024.length).toBeGreaterThan(0);
   });
 
-  it("detects hash collision with abi.encodePacked (SCWE-025)", () => {
+  it("detects hash collision with abi.encodePacked (SCWE-074)", () => {
     const code = `
 contract HashCollision {
     function hash(string memory a, string memory b) public pure returns (bytes32) {
@@ -154,11 +154,11 @@ contract HashCollision {
     }
 }`;
     const matches = matchPatterns(code);
-    const scwe025 = matches.filter((m) => m.scweId === "SCWE-025");
-    expect(scwe025.length).toBeGreaterThan(0);
+    const scwe074 = matches.filter((m) => m.scweId === "SCWE-074");
+    expect(scwe074.length).toBeGreaterThan(0);
   });
 
-  it("detects ecrecover signature replay (SCWE-020)", () => {
+  it("detects ecrecover signature replay (SCWE-055)", () => {
     const code = `
 contract Sig {
     function verify(bytes32 hash, uint8 v, bytes32 r, bytes32 s) public pure returns (address) {
@@ -166,20 +166,20 @@ contract Sig {
     }
 }`;
     const matches = matchPatterns(code);
-    const scwe020 = matches.filter((m) => m.scweId === "SCWE-020");
-    expect(scwe020.length).toBeGreaterThan(0);
+    const scwe055 = matches.filter((m) => m.scweId === "SCWE-055");
+    expect(scwe055.length).toBeGreaterThan(0);
   });
 
-  it("detects floating pragma (SCWE-058)", () => {
+  it("detects floating pragma (SCWE-060)", () => {
     const code = `pragma solidity ^0.8.0;
 contract Foo {}`;
     const matches = matchPatterns(code);
-    const scwe058 = matches.filter((m) => m.scweId === "SCWE-058");
-    expect(scwe058.length).toBeGreaterThan(0);
-    expect(scwe058[0].severity).toBe("low");
+    const scwe060 = matches.filter((m) => m.scweId === "SCWE-060");
+    expect(scwe060.length).toBeGreaterThan(0);
+    expect(scwe060[0].severity).toBe("low");
   });
 
-  it("detects deprecated solidity functions (SCWE-061)", () => {
+  it("detects deprecated solidity functions (SCWE-072)", () => {
     const code = `
 contract Old {
     function foo() public {
@@ -188,11 +188,11 @@ contract Old {
     }
 }`;
     const matches = matchPatterns(code);
-    const scwe061 = matches.filter((m) => m.scweId === "SCWE-061");
-    expect(scwe061.length).toBeGreaterThan(0);
+    const scwe072 = matches.filter((m) => m.scweId === "SCWE-072");
+    expect(scwe072.length).toBeGreaterThan(0);
   });
 
-  it("detects unprotected initializer (SCWE-053)", () => {
+  it("detects unprotected initializer (SCWE-005)", () => {
     const code = `
 contract Proxy {
     address public owner;
@@ -201,11 +201,11 @@ contract Proxy {
     }
 }`;
     const matches = matchPatterns(code);
-    const scwe053 = matches.filter((m) => m.scweId === "SCWE-053");
-    expect(scwe053.length).toBeGreaterThan(0);
+    const scwe005 = matches.filter((m) => m.scweId === "SCWE-005");
+    expect(scwe005.length).toBeGreaterThan(0);
   });
 
-  it("detects forced ether balance check (SCWE-079)", () => {
+  it("detects forced ether balance check (SCWE-075)", () => {
     const code = `
 contract Game {
     function checkBalance() public view {
@@ -213,8 +213,8 @@ contract Game {
     }
 }`;
     const matches = matchPatterns(code);
-    const scwe079 = matches.filter((m) => m.scweId === "SCWE-079");
-    expect(scwe079.length).toBeGreaterThan(0);
+    const scwe075 = matches.filter((m) => m.scweId === "SCWE-075");
+    expect(scwe075.length).toBeGreaterThan(0);
   });
 
   it("returns empty array for clean code", () => {
