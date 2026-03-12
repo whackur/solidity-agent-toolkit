@@ -1,6 +1,6 @@
 {
   "name": "solidity-agent-toolkit",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "MCP server providing Solidity smart contract security analysis tools, OWASP knowledge base, and development utilities for AI agents",
   "repository": {
     "type": "git",
