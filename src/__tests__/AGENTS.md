@@ -1,6 +1,6 @@
 # src/\_\_tests\_\_/ — Test Conventions
 
-vitest tests mirroring `src/` structure. CLI tools are mocked; knowledge layer uses real OWASP submodule data.
+vitest tests mirroring `src/` structure. CLI tools are mocked; knowledge layer uses real OWASP submodule data. 48 test files, 725+ tests.
 
 ## MOCKING PATTERNS
 
@@ -69,3 +69,32 @@ await client.connect(clientTransport);
 - `as any` allowed for mock object construction
 - Relaxed ESLint: `no-unused-vars`, `ban-ts-comment`, `no-explicit-any` all off
 - All mocks defined per-file — no shared mock files or global setup
+
+## AST DETECTOR TESTING
+
+### Ground-truth corpus (`fixtures/ground-truth.ts`)
+
+32 test cases (8 SCWE IDs × 2 TP + 2 FP) for measuring precision and recall.
+
+```typescript
+import { GROUND_TRUTH } from "../fixtures/ground-truth.js";
+// Each case: { id, scweId, code, expected: "true-positive" | "false-positive", reason }
+```
+
+### FP baseline (`tools/fp-baseline.test.ts`)
+
+Automated precision/recall measurement. Current baseline: FP 0/16, TP 16/16.
+
+### AST detector unit tests (`core/ast-detectors.test.ts`)
+
+33 tests covering all 8 detector modules. Uses `parseSolidity()` + `runASTDetectors()` directly.
+
+```typescript
+import { parseSolidity, _resetParseCache } from "../../core/ast-parse.js";
+import { runASTDetectors, _resetDetectorRegistry } from "../../core/ast-detector-registry.js";
+import "../../core/ast-detectors/index.js"; // trigger self-registration
+```
+
+### AST validator tests (`core/ast-validators.test.ts`)
+
+25 tests for pure AST validator functions + parse performance benchmarks (500-line < 200ms, cached < 1ms).

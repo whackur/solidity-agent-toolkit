@@ -16,7 +16,7 @@ export interface SlitherDetectorMapping {
 
 /**
  * Comprehensive mapping of Slither detectors to SCWE IDs.
- * Includes 25+ common detectors covering critical security issues.
+ * Includes 40+ common detectors covering critical security issues.
  */
 export const SLITHER_SCWE_MAPPINGS: Record<string, string> = {
   // Reentrancy vulnerabilities -> SCWE-046
@@ -110,6 +110,39 @@ export const SLITHER_SCWE_MAPPINGS: Record<string, string> = {
 
   // Void constructor -> SCWE-070
   "void-cst": "SCWE-070",
+
+  // Constant function issues -> SCWE-042
+  "constant-function-asm": "SCWE-042",
+  "constant-function-state": "SCWE-042",
+
+  // Optimization hints mapped to code quality -> SCWE-097
+  "external-function": "SCWE-097",
+  "dead-code": "SCWE-097",
+  "redundant-statements": "SCWE-097",
+  "boolean-equal": "SCWE-097",
+  "too-many-digits": "SCWE-097",
+  "constable-states": "SCWE-097",
+  "immutable-states": "SCWE-097",
+
+  // Missing event emission -> SCWE-063
+  "events-maths": "SCWE-063",
+  "events-access": "SCWE-063",
+
+  // ERC interface compliance -> SCWE-016
+  "erc20-interface": "SCWE-016",
+  "erc721-interface": "SCWE-016",
+
+  // Write-after-write (uninitialized storage) -> SCWE-071
+  "write-after-write": "SCWE-071",
+
+  // msg.value in loop -> SCWE-058
+  "msg-value-loop": "SCWE-058",
+
+  // Return bomb -> SCWE-059
+  "return-bomb": "SCWE-059",
+
+  // Out-of-order retryable -> SCWE-046
+  "out-of-order-retryable": "SCWE-046",
 };
 
 /**
