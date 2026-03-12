@@ -9,7 +9,6 @@ import { registerDetector, type DetectorResult } from "../ast-detector-registry.
 import {
   hasAnyModifier,
   hasModifier,
-  hasModifierLike,
   hasInlineAccessControl,
 } from "../ast-validators.js";
 import { findAllFunctions, hasFunctionCall, findExternalCalls } from "../ast-utils.js";
