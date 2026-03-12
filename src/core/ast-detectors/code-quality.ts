@@ -9,7 +9,6 @@ import { registerDetector, type DetectorResult } from "../ast-detector-registry.
 import {
   getPragmaVersion,
   isLibraryOrInterfaceOnly,
-  findFunctionAtLine,
   getFunctionVisibility,
 } from "../ast-validators.js";
 import { findAllFunctions, hasEmitStatement, findStateUpdates } from "../ast-utils.js";

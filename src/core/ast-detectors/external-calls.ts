@@ -4,12 +4,7 @@
  * insufficient gas griefing, hardcoded gas amounts.
  */
 
-import { visit } from "@solidity-parser/parser";
-import type {
-  SourceUnit,
-  FunctionCall,
-  MemberAccess,
-} from "@solidity-parser/parser/src/ast-types.js";
+import type { SourceUnit } from "@solidity-parser/parser/src/ast-types.js";
 import { registerDetector, type DetectorResult } from "../ast-detector-registry.js";
 import { findAllFunctions, hasDelegatecall, findExternalCalls } from "../ast-utils.js";
 

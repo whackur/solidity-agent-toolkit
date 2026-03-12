@@ -6,7 +6,7 @@
 import { visit } from "@solidity-parser/parser";
 import type { SourceUnit, FunctionCall } from "@solidity-parser/parser/src/ast-types.js";
 import { registerDetector, type DetectorResult } from "../ast-detector-registry.js";
-import { isPragma08OrAbove, isInsideUnchecked } from "../ast-validators.js";
+import { isPragma08OrAbove } from "../ast-validators.js";
 
 function getLine(node: { loc?: { start: { line: number } } }): number {
   return node.loc?.start.line ?? 0;
@@ -15,7 +15,7 @@ function getLine(node: { loc?: { start: { line: number } } }): number {
 registerDetector({
   id: "arithmetic",
   scweIds: ["SCWE-047", "SCWE-074"],
-  detect(ast: SourceUnit, code: string): DetectorResult[] {
+  detect(ast: SourceUnit, _code: string): DetectorResult[] {
     const results: DetectorResult[] = [];
 
     // SCWE-047: Integer overflow — only report if pragma < 0.8
