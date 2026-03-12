@@ -5,7 +5,7 @@ LSP implementation: security diagnostics, OWASP SCWE hover info, remediation cod
 ## DATA FLOW
 
 ```
-On keystroke → pattern-diagnostics.ts → [Heuristic] diagnostics (200ms debounce)
+On keystroke → pattern-diagnostics.ts → [AST + Heuristic] diagnostics (200ms debounce)
 On save      → cli-diagnostics.ts (parallel) → suppress overlaps → merge (500ms debounce)
 On hover     → hover-provider.ts → getSCWEById → Markdown
 On quickfix  → code-actions.ts → getSCWEById → remediation + fixed code
@@ -14,9 +14,10 @@ On quickfix  → code-actions.ts → getSCWEById → remediation + fixed code
 ## DIAGNOSTIC HIERARCHY
 
 1. **CLI tools** (Slither/Aderyn/Solhint) = authoritative, highest priority
-2. **Pattern diagnostics** (regex) = heuristic, labeled `[Heuristic]`, downgraded severity
-3. On save: CLI results on same line **suppress** overlapping pattern diagnostics
-4. All diagnostics deduplicated before sending
+2. **AST detectors** (8 modules, 22 SCWE IDs) = primary detection, low false-positive rate
+3. **Pattern diagnostics** (regex fallback) = heuristic for uncovered SCWE IDs, labeled `[Heuristic]`, downgraded severity
+4. On save: CLI results on same line **suppress** overlapping pattern/AST diagnostics
+5. All diagnostics deduplicated before sending
 
 ## CONVENTIONS
 

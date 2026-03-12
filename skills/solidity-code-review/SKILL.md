@@ -3,7 +3,7 @@ name: solidity-code-review
 description: Smart contract code review and security audit methodology for Solidity. Use when reviewing, auditing, or assessing the security of Solidity code. Provides structured review process, severity classification, key inspection areas, and OWASP SCWE integration. Triggers on tasks involving code review, security audit, vulnerability assessment, smart contract review, or best practices check.
 license: MIT
 metadata:
-  author: whackur
+  author: whackur (whackur@gmail.com)
   version: "0.6.0"
 ---
 

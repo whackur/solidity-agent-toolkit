@@ -3,7 +3,7 @@ name: solidity-hardhat-development
 description: Hardhat 3 development workflow for Solidity smart contracts. Use when building, testing, or deploying with Hardhat 3.x (hardhat, ignition, EDR). Covers ESM-first project setup, defineConfig, Solidity-native tests, TypeScript tests, multichain support, Hardhat Ignition deployment, and hook-based plugin system. Triggers on tasks involving hardhat init, hardhat build, hardhat test, hardhat ignition, or Hardhat-based Solidity development.
 license: MIT
 metadata:
-  author: whackur
+  author: whackur (whackur@gmail.com)
   version: "0.6.0"
 ---
 

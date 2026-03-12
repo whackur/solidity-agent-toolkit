@@ -48,22 +48,22 @@ describe("SLITHER_SCWE_MAPPINGS", () => {
     expect(SLITHER_SCWE_MAPPINGS["tx-origin"]).toBe("SCWE-018");
   });
 
-  it("maps unchecked-transfer to SCWE-104", () => {
-    expect(SLITHER_SCWE_MAPPINGS["unchecked-transfer"]).toBe("SCWE-104");
+  it("maps unchecked-transfer to SCWE-048", () => {
+    expect(SLITHER_SCWE_MAPPINGS["unchecked-transfer"]).toBe("SCWE-048");
   });
 
   it("maps suicidal to SCWE-038", () => {
     expect(SLITHER_SCWE_MAPPINGS["suicidal"]).toBe("SCWE-038");
   });
 
-  it("maps shadowing detectors to SCWE-119", () => {
-    expect(SLITHER_SCWE_MAPPINGS["shadowing-state"]).toBe("SCWE-119");
-    expect(SLITHER_SCWE_MAPPINGS["shadowing-abstract"]).toBe("SCWE-119");
+  it("maps shadowing detectors to SCWE-069", () => {
+    expect(SLITHER_SCWE_MAPPINGS["shadowing-state"]).toBe("SCWE-069");
+    expect(SLITHER_SCWE_MAPPINGS["shadowing-abstract"]).toBe("SCWE-069");
   });
 
-  it("maps uninitialized storage to SCWE-109", () => {
-    expect(SLITHER_SCWE_MAPPINGS["uninitialized-state"]).toBe("SCWE-109");
-    expect(SLITHER_SCWE_MAPPINGS["uninitialized-storage"]).toBe("SCWE-109");
+  it("maps uninitialized storage to SCWE-071", () => {
+    expect(SLITHER_SCWE_MAPPINGS["uninitialized-state"]).toBe("SCWE-071");
+    expect(SLITHER_SCWE_MAPPINGS["uninitialized-storage"]).toBe("SCWE-071");
   });
 });
 

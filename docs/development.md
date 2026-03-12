@@ -44,7 +44,15 @@ pnpm fix              # ESLint fix + Prettier format (combined)
 ```
 src/
 ├── index.ts           # MCP entry point (≤5 lines, wiring only)
-├── core/              # Shared analysis logic (CLI wrappers, parsers) — 23 files
+├── core/              # Shared analysis logic (CLI wrappers, parsers, AST detectors) — 41 files
+│   ├── ast-parse.ts      # Solidity parser with LRU cache
+│   ├── ast-validators.ts # 12 pure AST validator predicates
+│   ├── ast-context-filter.ts # Phase 2 FP reduction via AST context
+│   ├── ast-detector-registry.ts # Detector interface + registry
+│   ├── ast-utils.ts      # Shared AST utilities (CEI analysis, call detection)
+│   ├── ast-detectors/    # 8 self-registering detector modules (22 SCWE IDs)
+│   ├── pattern-matcher.ts # Detection orchestrator (AST-first, regex fallback)
+│   └── ...               # CLI wrappers, formatters, pure analysis
 ├── mcp/               # MCP server: 10 tools, 12 resources, 7 prompts
 │   ├── server.ts      # createMcpServer() — all registrations
 │   ├── tools/         # 11 files → 10 consolidated tools
@@ -52,10 +60,10 @@ src/
 │   └── prompts/       # 8 files → 7 prompts
 ├── lsp/               # LSP server (diagnostics, hover, code actions)
 │   ├── server.ts      # LSP connection + capabilities
-│   ├── diagnostics.ts # Diagnostic aggregator (pattern + CLI)
+│   ├── diagnostics.ts # Diagnostic aggregator (AST + pattern + CLI)
 │   └── ...            # hover, code actions, severity mapping
 ├── knowledge/         # OWASP data parsers, vulnerability patterns, style rules — 12 files
-└── __tests__/         # Test files (mirrors src/ structure) — 45 files
+└── __tests__/         # Test files (mirrors src/ structure) — 49 files
 
 skills/                # 7 Agent Skills (agentskills.io spec)
 bin/                   # CLI entry points (MCP + LSP)
@@ -76,7 +84,7 @@ lsp/        ->  core/ + knowledge/
 ## Testing
 
 ```bash
-pnpm test                                         # Run all tests (~636 tests, 45 files)
+pnpm test                                         # Run all tests (~725 tests, 48 files)
 pnpm test -- src/__tests__/tools/slither.test.ts   # Run a single test file
 pnpm test -- -t "maps reentrancy"                  # Run tests matching name pattern
 pnpm test:watch                                    # Watch mode

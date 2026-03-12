@@ -3,7 +3,7 @@ name: solidity-security-best-practices
 description: Smart contract security best practices for Solidity development. Use when writing, reviewing, or auditing Solidity code. Covers reentrancy prevention, access control patterns, safe external calls, input validation, upgrade safety, and OWASP Smart Contract Top 10 vulnerabilities. Triggers on tasks involving security, vulnerability detection, access control, CEI pattern, ReentrancyGuard, SafeERC20, or smart contract auditing.
 license: MIT
 metadata:
-  author: whackur
+  author: whackur (whackur@gmail.com)
   version: "0.6.0"
 ---
 

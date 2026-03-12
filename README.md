@@ -29,15 +29,27 @@ npx skills add whackur/solidity-agent-toolkit
 
 See [MCP Setup](docs/mcp-setup.md) for client-specific instructions.
 
+### Local Development
+
+```bash
+git clone --recurse-submodules https://github.com/whackur/solidity-agent-toolkit.git
+
+# If already cloned without submodules
+git submodule update --init
+
+# Update submodule to latest remote commit
+git submodule update --remote
+```
+
 ## Features
 
-**10 MCP Tools** — Security scanning (Slither, Aderyn, Solhint), heuristic pattern detection, OWASP SCWE knowledge search, contract structural analysis (adversarial, proxy safety, ERC compliance, access control, dependencies), compilation & inspection (Foundry), test runner, gas analysis, deployment simulation, code quality (NatSpec, style guide, formatting)
+**10 MCP Tools** — Security scanning (Slither, Aderyn, Solhint), AST-based vulnerability detection with regex fallback (22 SCWE IDs), OWASP SCWE knowledge search, contract structural analysis (adversarial, proxy safety, ERC compliance, access control, dependencies), compilation & inspection (Foundry), test runner, gas analysis, deployment simulation, code quality (NatSpec, style guide, formatting)
 
 **12 MCP Resources** — OWASP Smart Contract Top 10, SCWE vulnerability database (156 entries), ERC standard interfaces, adversarial scenarios, Slither detectors, Solhint rules
 
 **7 MCP Prompts** — Security audit, vulnerability fix, code review, best practices, gas optimization, ERC generation, adversarial analysis
 
-**LSP Server** — Real-time pattern diagnostics, CLI diagnostics on save, OWASP SCWE hover info, remediation code actions
+**LSP Server** — Real-time AST + pattern diagnostics, CLI diagnostics on save, OWASP SCWE hover info, remediation code actions
 
 **7 Agent Skills** — Security best practices, Foundry development, Hardhat development, gas optimization, code review methodology, ERC standards, adversarial analysis
 

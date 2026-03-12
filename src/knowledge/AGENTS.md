@@ -17,7 +17,7 @@ data/owasp-scs/docs/sctop10/*.md → top10-parser.ts → SCTop10Entry[]
 
 ## LOC-EXEMPT DATA FILES
 
-`vulnerability-patterns.ts`, `adversarial-scenarios.ts`, `style-rules.ts`, `slither-mappings.ts`, `erc-interfaces.ts`, `contract-features.ts`, `proxy-patterns.ts`
+`vulnerability-patterns.ts` (32 regex patterns — **fallback only**, AST detectors are primary for 22 SCWE IDs), `adversarial-scenarios.ts`, `style-rules.ts`, `slither-mappings.ts` (40+ Slither detector → SCWE mappings), `erc-interfaces.ts`, `contract-features.ts`, `proxy-patterns.ts`
 
 ## PARSING GOTCHAS
 

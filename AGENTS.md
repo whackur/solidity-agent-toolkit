@@ -11,7 +11,8 @@ MCP server + LSP server + 7 Agent Skills for Solidity smart contract security. T
 ```
 src/
 ├── index.ts           # MCP entry (wiring only, <=5 lines)
-├── core/              # Pure analysis logic (CLI wrappers, parsers)
+├── core/              # Pure analysis logic (CLI wrappers, parsers, AST detectors)
+│   └── ast-detectors/ # 8 AST detector modules (self-registering)
 ├── mcp/               # MCP server: 10 tools, 12 resources, 7 prompts
 ├── lsp/               # LSP server (diagnostics, hover, code actions)
 ├── knowledge/         # OWASP data parsers, vulnerability patterns, style rules
@@ -19,7 +20,6 @@ src/
 skills/                # 7 Agent Skills (agentskills.io spec)
 bin/                   # CLI entry points (cli.ts, lsp.ts)
 data/owasp-scs/        # Git submodule — READ ONLY
-```
 
 **Import DAG** (strict, never violate):
 
@@ -62,6 +62,24 @@ lsp/        → core/, knowledge/
 4. I/O separate from pure logic (CLI execution vs. output parsing)
 5. Complex prompt logic split into `*-logic.ts` files
 
+## VULNERABILITY DETECTION ARCHITECTURE
+
+Two-layer detection: AST detectors (primary) + regex patterns (fallback).
+
+```
+matchPatterns(code, checkIds?)
+  → parseSolidity(code)            # @solidity-parser/parser + LRU cache
+  → runASTDetectors(ast, code)     # 8 detectors, 22 SCWE IDs
+  → regex fallback (uncovered IDs)  # 32 patterns, ~10 SCWE IDs not in AST
+  → filterByASTContext()            # Phase 2 supplementary FP filter
+  → dedup + sort → PatternMatch[]
+```
+
+**AST detectors** (`src/core/ast-detectors/`): Self-register via `registerDetector()` on import. Barrel import `index.ts` triggers all registrations. Each detector is a pure function: `(ast, code) → DetectorResult[]`.
+
+**Regex fallback** (`src/knowledge/vulnerability-patterns.ts`): 32 regex patterns. Only runs for SCWE IDs NOT covered by AST detectors. On AST parse failure, all regex patterns run.
+
+**Key rule**: AST detectors MUST NOT import from `mcp/` or `lsp/`. They import only from `ast-detector-registry.ts`, `ast-validators.ts`, and `ast-utils.ts`.
 ## TESTING
 
 - **Framework**: vitest 4.x, node environment, globals enabled

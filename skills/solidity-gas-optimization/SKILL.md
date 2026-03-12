@@ -3,7 +3,7 @@ name: solidity-gas-optimization
 description: Gas optimization patterns for Solidity smart contracts. Use when optimizing contract deployment costs, runtime gas usage, or storage efficiency. Covers storage packing, custom errors, immutable variables, calldata optimization, loop patterns, assembly usage, and Solady gas-optimized alternatives. Triggers on tasks involving gas optimization, storage layout, deployment cost reduction, or EVM efficiency.
 license: MIT
 metadata:
-  author: whackur
+  author: whackur (whackur@gmail.com)
   version: "0.6.0"
 ---
 

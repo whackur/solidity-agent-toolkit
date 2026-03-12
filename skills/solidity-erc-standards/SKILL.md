@@ -3,7 +3,7 @@ name: solidity-erc-standards
 description: ERC token standard implementation guidelines for Solidity. Use when implementing, extending, or reviewing ERC20, ERC721, ERC1155, or ERC4626 contracts. Covers interface compliance, common pitfalls, OpenZeppelin and Solady implementations, extension patterns, and testing strategies. Triggers on tasks involving token implementation, NFT contracts, vault standards, or ERC compliance.
 license: MIT
 metadata:
-  author: whackur
+  author: whackur (whackur@gmail.com)
   version: "0.6.0"
 ---
 

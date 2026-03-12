@@ -78,7 +78,7 @@ Install the [LSP](https://packagecontrol.io/packages/LSP) package, then add to *
 
 | Feature             | Trigger               | Description                                            |
 | ------------------- | --------------------- | ------------------------------------------------------ |
-| Pattern diagnostics | On every keystroke    | Regex-based vulnerability detection mapped to SCWE IDs |
+| Pattern diagnostics | On every keystroke    | AST-based vulnerability detection (22 SCWE IDs) with regex fallback |
 | CLI diagnostics     | On file save          | Slither, Solhint, and Aderyn analysis (debounced)      |
 | Hover info          | Hover over diagnostic | OWASP SCWE description, remediation, and CWE mapping   |
 | Code actions        | Quick fix menu        | View remediation guidance and fixed code examples      |

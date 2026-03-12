@@ -3,7 +3,7 @@ name: solidity-foundry-development
 description: Foundry development workflow for Solidity smart contracts. Use when building, testing, or deploying with Foundry (forge, cast, anvil). Covers project setup, foundry.toml configuration, testing patterns, fuzz testing, invariant testing, fork testing, cheatcodes, deployment scripts, and debugging. Triggers on tasks involving forge build, forge test, forge script, cast, anvil, or Foundry-based Solidity development.
 license: MIT
 metadata:
-  author: whackur
+  author: whackur (whackur@gmail.com)
   version: "0.6.0"
 ---
 
