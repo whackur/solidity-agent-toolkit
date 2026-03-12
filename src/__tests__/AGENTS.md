@@ -97,4 +97,4 @@ import "../../core/ast-detectors/index.js"; // trigger self-registration
 
 ### AST validator tests (`core/ast-validators.test.ts`)
 
-25 tests for pure AST validator functions + parse performance benchmarks (500-line < 200ms, cached < 1ms).
+25 tests for pure AST validator functions + parse performance benchmarks (500-line < 200ms local / 500ms CI, cached < 1ms).
