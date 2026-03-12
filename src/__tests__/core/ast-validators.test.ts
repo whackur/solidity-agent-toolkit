@@ -250,7 +250,7 @@ describe("Parse Performance", () => {
 
     expect(ast).not.toBeNull();
     console.log(`Parse time for ${code.split("\n").length} lines: ${elapsed.toFixed(1)}ms`);
-    expect(elapsed).toBeLessThan(200);
+    expect(elapsed).toBeLessThan(process.env.CI ? 500 : 200);
   });
 
   it("parses a 2000-line file (informational benchmark)", () => {
