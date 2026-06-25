@@ -1,4 +1,4 @@
-import { type Diagnostic } from "vscode-languageserver/node.js";
+import { type Diagnostic } from "vscode-languageserver/node";
 import { runCliAsync } from "./cli-runner.js";
 import { mapToLspSeverity } from "./severity-mapper.js";
 import { parseSlitherJson, type SlitherFinding } from "../core/slither.js";

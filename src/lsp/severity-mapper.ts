@@ -1,4 +1,4 @@
-import { DiagnosticSeverity } from "vscode-languageserver/node.js";
+import { DiagnosticSeverity } from "vscode-languageserver/node";
 
 export type DiagnosticSource = "slither" | "solhint" | "aderyn" | "pattern";
 

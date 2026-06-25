@@ -2,9 +2,9 @@ import {
   type Connection,
   type Hover,
   type TextDocumentPositionParams,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver/node";
 import { type TextDocument } from "vscode-languageserver-textdocument";
-import { type TextDocuments } from "vscode-languageserver/node.js";
+import { type TextDocuments } from "vscode-languageserver/node";
 import { getSCWEById } from "../knowledge/scwe-parser.js";
 import { getCachedPatternDiagnostics } from "./diagnostics.js";
 import { getPatternDiagnostics } from "./pattern-diagnostics.js";

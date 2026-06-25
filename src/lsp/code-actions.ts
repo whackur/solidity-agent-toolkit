@@ -3,7 +3,7 @@ import {
   type CodeAction,
   type CodeActionParams,
   CodeActionKind,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver/node";
 import { getSCWEById } from "../knowledge/scwe-parser.js";
 
 export function setupCodeActions(connection: Connection): void {

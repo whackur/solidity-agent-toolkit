@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { DiagnosticSeverity } from "vscode-languageserver/node.js";
+import { DiagnosticSeverity } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getPatternDiagnostics } from "../../lsp/pattern-diagnostics.js";
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { DiagnosticSeverity } from "vscode-languageserver/node.js";
+import { DiagnosticSeverity } from "vscode-languageserver/node";
 
 vi.mock("../../lsp/cli-runner.js", () => ({
   runCliAsync: vi.fn(),

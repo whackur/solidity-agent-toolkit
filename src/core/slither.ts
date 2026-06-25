@@ -60,7 +60,7 @@ export function parseSlitherJson(jsonOutput: string): SlitherFinding[] {
 
     return findings;
   } catch (error) {
-    throw new Error(`Failed to parse Slither JSON output: ${error}`);
+    throw new Error(`Failed to parse Slither JSON output: ${error}`, { cause: error });
   }
 }
 

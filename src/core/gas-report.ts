@@ -30,7 +30,6 @@ export function parseGasReport(
   const estimates: GasEstimate[] = [];
   const lines = output.split("\n");
 
-  let currentContract: string | null = null;
   let currentEstimate: GasEstimate | null = null;
   let inGasReport = false;
 
@@ -46,7 +45,7 @@ export function parseGasReport(
 
     const contractMatch = line.match(/^\s*\|\s*([A-Z][a-zA-Z0-9_]+)\s*\|/);
     if (contractMatch && !line.includes("Function") && !line.includes("Deployment")) {
-      currentContract = contractMatch[1];
+      const currentContract = contractMatch[1];
       if (!contractFilter || currentContract === contractFilter) {
         currentEstimate = {
           contract: currentContract,
@@ -139,10 +138,7 @@ export interface GasReportRunResult {
   error?: string;
 }
 
-export function runGasReport(
-  contractName?: string,
-  functionName?: string,
-): GasReportRunResult {
+export function runGasReport(contractName?: string, functionName?: string): GasReportRunResult {
   try {
     const output = execSync("forge test --gas-report", {
       encoding: "utf-8",

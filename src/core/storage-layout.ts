@@ -29,6 +29,7 @@ export function parseStorageLayout(output: string): StorageSlot[] {
   } catch (error) {
     throw new Error(
       `Failed to parse storage layout: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
     );
   }
 }

@@ -7,7 +7,7 @@ export function buildAuditPrompt(
   contractCode: string,
   level: "quick" | "deep",
 ): { system: string; user: string } {
-  let knowledgeBase = "";
+  let knowledgeBase: string;
 
   if (level === "quick") {
     const top10 = loadAllTop10();

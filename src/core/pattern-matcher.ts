@@ -62,11 +62,12 @@ export function matchPatterns(code: string, checkIds?: string[]): PatternMatch[]
 
   // Regex fallback: only for SCWE IDs NOT covered by AST detectors
   // (or for all IDs if AST parsing failed)
-  const regexPatterns = (checkIds?.length
-    ? VULNERABILITY_PATTERNS.filter((p) =>
-        checkIds.some((id) => id.toUpperCase() === p.scweId.toUpperCase()),
-      )
-    : VULNERABILITY_PATTERNS
+  const regexPatterns = (
+    checkIds?.length
+      ? VULNERABILITY_PATTERNS.filter((p) =>
+          checkIds.some((id) => id.toUpperCase() === p.scweId.toUpperCase()),
+        )
+      : VULNERABILITY_PATTERNS
   ).filter((p) => !ast || !astCoveredIds.has(p.scweId.toUpperCase()));
 
   for (const pattern of regexPatterns) {
@@ -92,7 +93,9 @@ export function matchPatterns(code: string, checkIds?: string[]): PatternMatch[]
         if (multiMatch) {
           const upToMatch = code.slice(0, multiMatch.index);
           const line = upToMatch.split("\n").length;
-          const alreadyFound = allMatches.some((m) => m.scweId === pattern.scweId && m.line === line);
+          const alreadyFound = allMatches.some(
+            (m) => m.scweId === pattern.scweId && m.line === line,
+          );
           if (!alreadyFound) {
             allMatches.push({
               scweId: pattern.scweId,

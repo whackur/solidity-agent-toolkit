@@ -3,7 +3,7 @@ import {
   type Diagnostic,
   type TextDocuments,
   type TextDocumentChangeEvent,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver/node";
 import { type TextDocument } from "vscode-languageserver-textdocument";
 import { getPatternDiagnostics } from "./pattern-diagnostics.js";
 import {

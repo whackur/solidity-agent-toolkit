@@ -142,7 +142,7 @@ export function parseSolhintOutput(jsonOutput: string): SolhintViolation[] {
       return a.column - b.column;
     });
   } catch (error) {
-    throw new Error(`Failed to parse solhint output: ${error}`);
+    throw new Error(`Failed to parse solhint output: ${error}`, { cause: error });
   }
 }
 
