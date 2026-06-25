@@ -5,10 +5,10 @@ MCP protocol layer. Thin wrappers around `core/` functions. 10 tools, 12 resourc
 ## CONVENTIONS
 
 - Tool files are thin wrappers: import from `../../core/xxx.js`, call `server.registerTool()`
-- MCP SDK v1.26.0 — `server.registerTool()` for tools (`server.tool()` is deprecated)
+- MCP SDK v1.29.0 — `server.registerTool()` for tools (`server.tool()` is deprecated)
 - `isError: true` = tool execution failure; absent or `false` = success
 - Schema uses Zod `.shape` property for inline schema extraction
-- Complex prompt logic split into `*-logic.ts` files to stay under 200 LOC
+- Complex prompt logic split into `*-logic.ts` files to stay under 300 LOC
 - **NEVER import from `lsp/`**
 
 ## TOOL DESCRIPTION FORMAT
