@@ -7,7 +7,11 @@
  *   - emitted events whose key fields are not indexed for off-chain filtering.
  */
 
-import type { SourceUnit } from "@solidity-parser/parser/src/ast-types.js";
+import type {
+  SourceUnit,
+  VariableDeclaration,
+  ElementaryTypeName,
+} from "@solidity-parser/parser/src/ast-types.js";
 import { registerDetector, type DetectorResult } from "../ast-detector-registry.js";
 import {
   findAllContracts,
@@ -23,8 +27,26 @@ function getLine(node: { loc?: { start: { line: number } } }): number {
   return node.loc?.start.line ?? 0;
 }
 
-/** Events with this many parameters and no indexed field hinder off-chain filtering. */
-const INDEXED_SUGGESTION_THRESHOLD = 3;
+/** Non-anonymous events can hold at most 3 indexed topics (topic0 is the signature). */
+const MAX_INDEXED_TOPICS = 3;
+
+/** camelCase `Id`/`ID` suffix or bare `id`/`_id` — avoids matching "valid"/"paid". */
+const ID_NAME = /(Id|ID)$|^_?id$/;
+
+/**
+ * A parameter worth indexing: an entity key used for off-chain filtering —
+ * an address, or an identifier-named field. Amounts and payloads are not.
+ */
+function isIndexWorthyParam(param: VariableDeclaration): boolean {
+  const typeName = param.typeName;
+  if (
+    typeName?.type === "ElementaryTypeName" &&
+    (typeName as ElementaryTypeName).name === "address"
+  ) {
+    return true;
+  }
+  return param.name != null && ID_NAME.test(param.name);
+}
 
 registerDetector({
   id: "events",
@@ -77,17 +99,23 @@ registerDetector({
           continue;
         }
 
+        if (event.isAnonymous) continue;
         const params = event.parameters;
-        const hasIndexed = params.some((p) => p.isIndexed);
-        if (!event.isAnonymous && params.length >= INDEXED_SUGGESTION_THRESHOLD && !hasIndexed) {
+        const indexedCount = params.filter((p) => p.isIndexed).length;
+        if (indexedCount >= MAX_INDEXED_TOPICS) continue; // no topic slots left
+
+        const candidates = params
+          .filter((p) => !p.isIndexed && isIndexWorthyParam(p))
+          .map((p) => p.name ?? "<unnamed>");
+        if (candidates.length > 0) {
           results.push({
             scweId: "SCWE-063",
             name: "Event Missing Indexed Parameters",
             severity: "low",
             line: getLine(event),
             description:
-              `Event '${event.name}' has ${params.length} parameters but none are indexed. ` +
-              "Mark key fields (addresses, ids) as indexed so off-chain consumers can filter logs.",
+              `Event '${event.name}' has key field(s) not marked indexed: ${candidates.join(", ")}. ` +
+              "Index addresses and ids so off-chain consumers can filter logs (max 3 indexed topics).",
             source: "ast",
           });
         }

@@ -293,7 +293,7 @@ describe("events detector", () => {
     expect(detect(code, ["SCWE-063"]).length).toBe(0);
   });
 
-  it("suggests indexed parameters on an emitted multi-field event", () => {
+  it("suggests indexing an unindexed address field on an emitted event", () => {
     const code = `contract Token {
       uint256 public x;
       event Action(address user, uint256 amount, uint256 timestamp);
@@ -306,13 +306,39 @@ describe("events detector", () => {
     expect(results.some((r) => r.name === "Event Missing Indexed Parameters")).toBe(true);
   });
 
-  it("does not suggest indexed when a field is already indexed", () => {
+  it("suggests indexing an unindexed id field on an emitted event", () => {
+    const code = `contract Registry {
+      uint256 public x;
+      event Registered(uint256 tokenId, uint256 value);
+      function register(uint256 tokenId) external {
+        x = tokenId;
+        emit Registered(tokenId, x);
+      }
+    }`;
+    const results = detect(code, ["SCWE-063"]);
+    expect(results.some((r) => r.name === "Event Missing Indexed Parameters")).toBe(true);
+  });
+
+  it("does not suggest indexing when key fields are already indexed", () => {
     const code = `contract Token {
       uint256 public x;
       event Action(address indexed user, uint256 amount, uint256 timestamp);
       function act(uint256 amount) external {
         x = amount;
         emit Action(msg.sender, amount, block.timestamp);
+      }
+    }`;
+    const results = detect(code, ["SCWE-063"]);
+    expect(results.some((r) => r.name === "Event Missing Indexed Parameters")).toBe(false);
+  });
+
+  it("does not suggest indexing amount-only events with no address or id fields", () => {
+    const code = `contract Pool {
+      uint256 public total;
+      event Rebalanced(uint256 supplied, uint256 borrowed, uint256 ratio);
+      function rebalance(uint256 supplied) external {
+        total = supplied;
+        emit Rebalanced(supplied, total, total);
       }
     }`;
     const results = detect(code, ["SCWE-063"]);
