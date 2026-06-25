@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
           submodules: true # data/owasp-scs submodule required for build/test
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v4
         with:
