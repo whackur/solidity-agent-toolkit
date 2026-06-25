@@ -1,36 +1,64 @@
 ---
 name: solidity-code-review
-description: Smart contract code review and security audit methodology for Solidity. Use when reviewing, auditing, or assessing the security of Solidity code. Provides structured review process, severity classification, key inspection areas, and OWASP SCWE integration. Triggers on tasks involving code review, security audit, vulnerability assessment, smart contract review, or best practices check.
+description: Smart contract code review, security best practices, and audit methodology for Solidity. Use when writing, implementing, reviewing, auditing, or assessing the security of Solidity code. Covers the security thinking framework (CEI, least privilege, defense in depth), structured review process, severity classification, key inspection areas, secure patterns (reentrancy prevention, access control, SafeERC20, upgrade safety), OWASP SCWE Top 10, code improvement proposals, and reporting. Triggers on tasks involving code review, security audit, vulnerability detection, vulnerability assessment, access control, CEI pattern, ReentrancyGuard, SafeERC20, best practices check, or smart contract review.
 license: MIT
 metadata:
   author: whackur (whackur@gmail.com)
-  version: "0.7.0"
+  version: "0.8.0"
 ---
 
-# Solidity Code Review Guide
+# Solidity Code Review & Security Guide
 
 ## When to Apply
 
-Apply this methodology when performing a security audit, peer review, or general assessment of Solidity smart contracts. It is designed to identify vulnerabilities, ensure adherence to best practices, and verify the robustness of the contract logic.
+- Writing or implementing contracts and applying secure-by-default patterns.
+- Performing a security audit, peer review, or general assessment of Solidity code.
+- Auditing access control, external-call safety, and upgradeability logic.
+- Preparing for a security audit or bug bounty, or responding to an incident.
+- Debugging unexpected behavior in external contract interactions.
+
+## Security Thinking Framework
+
+Apply these foundational principles as a mental checklist. Each addresses a category of vulnerability and guides your reasoning.
+
+### Core Principles
+
+| Principle                             | What It Means                                                  | What to Verify                                             |
+| :------------------------------------ | :------------------------------------------------------------- | :--------------------------------------------------------- |
+| **Checks-Effects-Interactions (CEI)** | Validate inputs, update state, then interact externally        | State changes complete before any external call            |
+| **Least Privilege**                   | Every function and role has the minimum access required        | Sensitive functions have appropriate access modifiers      |
+| **Defense in Depth**                  | Multiple layers of protection, no single points of failure     | Combine CEI + ReentrancyGuard + SafeERC20 where applicable |
+| **Fail-Safe Defaults**                | The default state is secure; access must be explicitly granted | Functions default to restricted, not open                  |
+| **Complete Mediation**                | Every access to every resource is validated                    | No code paths bypass access control checks                 |
+
+### Security Decision Process
+
+For each function, ask in order:
+
+1. **Who can call this?** — Access control (onlyOwner, hasRole, msg.sender validation)
+2. **What inputs does it accept?** — Validate parameters (zero address, bounds, empty values)
+3. **What state does it change?** — State updates happen before external interactions
+4. **Does it interact externally?** — Apply CEI, use SafeERC20, check return values
+5. **Can it be called recursively?** — Add ReentrancyGuard if external calls are present
+6. **Is the state change visible?** — Emit events for off-chain tracking
+7. **Can it be paused?** — Circuit breakers for critical operations
 
 ## Pre-Review Checklist
 
-Before beginning the manual review, ensure the following items are addressed:
-
-- **Compilation**: Verify the code compiles without errors using the project's build system (Foundry, Hardhat, etc.).
-- **Test Suite**: Run the existing test suite. Ensure tests pass and review coverage reports to identify untested logic.
-- **Dependencies**: Identify all external libraries and inherited contracts. Verify versions are pinned and trusted.
-- **Documentation**: Review technical specifications and NatSpec comments to understand intended behavior.
-- **Known Issues**: Check for previous audit reports or documented "known risks" provided by the developers.
-- **Scope**: Define the exact list of contracts and functions that are within the audit scope.
+- **Compilation**: Code compiles without errors using the project's build system (Foundry, Hardhat).
+- **Test Suite**: Existing tests pass; review coverage to find untested logic.
+- **Dependencies**: External libraries and inherited contracts use pinned, trusted versions.
+- **Documentation**: Read specs and NatSpec to understand intended behavior.
+- **Known Issues**: Check previous audits and documented "known risks".
+- **Scope**: Define the exact contracts and functions in scope.
 
 ## Review Methodology
 
-1. **Step 1: Scope & Architecture**: Map out the contract inheritance, external dependencies, and system architecture.
-2. **Step 2: Manual Line-by-Line Review**: Perform a deep dive into critical functions, focusing on state changes and value transfers.
-3. **Step 3: Automated Analysis**: Run static analysis tools (Slither, Aderyn, Solhint) to catch common patterns and style violations.
-4. **Step 4: Vulnerability Pattern Matching**: Specifically check for known SCWE patterns (Reentrancy, Access Control, etc.).
-5. **Step 5: Integration & Edge Cases**: Analyze how contracts interact and test boundary conditions (e.g., zero values, max integers).
+1. **Scope & Architecture**: Map inheritance, external dependencies, and system architecture.
+2. **Manual Line-by-Line Review**: Deep-dive critical functions, focusing on state changes and value transfers.
+3. **Automated Analysis**: Run static analysis (Slither, Aderyn, Solhint) for common patterns and style.
+4. **Vulnerability Pattern Matching**: Check known SCWE patterns (reentrancy, access control, etc.).
+5. **Integration & Edge Cases**: Analyze contract interactions and boundary conditions (zero values, max integers).
 
 ## Severity Classification
 
@@ -43,104 +71,111 @@ Before beginning the manual review, ensure the following items are addressed:
 
 ## Key Inspection Areas
 
-### Access Control & Authorization
+Organized by OWASP SCSVS threat model. For each area, verify the listed controls.
 
-- Verify `onlyOwner` or role-based access on all sensitive state-changing functions.
-- Ensure initializers are protected and can only be called once.
-- Check for `tx.origin` usage instead of `msg.sender`.
+### Access Control & Authorization (SCSVS-AUTH)
 
-### External Call Safety
+- `onlyOwner` or role-based access on ALL state-changing functions.
+- Initializers protected and callable once only.
+- No `tx.origin` for authentication — use `msg.sender`.
+- Privileged roles guarded by multi-sig or timelock.
 
-- Follow the Check-Effects-Interactions (CEI) pattern strictly.
-- Use `call()` instead of `transfer()` or `send()` for ETH transfers.
-- Handle return values of all external calls.
+### External Calls & Reentrancy (SCSVS-COMM)
 
-### State Management & Reentrancy
+- Follow Checks-Effects-Interactions strictly; state updates before external calls.
+- `ReentrancyGuard` on functions making external calls; watch cross-function/cross-contract reentrancy.
+- Use `call()` (not `transfer`/`send`) for ETH; handle and check all return values.
+- Pull-over-push pattern for payments.
 
-- Use `ReentrancyGuard` for functions making external calls.
-- Check for cross-contract reentrancy where state is shared.
-- Ensure state variables are updated before external interactions.
+### Arithmetic & Type Safety (SCSVS-CODE)
 
-### Arithmetic & Type Safety
-
-- For Solidity <0.8.0, ensure `SafeMath` is used.
-- Check for precision loss in divisions (multiply before dividing).
-- Verify safe casting between types (e.g., `uint256` to `uint8`).
+- For Solidity <0.8.0, ensure `SafeMath`. Check precision loss (multiply before dividing).
+- Verify safe casting between types (`uint256` → `uint8`).
+- Explicit visibility, fixed pragma, no deprecated constructs, no shadowing.
 
 ### Token Handling (ERC20/721)
 
-- Use `SafeERC20` for `transfer` and `transferFrom`.
-- Account for "fee-on-transfer" tokens if applicable.
-- Verify `approve` race condition handling.
+- Use `SafeERC20` for `transfer`/`transferFrom`; account for fee-on-transfer tokens.
+- Handle `approve` race conditions; verify `onERC721Received` reentrancy.
 
-### Upgrade Mechanisms
+### Upgrade Safety
 
-- Check for storage gaps in logic contracts to prevent collisions.
-- Ensure logic contracts do not use `selfdestruct` or `delegatecall`.
-- Verify the proxy admin has restricted access.
+- Storage gaps in logic contracts to prevent collisions; verify storage compatibility across upgrades.
+- Logic contracts avoid `selfdestruct`/untrusted `delegatecall`; proxy admin access restricted.
 
-### Event Emissions
+### Cryptography & Randomness (SCSVS-CRYPTO)
 
-- Emit events for all significant state changes (ownership, parameters, transfers).
-- Use `indexed` parameters for efficient off-chain filtering.
+- No on-chain randomness (`block.timestamp`, `blockhash`) — use Chainlink VRF or commit-reveal.
+- EIP-712 for structured signatures; nonces to prevent replay; validate `ecrecover != address(0)`.
+- `abi.encode` over `abi.encodePacked` for dynamic types in hashing.
 
-### NatSpec Documentation
+### DeFi & Oracle Safety (SCSVS-DEFI)
 
-- Ensure `@notice`, `@param`, and `@return` are accurate.
-- Use `@dev` to document complex logic or security assumptions.
+- Slippage protection on swaps/liquidity; flash-loan resistance in price-sensitive logic.
+- Oracle manipulation protection (TWAP, multiple sources); no reliance on `address(this).balance` for accounting.
+
+### Events & NatSpec
+
+- Emit events for all significant state changes; use `indexed` for efficient filtering.
+- Accurate `@notice`, `@param`, `@return`; `@dev` for complex logic and security assumptions.
 
 ### Style Guide Compliance
 
-- Code follows the official Solidity style guide conventions.
-- Naming conventions: PascalCase (contracts), camelCase (functions), UPPER_CASE (constants).
-- Function ordering: by visibility (external → public → internal → private), then by mutability (state-changing → view → pure) within each group.
-- Function modifier order: visibility, mutability, virtual, override, custom.
-- See the [Solidity Style Guide Reference](./references/solidity-style-guide.md) for the full checklist.
+- Naming: PascalCase (contracts), camelCase (functions), UPPER_CASE (constants).
+- Function ordering by visibility (external → public → internal → private), then mutability.
+- Modifier order: visibility, mutability, virtual, override, custom.
+- See the [Solidity Style Guide Reference](./references/solidity-style-guide.md).
+
+## Secure Patterns by Priority
+
+**Critical** — CEI pattern (state before external calls); ReentrancyGuard (mutex on external interactions); access control on every state-changing function; SafeERC20 + checked `.call()` returns.
+
+**High** — Input validation (zero address, bounds, empty arrays) with gas-efficient custom errors; upgrade safety (`initializer` modifier, storage compatibility); circuit breakers (Pausable) for fund-handling protocols.
+
+**Medium** — Signature security (nonces + EIP-712); no on-chain randomness; events on all significant state changes.
+
+## Code Improvement Proposals
+
+A review is not complete at "is it safe?" — also surface how the code could be **better**. For each reviewed unit, consider proposing:
+
+- **Better patterns**: Replace ad-hoc access checks with `AccessControl`; replace manual reentrancy flags with `ReentrancyGuard`; replace `require(string)` with custom errors.
+- **Simpler design**: Reduce state surface, remove redundant storage reads, collapse duplicated logic into a single internal function.
+- **Gas efficiency**: Pack storage, prefer `calldata`, cache array length, evaluate Solady alternatives — only when it does not compromise clarity or safety.
+- **Readability & maintainability**: Clearer naming, NatSpec on non-obvious invariants, splitting oversized functions.
+- **Testability**: Pure logic separated from I/O, events that make off-chain assertions possible.
+
+Frame each proposal as: **current approach → suggested approach → concrete benefit (safety / gas / clarity)**. Mark proposals as `Low`/informational unless they fix a real defect.
 
 ## Reporting Format
-
-Findings should be documented using the following template:
 
 ### [SEVERITY] Finding Title
 
 **ID**: SCWE-XXX _(replace with actual SCWE ID, e.g., SCWE-046 — see `search_vulnerabilities`)_
 **Location**: `ContractName.sol:L42`
 **Description**: Detailed explanation of the vulnerability and how it can be triggered.
-**Impact**: What happens if this is exploited (e.g., "User funds can be stolen").
+**Impact**: What happens if exploited (e.g., "User funds can be stolen").
 **Remediation**: Specific code changes or architectural adjustments to fix the issue.
 
 ## Enhanced with MCP
 
-When using the `solidity-agent-toolkit`, leverage these tools in a structured review workflow:
+When using the `solidity-agent-toolkit`, run a structured review workflow:
 
-**Step 1 — Static Analysis:**
+**Static Analysis** — `run_slither` (SCWE-mapped findings), `run_aderyn` (fast Rust scanner), `run_solhint` (lint/style).
 
-- `run_slither` — Comprehensive static analysis with SCWE-mapped findings
-- `run_aderyn` — Fast Rust-based vulnerability scanner
-- `run_solhint` — Linting and style enforcement
+**Pattern Detection** — `match_vulnerability_patterns` (regex detection of 32+ patterns).
 
-**Step 2 — Pattern Detection:**
+**Vulnerability Lookup** — `search_vulnerabilities` (SCWE database by keyword), `get_remediation` (fix guidance with code examples), `check_vulnerability` (match code to a known SCWE pattern).
 
-- `match_vulnerability_patterns` — Regex-based detection of 32+ common vulnerability patterns
+**Style & Quality** — `check_style` (12 rules), `format_code`, `validate_natspec`.
 
-**Step 3 — Vulnerability Lookup:**
+**Reference Data** — `scwe://{id}`, `scwe://category/{category}`, `sctop10://list`.
 
-- `search_vulnerabilities` — Search the OWASP SCWE database by keyword
-- `get_remediation` — Get specific fix guidance with code examples for any SCWE ID
-- `check_vulnerability` — Check if code matches a known SCWE pattern
+**Guided Prompts** — `security_audit` (structured audit), `code_review` (quality assessment), `vulnerability_fix` (step-by-step remediation).
 
-**Step 4 — Style & Quality:**
-
-- `check_style` — Automated Solidity style guide compliance (12 rules)
-- `format_code` — Auto-format Solidity code
-- `validate_natspec` — Verify NatSpec documentation completeness
-
-**Step 5 — Full Audit:**
-
-- Use the `security_audit` prompt for a structured, guided audit process
-- Use the `code_review` prompt for comprehensive code quality assessment
+For attacker-perspective threat modeling, see the **Adversarial Analysis** skill.
 
 ## References
 
+- [OWASP Smart Contract Top 10 (2026)](./references/owasp-scwe-top10.md)
 - [Smart Contract Audit Checklist](./references/audit-checklist.md)
 - [Solidity Style Guide Reference](./references/solidity-style-guide.md)

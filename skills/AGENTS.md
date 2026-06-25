@@ -1,6 +1,6 @@
 # skills/ — Agent Skills
 
-7 Agent Skills following the [agentskills.io](https://agentskills.io) spec. Install via `npx skills add whackur/solidity-agent-toolkit`.
+6 Agent Skills following the [agentskills.io](https://agentskills.io) spec. Install via `npx skills add whackur/solidity-agent-toolkit`.
 
 ## SKILL.md FORMAT
 
@@ -10,8 +10,8 @@ name: lowercase-with-hyphens # <=64 chars, must match directory name
 description: What + when + triggers # <=1024 chars
 license: MIT
 metadata:
-  author: whackur
-  version: "0.5.3"
+  author: whackur (whackur@gmail.com)
+  version: "0.7.0" # auto-synced from package.json — never edit manually
 ---
 # Title
 ## When to Apply

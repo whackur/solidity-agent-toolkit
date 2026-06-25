@@ -51,7 +51,7 @@ git submodule update --remote
 
 **LSP Server** — Real-time AST + pattern diagnostics, CLI diagnostics on save, OWASP SCWE hover info, remediation code actions
 
-**7 Agent Skills** — Security best practices, Foundry development, Hardhat development, gas optimization, code review methodology, ERC standards, adversarial analysis
+**6 Agent Skills** — Code review & security (audit methodology, secure patterns, OWASP SCWE), Foundry development, Hardhat development, gas optimization, ERC standards, adversarial analysis
 
 ## Documentation
 
