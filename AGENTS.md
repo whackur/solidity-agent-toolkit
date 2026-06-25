@@ -12,7 +12,7 @@ MCP server + LSP server + 6 Agent Skills for Solidity smart contract security. T
 src/
 ├── index.ts           # MCP entry (wiring only, <=5 lines)
 ├── core/              # Pure analysis logic (CLI wrappers, parsers, AST detectors)
-│   └── ast-detectors/ # 8 AST detector modules (self-registering)
+│   └── ast-detectors/ # 9 AST detector modules (self-registering)
 ├── mcp/               # MCP server: 10 tools, 12 resources, 7 prompts
 ├── lsp/               # LSP server (diagnostics, hover, code actions)
 ├── knowledge/         # OWASP data parsers, vulnerability patterns, style rules
@@ -75,7 +75,7 @@ Two-layer detection: AST detectors (primary) + regex patterns (fallback).
 
 matchPatterns(code, checkIds?)
 → parseSolidity(code) # @solidity-parser/parser + LRU cache
-→ runASTDetectors(ast, code) # 8 detectors, 22 SCWE IDs
+→ runASTDetectors(ast, code) # 9 detectors, 22 SCWE IDs
 → regex fallback (uncovered IDs) # 32 patterns, ~10 SCWE IDs not in AST
 → filterByASTContext() # Phase 2 supplementary FP filter
 → dedup + sort → PatternMatch[]

@@ -9,6 +9,7 @@ import "./access-control.js";
 import "./external-calls.js";
 import "./arithmetic.js";
 import "./code-quality.js";
+import "./events.js";
 import "./randomness.js";
 import "./signature.js";
 import "./dos.js";

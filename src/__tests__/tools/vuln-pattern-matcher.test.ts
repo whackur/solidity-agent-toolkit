@@ -222,8 +222,10 @@ contract Game {
 pragma solidity 0.8.20;
 contract Safe {
     uint256 private counter;
+    event Incremented(uint256 newValue);
     function increment() external {
         counter += 1;
+        emit Incremented(counter);
     }
     function getCounter() external view returns (uint256) {
         return counter;

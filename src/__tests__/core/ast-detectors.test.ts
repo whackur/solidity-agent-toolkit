@@ -190,7 +190,7 @@ describe("arithmetic detector", () => {
   });
 });
 
-// ─── Code Quality (SCWE-060, SCWE-063, SCWE-067, SCWE-097) ──────
+// ─── Code Quality (SCWE-060, SCWE-067, SCWE-097) ───────────────
 describe("code-quality detector", () => {
   it("detects floating pragma (SCWE-060)", () => {
     const code = `pragma solidity ^0.8.0;
@@ -210,16 +210,6 @@ describe("code-quality detector", () => {
     expect(detectIds(code, ["SCWE-060"])).not.toContain("SCWE-060");
   });
 
-  it("detects missing event emission (SCWE-063)", () => {
-    const code = `contract Config {
-      uint256 public fee;
-      function setFee(uint256 _fee) public {
-        fee = _fee;
-      }
-    }`;
-    expect(detectIds(code, ["SCWE-063"])).toContain("SCWE-063");
-  });
-
   it("detects assert usage (SCWE-067)", () => {
     const code = `contract Invariant {
       function check(uint256 x) public {
@@ -236,6 +226,97 @@ describe("code-quality detector", () => {
       }
     }`;
     expect(detectIds(code, ["SCWE-097"])).toContain("SCWE-097");
+  });
+});
+
+// ─── Event Emission Correctness (SCWE-063) ─────────────────────
+describe("events detector", () => {
+  it("detects missing event emission on a state-changing setter (SCWE-063)", () => {
+    const code = `contract Config {
+      uint256 public fee;
+      function setFee(uint256 _fee) public {
+        fee = _fee;
+      }
+    }`;
+    const results = detect(code, ["SCWE-063"]);
+    expect(results.some((r) => r.name === "Missing Event Emission on State Change")).toBe(true);
+  });
+
+  it("detects missing event emission beyond the set* prefix", () => {
+    const code = `contract Vault {
+      mapping(address => uint256) public balances;
+      function withdraw(uint256 amount) public {
+        balances[msg.sender] -= amount;
+      }
+    }`;
+    const results = detect(code, ["SCWE-063"]);
+    expect(results.some((r) => r.name === "Missing Event Emission on State Change")).toBe(true);
+  });
+
+  it("does not flag a state-changing function that already emits", () => {
+    const code = `contract Config {
+      uint256 public fee;
+      event FeeUpdated(uint256 newFee);
+      function setFee(uint256 _fee) public {
+        fee = _fee;
+        emit FeeUpdated(_fee);
+      }
+    }`;
+    const results = detect(code, ["SCWE-063"]);
+    expect(results.some((r) => r.name === "Missing Event Emission on State Change")).toBe(false);
+  });
+
+  it("does not flag view/pure functions or local-variable writes", () => {
+    const code = `contract Calc {
+      uint256 public total;
+      function preview(uint256 x) public view returns (uint256) {
+        uint256 tmp = x + total;
+        return tmp;
+      }
+    }`;
+    expect(detect(code, ["SCWE-063"]).length).toBe(0);
+  });
+
+  it("detects an event that is declared but never emitted", () => {
+    const code = `contract Token {
+      event Transfer(address indexed from, address indexed to, uint256 value);
+      function noop() external {}
+    }`;
+    const results = detect(code, ["SCWE-063"]);
+    expect(results.some((r) => r.name === "Declared Event Never Emitted")).toBe(true);
+  });
+
+  it("does not flag events declared in an interface", () => {
+    const code = `interface IToken {
+      event Transfer(address indexed from, address indexed to, uint256 value);
+    }`;
+    expect(detect(code, ["SCWE-063"]).length).toBe(0);
+  });
+
+  it("suggests indexed parameters on an emitted multi-field event", () => {
+    const code = `contract Token {
+      uint256 public x;
+      event Action(address user, uint256 amount, uint256 timestamp);
+      function act(uint256 amount) external {
+        x = amount;
+        emit Action(msg.sender, amount, block.timestamp);
+      }
+    }`;
+    const results = detect(code, ["SCWE-063"]);
+    expect(results.some((r) => r.name === "Event Missing Indexed Parameters")).toBe(true);
+  });
+
+  it("does not suggest indexed when a field is already indexed", () => {
+    const code = `contract Token {
+      uint256 public x;
+      event Action(address indexed user, uint256 amount, uint256 timestamp);
+      function act(uint256 amount) external {
+        x = amount;
+        emit Action(msg.sender, amount, block.timestamp);
+      }
+    }`;
+    const results = detect(code, ["SCWE-063"]);
+    expect(results.some((r) => r.name === "Event Missing Indexed Parameters")).toBe(false);
   });
 });
 

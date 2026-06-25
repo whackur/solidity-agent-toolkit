@@ -1,6 +1,7 @@
 /**
- * AST detector: Code Quality (SCWE-060, SCWE-063, SCWE-067, SCWE-097)
- * Detects: floating pragma, missing event emission, assert misuse, default visibility.
+ * AST detector: Code Quality (SCWE-060, SCWE-067, SCWE-097)
+ * Detects: floating pragma, assert misuse, default visibility.
+ * Event emission correctness (SCWE-063) lives in its own `events.ts` detector.
  */
 
 import { visit } from "@solidity-parser/parser";
@@ -11,7 +12,7 @@ import {
   isLibraryOrInterfaceOnly,
   getFunctionVisibility,
 } from "../ast-validators.js";
-import { findAllFunctions, hasEmitStatement, findStateUpdates } from "../ast-utils.js";
+import { findAllFunctions } from "../ast-utils.js";
 
 function getLine(node: { loc?: { start: { line: number } } }): number {
   return node.loc?.start.line ?? 0;
@@ -19,7 +20,7 @@ function getLine(node: { loc?: { start: { line: number } } }): number {
 
 registerDetector({
   id: "code-quality",
-  scweIds: ["SCWE-060", "SCWE-063", "SCWE-067", "SCWE-097"],
+  scweIds: ["SCWE-060", "SCWE-067", "SCWE-097"],
   detect(ast: SourceUnit): DetectorResult[] {
     const results: DetectorResult[] = [];
 
@@ -46,27 +47,9 @@ registerDetector({
       }
     }
 
-    // SCWE-063: Missing event emission on state-changing setter functions
+    // SCWE-097: Default function visibility
     const funcs = findAllFunctions(ast);
     for (const func of funcs) {
-      const name = func.name ?? "";
-      const nameLower = name.toLowerCase();
-      const isPublic = func.visibility === "public" || func.visibility === "external";
-
-      if (isPublic && nameLower.startsWith("set") && findStateUpdates(func).length > 0) {
-        if (!hasEmitStatement(func)) {
-          results.push({
-            scweId: "SCWE-063",
-            name: "Missing Event Emission on State Change",
-            severity: "low",
-            line: getLine(func),
-            description: "State-changing functions should emit events for off-chain indexing.",
-            source: "ast",
-          });
-        }
-      }
-
-      // SCWE-097: Default function visibility
       if (getFunctionVisibility(func) === "default" && !func.isConstructor) {
         results.push({
           scweId: "SCWE-097",
