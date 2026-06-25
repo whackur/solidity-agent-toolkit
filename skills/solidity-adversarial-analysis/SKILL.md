@@ -4,7 +4,7 @@ description: Adversarial scenario analysis and threat modeling for Solidity smar
 license: MIT
 metadata:
   author: whackur (whackur@gmail.com)
-  version: "0.7.0"
+  version: "0.8.0"
 ---
 
 # Solidity Adversarial Scenario Analysis
@@ -47,6 +47,15 @@ metadata:
 3. **Scenario Construction**: For each applicable category, build: Pre-conditions → Attack Steps → Impact
 4. **Invariant Verification**: Define properties that must always hold (e.g., `totalDeposits <= balance`)
 5. **Mitigation Assessment**: Check if existing defenses (ReentrancyGuard, access control, slippage checks) adequately cover the scenario
+
+## Multi-Angle Coverage
+
+A single function is rarely vulnerable in only one way. Examine every entry point from each applicable angle before concluding it is safe:
+
+- **Cross-category**: Re-check the same function against every attack category above, not just the most obvious one (a swap is both an MEV target AND an oracle-manipulation surface).
+- **Combination attacks**: Chain individually-minor issues into a high-impact path (e.g., a rounding error plus a missing reentrancy guard).
+- **State & timing**: Vary block timing, transaction ordering, and intermediate state — what holds in isolation may break under adversarial sequencing.
+- **Actor capabilities**: Re-run the analysis assuming the attacker is, in turn, a whale, a flash-loan borrower, a malicious token (ERC777 callback), and a colluding validator.
 
 ## Category Deep Dives
 
@@ -108,9 +117,8 @@ If using the `solidity-agent-toolkit` MCP server:
 - `match_vulnerability_patterns`: Complement with regex-based vulnerability detection
 - `run_slither` / `run_aderyn`: Automated static analysis for supporting evidence
 
-For defensive patterns against identified threats, see the **Security Best Practices** skill.
+For defensive patterns and audit methodology against identified threats, see the **Code Review** skill.
 
 ## References
 
-- For defensive countermeasures: Security Best Practices skill
-- For audit methodology: Code Review skill
+- For defensive patterns, secure coding, and audit methodology: Code Review skill

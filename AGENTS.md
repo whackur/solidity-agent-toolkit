@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-MCP server + LSP server + 7 Agent Skills for Solidity smart contract security. TypeScript, wraps Foundry/Slither/Aderyn/Solhint CLIs, serves OWASP SCWE knowledge base (156 vulnerabilities) via MCP and LSP protocols.
+MCP server + LSP server + 6 Agent Skills for Solidity smart contract security. TypeScript, wraps Foundry/Slither/Aderyn/Solhint CLIs, serves OWASP SCWE knowledge base (156 vulnerabilities) via MCP and LSP protocols.
 
 ## STRUCTURE
 
@@ -17,17 +17,19 @@ src/
 ├── lsp/               # LSP server (diagnostics, hover, code actions)
 ├── knowledge/         # OWASP data parsers, vulnerability patterns, style rules
 └── __tests__/         # Mirrors src/ structure
-skills/                # 7 Agent Skills (agentskills.io spec)
+skills/                # 6 Agent Skills (agentskills.io spec)
 bin/                   # CLI entry points (cli.ts, lsp.ts)
 data/owasp-scs/        # Git submodule — READ ONLY
 
 **Import DAG** (strict, never violate):
 
 ```
-knowledge/  → (no internal deps)
-core/       → knowledge/
-mcp/        → core/, knowledge/
-lsp/        → core/, knowledge/
+
+knowledge/ → (no internal deps)
+core/ → knowledge/
+mcp/ → core/, knowledge/
+lsp/ → core/, knowledge/
+
 ```
 
 `core/` NEVER imports from `mcp/` or `lsp/`. `mcp/` NEVER imports from `lsp/` or vice versa.
@@ -56,24 +58,29 @@ lsp/        → core/, knowledge/
 
 ## ARCHITECTURE RULES
 
-1. `index.ts` = entry point only (re-exports + wiring, <=5 lines)
-2. Every file = single responsibility; name by purpose
-3. **200 LOC hard limit** on logic (exempt: static data arrays, template literals)
-4. I/O separate from pure logic (CLI execution vs. output parsing)
-5. Complex prompt logic split into `*-logic.ts` files
+Modular architecture is a BLOCKING policy — when you touch a file that violates these, refactor FIRST, then continue your task.
+
+1. **`index.ts` = entry point ONLY** — re-exports + factory/wiring calls (e.g. `registerXxxTools(server)`). NEVER business logic, helper functions, type definitions beyond re-exports, or handler bodies.
+2. **No catch-all files** — `utils.ts`, `helpers.ts`, `common.ts` are BANNED as top-level grab-bags. Name every file by its single purpose (`tool-checker.ts`, `json-parser.ts` — never `utils.ts`).
+3. **Single Responsibility** — every `.ts` file has ONE nameable purpose. Self-test: if you can't describe it in one short phrase, split it. Split when a file has 2+ unrelated exports, mixes I/O with pure logic, or mixes types with implementation.
+4. **300 LOC hard limit** on logic. Count: imports, declarations, control flow, expressions, returns. Exclude: blank lines, comments, static data arrays (e.g. `VULNERABILITY_PATTERNS`), and prompt template literals. When in doubt, round up and split.
+5. I/O separate from pure logic (CLI execution vs. output parsing).
+6. Complex prompt logic split into `*-logic.ts` files.
 
 ## VULNERABILITY DETECTION ARCHITECTURE
 
 Two-layer detection: AST detectors (primary) + regex patterns (fallback).
 
 ```
+
 matchPatterns(code, checkIds?)
-  → parseSolidity(code)            # @solidity-parser/parser + LRU cache
-  → runASTDetectors(ast, code)     # 8 detectors, 22 SCWE IDs
-  → regex fallback (uncovered IDs)  # 32 patterns, ~10 SCWE IDs not in AST
-  → filterByASTContext()            # Phase 2 supplementary FP filter
-  → dedup + sort → PatternMatch[]
-```
+→ parseSolidity(code) # @solidity-parser/parser + LRU cache
+→ runASTDetectors(ast, code) # 8 detectors, 22 SCWE IDs
+→ regex fallback (uncovered IDs) # 32 patterns, ~10 SCWE IDs not in AST
+→ filterByASTContext() # Phase 2 supplementary FP filter
+→ dedup + sort → PatternMatch[]
+
+````
 
 **AST detectors** (`src/core/ast-detectors/`): Self-register via `registerDetector()` on import. Barrel import `index.ts` triggers all registrations. Each detector is a pure function: `(ast, code) → DetectorResult[]`.
 
@@ -90,7 +97,7 @@ matchPatterns(code, checkIds?)
 
 ## MCP SDK
 
-SDK v1.26.0 — use `server.registerTool()` (NOT deprecated `server.tool()`).
+SDK v1.29.0 — use `server.registerTool()` (NOT deprecated `server.tool()`).
 
 ```typescript
 export function registerXxxTools(server: McpServer): void {
@@ -106,7 +113,7 @@ export function registerXxxTools(server: McpServer): void {
   );
 }
 // Register in mcp/server.ts: import + call registerXxxTools(server)
-```
+````
 
 ## GIT RULES
 

@@ -4,7 +4,7 @@ description: Gas optimization patterns for Solidity smart contracts. Use when op
 license: MIT
 metadata:
   author: whackur (whackur@gmail.com)
-  version: "0.7.0"
+  version: "0.8.0"
 ---
 
 # Solidity Gas Optimization
@@ -134,5 +134,4 @@ Leverage `solidity-agent-toolkit` MCP tools for precise optimization analysis:
 
 ## References
 
-- For security implications of optimizations: Security Best Practices skill
-- For auditing optimized code: Code Review skill
+- For security implications and auditing of optimized code: Code Review skill

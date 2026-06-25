@@ -4,12 +4,12 @@
 
 ### Security Analysis
 
-| Tool                          | Description                                                                                              | Key Parameters                                                                                                                                      |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `run_security_scan`           | Run security analysis using Slither, Aderyn, or Solhint                                                  | `tool`: `"slither"` \| `"aderyn"` \| `"solhint"`, `path?`, `detectors?`, `exclude?`, `jsonOutput?`, `files?`, `rules?`                              |
-| `search_vulnerabilities`      | Search the OWASP SCWE database by query, or look up a specific vulnerability by ID for remediation       | `query?`, `vulnerabilityId?`, `filters?`                                                                                                            |
-| `scan_vulnerability_patterns` | Scan Solidity code for vulnerabilities using AST-based detectors (22 SCWE IDs) with regex fallback for remaining patterns | `code`, `checkIds?`                                                                  |
-| `analyze_contract`            | Multi-analysis: adversarial scenarios, proxy safety, ERC compliance, access control, or dependency graph | `analysis`: `"adversarial"` \| `"proxy_safety"` \| `"erc_compliance"` \| `"access_control"` \| `"dependencies"`, `code`, `categories?`, `standard?` |
+| Tool                          | Description                                                                                                               | Key Parameters                                                                                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `run_security_scan`           | Run security analysis using Slither, Aderyn, or Solhint                                                                   | `tool`: `"slither"` \| `"aderyn"` \| `"solhint"`, `path?`, `detectors?`, `exclude?`, `jsonOutput?`, `files?`, `rules?`                              |
+| `search_vulnerabilities`      | Search the OWASP SCWE database by query, or look up a specific vulnerability by ID for remediation                        | `query?`, `vulnerabilityId?`, `filters?`                                                                                                            |
+| `scan_vulnerability_patterns` | Scan Solidity code for vulnerabilities using AST-based detectors (22 SCWE IDs) with regex fallback for remaining patterns | `code`, `checkIds?`                                                                                                                                 |
+| `analyze_contract`            | Multi-analysis: adversarial scenarios, proxy safety, ERC compliance, access control, or dependency graph                  | `analysis`: `"adversarial"` \| `"proxy_safety"` \| `"erc_compliance"` \| `"access_control"` \| `"dependencies"`, `code`, `categories?`, `standard?` |
 
 ### Compilation & Testing
 

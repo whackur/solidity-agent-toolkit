@@ -4,7 +4,7 @@ import {
   TextDocumentSyncKind,
   type InitializeParams,
   type InitializeResult,
-} from "vscode-languageserver/node.js";
+} from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { notifyIfUpdateAvailable } from "../core/version-checker.js";
 import { setupDiagnostics } from "./diagnostics.js";

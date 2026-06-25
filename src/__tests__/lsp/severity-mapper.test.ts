@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { DiagnosticSeverity } from "vscode-languageserver/node.js";
+import { DiagnosticSeverity } from "vscode-languageserver/node";
 import { mapToLspSeverity, type DiagnosticSource } from "../../lsp/severity-mapper.js";
 
 describe("mapToLspSeverity", () => {

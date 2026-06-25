@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { CodeActionKind, type Diagnostic, DiagnosticSeverity } from "vscode-languageserver/node.js";
+import { CodeActionKind, type Diagnostic, DiagnosticSeverity } from "vscode-languageserver/node";
 import { getSCWEById } from "../../knowledge/scwe-parser.js";
 
 function buildCodeActionsFromDiagnostics(diagnostics: Diagnostic[]) {

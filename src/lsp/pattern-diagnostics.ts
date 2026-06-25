@@ -1,4 +1,4 @@
-import { type Diagnostic } from "vscode-languageserver/node.js";
+import { type Diagnostic } from "vscode-languageserver/node";
 import { type TextDocument } from "vscode-languageserver-textdocument";
 import { matchPatterns, type PatternMatch } from "../core/pattern-matcher.js";
 import { mapToLspSeverity } from "./severity-mapper.js";

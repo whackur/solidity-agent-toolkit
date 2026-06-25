@@ -6,7 +6,7 @@ Protocol-agnostic analysis logic reusable by both MCP and LSP. CLI wrappers, pur
 
 - **NEVER import from `mcp/` or `lsp/`** — core is protocol-agnostic
 - May import from `knowledge/` only
-- Each file < 200 LOC logic
+- Each file < 300 LOC logic
 - `execSync` calls are acceptable here
 - Returns result objects (`{ success, findings, error }`) — never throws for expected failures
 - I/O separated from pure logic: `run*()` for execution, `parse*`/`format*` for logic
@@ -20,6 +20,7 @@ Protocol-agnostic analysis logic reusable by both MCP and LSP. CLI wrappers, pur
 **Pure analysis**: `pattern-matcher.ts` (AST-first + regex fallback, orchestrates detection pipeline), `scwe-search.ts`, `erc-compliance.ts`, `proxy-safety.ts`, `adversarial-analysis.ts`, `access-control-matrix.ts`, `dependency-graph.ts`, `natspec.ts`, `natspec-parser.ts`
 
 **AST detection layer** (`@solidity-parser/parser`):
+
 - `ast-parse.ts` — tolerant parsing + LRU cache (32 entries). `parseSolidity(code) → ParseResult`
 - `ast-validators.ts` — 12 independent pure AST validator predicates (modifier checks, pragma analysis, contract kind, etc.)
 - `ast-context-filter.ts` — Phase 2 post-filter: reduces regex false positives using AST context (7 SCWE-specific rules)

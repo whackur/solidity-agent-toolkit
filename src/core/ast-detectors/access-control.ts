@@ -6,11 +6,7 @@
 
 import type { SourceUnit } from "@solidity-parser/parser/src/ast-types.js";
 import { registerDetector, type DetectorResult } from "../ast-detector-registry.js";
-import {
-  hasAnyModifier,
-  hasModifier,
-  hasInlineAccessControl,
-} from "../ast-validators.js";
+import { hasAnyModifier, hasModifier, hasInlineAccessControl } from "../ast-validators.js";
 import { findAllFunctions, hasFunctionCall, findExternalCalls } from "../ast-utils.js";
 
 function getLine(node: { loc?: { start: { line: number } } }): number {

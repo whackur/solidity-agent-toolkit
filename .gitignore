@@ -23,8 +23,8 @@ Thumbs.db
 .idea/
 
 # AGENTS
-.sisyphus/*
-!.sisyphus/rules/
+.sisyphus/
+.atl/
 .claude
 .cursor
 .opencode

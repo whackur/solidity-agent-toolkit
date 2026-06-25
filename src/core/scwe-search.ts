@@ -66,4 +66,3 @@ export function searchAndFilterSCWE(
 export function getSCWEEntry(id: string): SCWEEntry | undefined {
   return getSCWEById(id);
 }
-
