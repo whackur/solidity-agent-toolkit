@@ -4,7 +4,7 @@ description: Hardhat 3 development workflow for Solidity smart contracts. Use wh
 license: MIT
 metadata:
   author: whackur (whackur@gmail.com)
-  version: "0.8.0"
+  version: "0.8.1"
 ---
 
 # Hardhat 3 Development Guide

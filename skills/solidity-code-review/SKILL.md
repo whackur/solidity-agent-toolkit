@@ -4,7 +4,7 @@ description: Smart contract code review, security best practices, and audit meth
 license: MIT
 metadata:
   author: whackur (whackur@gmail.com)
-  version: "0.8.0"
+  version: "0.8.1"
 ---
 
 # Solidity Code Review & Security Guide
@@ -114,10 +114,16 @@ Organized by OWASP SCSVS threat model. For each area, verify the listed controls
 - Slippage protection on swaps/liquidity; flash-loan resistance in price-sensitive logic.
 - Oracle manipulation protection (TWAP, multiple sources); no reliance on `address(this).balance` for accounting.
 
-### Events & NatSpec
+### Events & NatSpec (SCWE-063)
 
-- Emit events for all significant state changes; use `indexed` for efficient filtering.
-- Accurate `@notice`, `@param`, `@return`; `@dev` for complex logic and security assumptions.
+Events are the audit trail. Reason about them from the transaction logic, not just syntax — for every state transition an auditor or off-chain indexer would need to follow, verify an event exists, fires, and logs the truth. When one is missing or wrong, propose the correct declaration and `emit`.
+
+- **Missing emission**: every state-changing public/external function emits an event (token transfers, ownership/role changes, config updates, upgrades, fund movements). A silent state change is an audit gap — propose the event.
+- **Declared but never emitted**: an `event` that is declared yet never `emit`ted is a forgotten emission or dead code. Either wire it to the relevant state change or remove it.
+- **Incorrect data**: the logged values must reflect the actual post-conditions (e.g. log the amount actually transferred, after a successful call — not the requested amount). Emit only after the effect succeeds.
+- **Missing `indexed`**: mark key fields (addresses, ids) as `indexed` so off-chain consumers can filter logs efficiently (max 3 indexed topics per event).
+- **No sensitive data**: never log secrets, raw auth hashes, or confidential business logic.
+- NatSpec: accurate `@notice`, `@param`, `@return`; `@dev` for complex logic and security assumptions.
 
 ### Style Guide Compliance
 

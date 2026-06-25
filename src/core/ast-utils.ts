@@ -9,6 +9,10 @@ import type {
   SourceUnit,
   FunctionDefinition,
   ContractDefinition,
+  EventDefinition,
+  StateVariableDeclaration,
+  EmitStatement,
+  Expression,
   BaseASTNode,
   FunctionCall,
   MemberAccess,
@@ -143,6 +147,96 @@ export function hasFunctionCall(func: FunctionDefinition, name: string): boolean
 /** Check if a function body contains a delegatecall. */
 export function hasDelegatecall(func: FunctionDefinition): boolean {
   return findExternalCalls(func).some((c) => c.kind === "delegatecall");
+}
+
+/** Find all FunctionDefinition nodes declared directly within a contract. */
+export function findContractFunctions(contract: ContractDefinition): FunctionDefinition[] {
+  const funcs: FunctionDefinition[] = [];
+  visit(contract, {
+    FunctionDefinition: (node) => {
+      funcs.push(node);
+    },
+  });
+  return funcs;
+}
+
+/** Collect the names of all state variables declared in a contract. */
+export function findStateVariableNames(contract: ContractDefinition): Set<string> {
+  const names = new Set<string>();
+  for (const node of contract.subNodes) {
+    if (node.type === "StateVariableDeclaration") {
+      for (const v of (node as StateVariableDeclaration).variables) {
+        if (v.name) names.add(v.name);
+      }
+    }
+  }
+  return names;
+}
+
+/** Find all EventDefinition nodes declared within a contract. */
+export function findEventDefinitions(contract: ContractDefinition): EventDefinition[] {
+  const events: EventDefinition[] = [];
+  visit(contract, {
+    EventDefinition: (node) => {
+      events.push(node);
+    },
+  });
+  return events;
+}
+
+/** Collect the names of every event emitted anywhere in the source unit. */
+export function findEmittedEventNames(ast: SourceUnit): Set<string> {
+  const names = new Set<string>();
+  visit(ast, {
+    EmitStatement: (node) => {
+      const expr = (node as EmitStatement).eventCall.expression;
+      if (expr.type === "Identifier") names.add(expr.name);
+    },
+  });
+  return names;
+}
+
+/** Resolve the root identifier of an assignable expression (e.g. `a.b[c]` → `a`). */
+function baseIdentifierName(node: Expression): string | null {
+  switch (node.type) {
+    case "Identifier":
+      return node.name;
+    case "IndexAccess":
+      return baseIdentifierName(node.base);
+    case "MemberAccess":
+      return baseIdentifierName(node.expression);
+    default:
+      return null;
+  }
+}
+
+const ASSIGNMENT_OPERATORS = new Set(["=", "+=", "-=", "*=", "/=", "%=", "|=", "&=", "^="]);
+
+/**
+ * Find assignments within a function whose target resolves to a state variable.
+ * More precise than findStateUpdates: ignores writes to local variables.
+ */
+export function findStateVarWrites(
+  func: FunctionDefinition,
+  stateVarNames: Set<string>,
+): StateUpdateInfo[] {
+  if (!func.body || stateVarNames.size === 0) return [];
+  const updates: StateUpdateInfo[] = [];
+
+  visit(func.body, {
+    ExpressionStatement: (node) => {
+      const expr = node.expression;
+      if (!expr || expr.type !== "BinaryOperation" || !ASSIGNMENT_OPERATORS.has(expr.operator)) {
+        return;
+      }
+      const base = baseIdentifierName(expr.left);
+      if (base && stateVarNames.has(base)) {
+        updates.push({ line: getLine(node), text: expr.operator });
+      }
+    },
+  });
+
+  return updates;
 }
 
 /** Extract all member access patterns like block.timestamp, tx.origin. */

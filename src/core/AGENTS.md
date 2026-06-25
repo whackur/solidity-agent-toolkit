@@ -26,12 +26,13 @@ Protocol-agnostic analysis logic reusable by both MCP and LSP. CLI wrappers, pur
 - `ast-context-filter.ts` — Phase 2 post-filter: reduces regex false positives using AST context (7 SCWE-specific rules)
 - `ast-detector-registry.ts` — `DetectorResult` interface, `ASTDetector` interface, `registerDetector()`, `runASTDetectors()`
 - `ast-utils.ts` — shared utilities: `findExternalCalls()`, `findStateUpdates()`, `checkCEIPattern()`, `findAllFunctions()`, etc.
-- `ast-detectors/` — 8 self-registering detector modules:
+- `ast-detectors/` — 9 self-registering detector modules:
   - `reentrancy.ts` (SCWE-046)
   - `access-control.ts` (SCWE-005, SCWE-016, SCWE-038, SCWE-049)
   - `external-calls.ts` (SCWE-035, SCWE-048, SCWE-059, SCWE-073, SCWE-079)
   - `arithmetic.ts` (SCWE-047, SCWE-074)
-  - `code-quality.ts` (SCWE-060, SCWE-063, SCWE-067, SCWE-097)
+  - `code-quality.ts` (SCWE-060, SCWE-067, SCWE-097)
+  - `events.ts` (SCWE-063 — missing emission, dead events, missing `indexed`)
   - `randomness.ts` (SCWE-024, SCWE-065)
   - `signature.ts` (SCWE-055)
   - `dos.ts` (SCWE-050, SCWE-058, SCWE-071, SCWE-075)
