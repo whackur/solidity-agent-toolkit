@@ -221,6 +221,11 @@ export const FUNCTION_ORDER_RULE: StyleRule = {
         inContract = true;
       }
 
+      // Depth BEFORE counting this line's braces. A contract's direct members
+      // (functions/constructor) start at depth 1; using the post-count depth
+      // misses any member whose opening brace is on the declaration line.
+      const depthAtLineStart = braceDepth;
+
       for (const ch of trimmed) {
         if (ch === "{") braceDepth++;
         if (ch === "}") braceDepth--;
@@ -240,9 +245,10 @@ export const FUNCTION_ORDER_RULE: StyleRule = {
           }
         }
         functionDefs.length = 0;
+        continue;
       }
 
-      if (!inContract || braceDepth < 1) continue;
+      if (!inContract || depthAtLineStart !== 1) continue;
 
       if (/^\s*constructor\s*\(/.test(lines[i])) {
         functionDefs.push({ visibility: "constructor", line: i + 1, order: 0 });
@@ -259,7 +265,7 @@ export const FUNCTION_ORDER_RULE: StyleRule = {
       }
 
       const funcMatch = lines[i].match(/^\s*function\s+\w+\s*\(/);
-      if (funcMatch && braceDepth === 1) {
+      if (funcMatch) {
         const lineStr = lines[i];
         let visibility = "internal";
         if (/\bexternal\b/.test(lineStr)) visibility = "external";
@@ -453,7 +459,9 @@ export const NAMING_CONSTANT_RULE: StyleRule = {
   description: "Constants should use UPPER_CASE_WITH_UNDERSCORES",
   check: (_code: string, lines: string[]): StyleViolation[] => {
     const violations: StyleViolation[] = [];
-    const upperSnake = /^[A-Z][A-Z0-9_]*$/;
+    // A single leading underscore is a valid private/internal visibility marker,
+    // not a casing violation (e.g. `_VERSION`). Allow it before the UPPER_CASE body.
+    const upperSnake = /^_?[A-Z][A-Z0-9_]*$/;
 
     for (let i = 0; i < lines.length; i++) {
       if (isInsideBlockComment(lines, i)) continue;

@@ -226,6 +226,41 @@ describe("Style Guide", () => {
       const violations = FUNCTION_ORDER_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(1);
     });
+
+    it("detects wrong ordering with multi-line function bodies", () => {
+      const code = [
+        "contract Test {",
+        "    function _helper() internal pure returns (uint256) {",
+        "        return 1;",
+        "    }",
+        "",
+        "    function publicEntry() external pure returns (uint256) {",
+        "        return _helper();",
+        "    }",
+        "}",
+      ].join("\n");
+      const violations = FUNCTION_ORDER_RULE.check(code, code.split("\n"));
+      expect(violations).toHaveLength(1);
+      expect(violations[0].ruleId).toBe("style-function-order");
+      expect(violations[0].message).toContain("external");
+      expect(violations[0].line).toBe(6);
+    });
+
+    it("passes correct ordering with multi-line function bodies", () => {
+      const code = [
+        "contract Test {",
+        "    function publicEntry() external pure returns (uint256) {",
+        "        return _helper();",
+        "    }",
+        "",
+        "    function _helper() internal pure returns (uint256) {",
+        "        return 1;",
+        "    }",
+        "}",
+      ].join("\n");
+      const violations = FUNCTION_ORDER_RULE.check(code, code.split("\n"));
+      expect(violations).toHaveLength(0);
+    });
   });
 
   describe("MODIFIER_ORDER_RULE", () => {
@@ -320,6 +355,20 @@ describe("Style Guide", () => {
       const code = "    uint256 public constant MAX_SUPPLY = 1000;";
       const violations = NAMING_CONSTANT_RULE.check(code, code.split("\n"));
       expect(violations).toHaveLength(0);
+    });
+
+    it("allows a single leading underscore on UPPER_CASE constants", () => {
+      const code = '    string private constant _VERSION = "1.0";';
+      const violations = NAMING_CONSTANT_RULE.check(code, code.split("\n"));
+      expect(violations).toHaveLength(0);
+    });
+
+    it("flags leading-underscore constants that are not UPPER_CASE with a non-noop fix", () => {
+      const code = "    uint256 private constant _maxSupply = 1000;";
+      const violations = NAMING_CONSTANT_RULE.check(code, code.split("\n"));
+      expect(violations).toHaveLength(1);
+      expect(violations[0].fix).toBe("Rename to _MAX_SUPPLY");
+      expect(violations[0].fix).not.toBe("Rename to _maxSupply");
     });
   });
 

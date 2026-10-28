@@ -4,7 +4,7 @@ description: Smart contract code review, security best practices, and audit meth
 license: MIT
 metadata:
   author: whackur (whackur@gmail.com)
-  version: "0.8.1"
+  version: "0.8.2"
 ---
 
 # Solidity Code Review & Security Guide
