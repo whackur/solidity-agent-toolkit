@@ -1,38 +1,40 @@
 # API Reference
 
-## Tools (10)
+## Tools (5)
 
-### Security Analysis
+| Tool                 | Description                                                                                                                                                                     | Key Parameters                                                                                                                                                                                                                                                                                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `run_security_scan`  | Static security analysis with Slither, Aderyn, or Solhint (CLI required), or `"patterns"`: AST detectors (22 SCWE IDs) with regex fallback on inline code, no CLI               | `tool`: `"slither"` \| `"aderyn"` \| `"solhint"` \| `"patterns"`, `path?`, `detectors?`, `exclude?`, `jsonOutput?`, `outputFormat?`, `files?`, `rules?`, `code?` / `checkIds?` (patterns only; `code` required)                                                                                                                                 |
+| `analyze_contract`   | Multi-analysis: adversarial scenarios, proxy safety, ERC compliance, access control, or dependency graph                                                                        | `analysis`: `"adversarial"` \| `"proxy_safety"` \| `"erc_compliance"` \| `"access_control"` \| `"dependencies"`, `code`, `categories?`, `standard?`                                                                                                                                                                                             |
+| `lookup_knowledge`   | Load a methodology guide, search the OWASP SCWE database, or look up one SCWE ID with remediation. Precedence: `guide` → `vulnerabilityId` → `query`; no arguments lists guides | `guide?` (see `guide://list`), `vulnerabilityId?`, `query?`, `filters?`                                                                                                                                                                                                                                                                         |
+| `check_code_quality` | `"style"`: Solidity Style Guide check, or auto-format with forge fmt (`fix`). `"natspec"`: validate NatSpec or generate templates (`generate`)                                  | `check`: `"style"` \| `"natspec"`, `code`, `fix?` (style), `generate?` (natspec)                                                                                                                                                                                                                                                                |
+| `run_foundry`        | Foundry build, artifact inspection, tests, gas report/snapshot, deployment simulation (never broadcasts) and broadcast status                                                   | `action`: `"build"` \| `"inspect"` \| `"test"` \| `"gas_report"` \| `"gas_snapshot"` \| `"deploy_simulate"` \| `"deploy_status"`, plus `path?`, `contractName?`, `inspect?`, `testFilter?`, `verbosity?`, `fuzz?`, `testContract?`, `testFunction?`, `functionName?`, `compare?`, `scriptPath?`, `rpcUrl?`, `forkBlockNumber?`, `broadcastDir?` |
 
-| Tool                          | Description                                                                                                               | Key Parameters                                                                                                                                      |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `run_security_scan`           | Run security analysis using Slither, Aderyn, or Solhint                                                                   | `tool`: `"slither"` \| `"aderyn"` \| `"solhint"`, `path?`, `detectors?`, `exclude?`, `jsonOutput?`, `files?`, `rules?`                              |
-| `search_vulnerabilities`      | Search the OWASP SCWE database by query, or look up a specific vulnerability by ID for remediation                        | `query?`, `vulnerabilityId?`, `filters?`                                                                                                            |
-| `scan_vulnerability_patterns` | Scan Solidity code for vulnerabilities using AST-based detectors (22 SCWE IDs) with regex fallback for remaining patterns | `code`, `checkIds?`                                                                                                                                 |
-| `analyze_contract`            | Multi-analysis: adversarial scenarios, proxy safety, ERC compliance, access control, or dependency graph                  | `analysis`: `"adversarial"` \| `"proxy_safety"` \| `"erc_compliance"` \| `"access_control"` \| `"dependencies"`, `code`, `categories?`, `standard?` |
+### Migrating from 0.8.x
 
-### Compilation & Testing
+| Old tool (0.8.x)                                             | New call                                                                         |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| `scan_vulnerability_patterns { code, checkIds }`             | `run_security_scan { tool: "patterns", code, checkIds }`                         |
+| `search_vulnerabilities { query, vulnerabilityId, filters }` | `lookup_knowledge { query, vulnerabilityId, filters }`                           |
+| `get_guide { topic }`                                        | `lookup_knowledge { guide }` (no arguments lists guides)                         |
+| `check_code_style { code, fix }`                             | `check_code_quality { check: "style", code, fix }`                               |
+| `check_natspec { code, generate }`                           | `check_code_quality { check: "natspec", code, generate }`                        |
+| `compile_contract { path, contractName }`                    | `run_foundry { action: "build", path, contractName }`                            |
+| `compile_contract { contractName, inspect }`                 | `run_foundry { action: "inspect", contractName, inspect }`                       |
+| `run_tests { ... }`                                          | `run_foundry { action: "test", ... }`                                            |
+| `analyze_gas { mode: "report", ... }`                        | `run_foundry { action: "gas_report", contractName, functionName }`               |
+| `analyze_gas { mode: "snapshot", compare }`                  | `run_foundry { action: "gas_snapshot", compare }`                                |
+| `manage_deployment { action: "simulate", ... }`              | `run_foundry { action: "deploy_simulate", scriptPath, rpcUrl, forkBlockNumber }` |
+| `manage_deployment { action: "status", broadcastDir }`       | `run_foundry { action: "deploy_status", broadcastDir }`                          |
 
-| Tool               | Description                                                                           | Key Parameters                                                               |
-| ------------------ | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `compile_contract` | Compile Solidity contracts using Foundry, or inspect ABI, bytecode, or storage layout | `path?`, `contractName?`, `inspect?`: `"abi"` \| `"bytecode"` \| `"storage"` |
-| `run_tests`        | Run Foundry tests, optionally targeting a single test with trace output               | `testFilter?`, `verbosity?`, `fuzz?`, `testContract?`, `testFunction?`       |
+## Resources (14)
 
-### Gas & Deployment
+### Methodology Guides
 
-| Tool                | Description                                                                                  | Key Parameters                                                                                      |
-| ------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `analyze_gas`       | Gas usage analysis via snapshots or function-level estimates                                 | `mode`: `"snapshot"` \| `"report"`, `contractName?`, `functionName?`, `compare?`                    |
-| `manage_deployment` | Simulate a deployment script (dry-run, never broadcasts) or check previous deployment status | `action`: `"simulate"` \| `"status"`, `scriptPath?`, `rpcUrl?`, `forkBlockNumber?`, `broadcastDir?` |
-
-### Code Quality
-
-| Tool               | Description                                                                     | Key Parameters      |
-| ------------------ | ------------------------------------------------------------------------------- | ------------------- |
-| `check_natspec`    | Validate NatSpec documentation or generate templates for undocumented functions | `code`, `generate?` |
-| `check_code_style` | Check Solidity code against the Style Guide, or auto-format with forge fmt      | `code`, `fix?`      |
-
-## Resources (12)
+| URI               | Description                                                              |
+| ----------------- | ------------------------------------------------------------------------ |
+| `guide://list`    | List all methodology guides and references                               |
+| `guide://{topic}` | Get a guide as markdown (e.g., `guide://code-review`, `guide://foundry`) |
 
 ### OWASP Smart Contract Top 10
 

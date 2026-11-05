@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { execSync } from "child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "fs";
-import { registerDeployTools } from "../../mcp/tools/deploy.js";
+import { registerFoundryTools } from "../../mcp/tools/foundry.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 vi.mock("child_process");
@@ -31,15 +31,15 @@ describe("Deploy Tools", () => {
   });
 
   describe("Tool Registration", () => {
-    it("registers manage_deployment tool", () => {
-      registerDeployTools(mockServer);
-      expect(registeredTools.has("manage_deployment")).toBe(true);
+    it("registers run_foundry tool for deploy actions", () => {
+      registerFoundryTools(mockServer);
+      expect(registeredTools.has("run_foundry")).toBe(true);
     });
 
-    it("manage_deployment has correct description", () => {
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
-      expect(tool.description).toContain("Manage");
+    it("run_foundry deploy has correct description", () => {
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      expect(tool.description).toContain("NEVER broadcasts");
     });
   });
 
@@ -49,9 +49,12 @@ describe("Deploy Tools", () => {
         throw new Error("forge not found");
       });
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
-      const result = await tool.handler({ action: "simulate", scriptPath: "script/Deploy.s.sol" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({
+        action: "deploy_simulate",
+        scriptPath: "script/Deploy.s.sol",
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Forge is not installed");
@@ -65,9 +68,12 @@ describe("Deploy Tools", () => {
         return true;
       });
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
-      const result = await tool.handler({ action: "simulate", scriptPath: "script/Deploy.s.sol" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({
+        action: "deploy_simulate",
+        scriptPath: "script/Deploy.s.sol",
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Not a Foundry Project");
@@ -82,9 +88,12 @@ describe("Deploy Tools", () => {
         return true;
       });
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
-      const result = await tool.handler({ action: "simulate", scriptPath: "script/Deploy.s.sol" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({
+        action: "deploy_simulate",
+        scriptPath: "script/Deploy.s.sol",
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Script Not Found");
@@ -95,13 +104,13 @@ describe("Deploy Tools", () => {
       vi.mocked(execSync).mockReturnValue(Buffer.from("forge 0.2.0\n"));
       vi.mocked(existsSync).mockReturnValue(true);
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
 
       const maliciousCommand = "forge script script/Deploy.s.sol --broadcast";
 
       const result = await tool.handler({
-        action: "simulate",
+        action: "deploy_simulate",
         scriptPath: "script/Deploy.s.sol --broadcast",
       });
 
@@ -135,10 +144,10 @@ SIMULATION COMPLETE
         throw new Error("Unexpected command");
       });
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
       const result = await tool.handler({
-        action: "simulate",
+        action: "deploy_simulate",
         scriptPath: "script/Deploy.s.sol",
         rpcUrl: "http://localhost:8545",
       });
@@ -166,9 +175,9 @@ SIMULATION COMPLETE
         throw new Error("Unexpected command");
       });
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
-      await tool.handler({ action: "simulate", scriptPath: "script/Deploy.s.sol" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      await tool.handler({ action: "deploy_simulate", scriptPath: "script/Deploy.s.sol" });
 
       expect(capturedCommand).toContain("--fork-url http://localhost:8545");
     });
@@ -189,10 +198,10 @@ SIMULATION COMPLETE
         throw new Error("Unexpected command");
       });
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
       await tool.handler({
-        action: "simulate",
+        action: "deploy_simulate",
         scriptPath: "script/Deploy.s.sol",
         rpcUrl: "http://localhost:8545",
         forkBlockNumber: 12345678,
@@ -227,10 +236,10 @@ Script ran successfully
         throw new Error("Unexpected command");
       });
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
       const result = await tool.handler({
-        action: "simulate",
+        action: "deploy_simulate",
         scriptPath: "script/Deploy.s.sol",
         rpcUrl: "http://localhost:8545",
       });
@@ -263,10 +272,10 @@ failed to deploy
         throw new Error("Unexpected command");
       });
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
       const result = await tool.handler({
-        action: "simulate",
+        action: "deploy_simulate",
         scriptPath: "script/Deploy.s.sol",
         rpcUrl: "http://localhost:8545",
       });
@@ -280,9 +289,9 @@ failed to deploy
     it("returns message when no broadcast files found", async () => {
       vi.mocked(existsSync).mockReturnValue(false);
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
-      const result = await tool.handler({ action: "status" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({ action: "deploy_status" });
 
       expect(result.isError).toBe(false);
       expect(result.content[0].text).toContain("No Broadcast Files Found");
@@ -313,9 +322,9 @@ failed to deploy
       vi.mocked(statSync).mockReturnValue({ isDirectory: () => true } as any);
       vi.mocked(readFileSync).mockReturnValue(JSON.stringify(mockBroadcastData));
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
-      const result = await tool.handler({ action: "status" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({ action: "deploy_status" });
 
       expect(result.content[0].text).toContain("Deployment Status");
       expect(result.content[0].text).toContain("Chain ID:** 1");
@@ -349,9 +358,9 @@ failed to deploy
       vi.mocked(statSync).mockReturnValue({ isDirectory: () => true } as any);
       vi.mocked(readFileSync).mockReturnValue(JSON.stringify(mockBroadcastData));
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
-      const result = await tool.handler({ action: "status" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({ action: "deploy_status" });
 
       expect(result.content[0].text).toContain("Chain ID:** 31337");
       expect(result.content[0].text).toContain("Token");
@@ -383,9 +392,9 @@ failed to deploy
       vi.mocked(statSync).mockReturnValue({ isDirectory: () => true } as any);
       vi.mocked(readFileSync).mockReturnValue(JSON.stringify(mockBroadcastData));
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
-      const result = await tool.handler({ action: "status" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({ action: "deploy_status" });
 
       expect(result.content[0].text).toContain("FAILED");
       expect(result.content[0].text).toContain("FailedContract");
@@ -397,9 +406,12 @@ failed to deploy
         return false;
       });
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
-      const result = await tool.handler({ action: "status", broadcastDir: "custom-broadcast" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({
+        action: "deploy_status",
+        broadcastDir: "custom-broadcast",
+      });
 
       expect(result.content[0].text).toContain("custom-broadcast");
     });
@@ -410,8 +422,8 @@ failed to deploy
       vi.mocked(execSync).mockReturnValue(Buffer.from("forge 0.2.0\n"));
       vi.mocked(existsSync).mockReturnValue(true);
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
 
       const testCases = [
         "script/Deploy.s.sol --broadcast",
@@ -420,7 +432,7 @@ failed to deploy
       ];
 
       for (const scriptPath of testCases) {
-        const result = await tool.handler({ action: "simulate", scriptPath });
+        const result = await tool.handler({ action: "deploy_simulate", scriptPath });
         expect(result.isError).toBe(true);
         expect(result.content[0].text).toContain("SAFETY VIOLATION");
       }
@@ -440,10 +452,10 @@ failed to deploy
         throw new Error("Unexpected command");
       });
 
-      registerDeployTools(mockServer);
-      const tool = registeredTools.get("manage_deployment");
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
       const result = await tool.handler({
-        action: "simulate",
+        action: "deploy_simulate",
         scriptPath: "script/Deploy.s.sol",
         rpcUrl: "http://localhost:8545",
       });

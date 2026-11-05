@@ -6,7 +6,7 @@ beforeEach(() => {
 });
 
 describe("SCWE Search Tools", () => {
-  describe("search_vulnerabilities", () => {
+  describe("SCWE search", () => {
     it("finds reentrancy vulnerabilities", () => {
       const results = searchSCWE("reentrancy");
 

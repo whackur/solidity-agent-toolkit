@@ -19,6 +19,10 @@ data/owasp-scs/docs/sctop10/*.md → top10-parser.ts → SCTop10Entry[]
 
 `vulnerability-patterns.ts` (32 regex patterns — **fallback only**, AST detectors are primary for 22 SCWE IDs), `adversarial-scenarios.ts`, `style-rules.ts`, `slither-mappings.ts` (40+ Slither detector → SCWE mappings), `erc-interfaces.ts`, `contract-features.ts`, `proxy-patterns.ts`
 
+## GUIDES
+
+`guide-catalog.ts` lists every file under `guides/`; `guide-loader.ts` reads them via `package-root.ts` so paths work from both `src/` and `dist/`. A test fails if a guide file is uncataloged or mentions a removed MCP tool name — use current tool names when editing guides.
+
 ## PARSING GOTCHAS
 
 - **gray-matter** parses YAML frontmatter — `alias` field normalized to `string[]`

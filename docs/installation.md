@@ -39,12 +39,12 @@ solidity-agent-toolkit       # MCP server
 solidity-agent-toolkit-lsp   # LSP server
 ```
 
-## Agent Skills Installation
+## Migrating from Agent Skills
 
-[Agent Skills](./agent-skills.md) can be installed independently from the MCP/LSP servers:
+Agent Skills were removed; their content now ships inside the MCP server as methodology guides (`lookup_knowledge` tool, `guide://{topic}` resources). If you installed the skills earlier, remove them:
 
 ```bash
-npx skills add whackur/solidity-agent-toolkit
+npx skills remove whackur/solidity-agent-toolkit
 ```
 
 ## Updating
@@ -90,14 +90,6 @@ Check your current version:
 npm list -g solidity-agent-toolkit
 ```
 
-### Agent Skills
-
-Re-run the install command to update to the latest version:
-
-```bash
-npx skills add whackur/solidity-agent-toolkit
-```
-
 ## Uninstalling
 
 ### Global Installation
@@ -124,12 +116,6 @@ npx clear-npx-cache
 ### MCP Client Config
 
 Remove the `solidity-agent-toolkit` entry from your MCP client configuration file. See [MCP Setup](./mcp-setup.md) for file locations.
-
-### Agent Skills
-
-```bash
-npx skills remove whackur/solidity-agent-toolkit
-```
 
 ## Version Pinning
 

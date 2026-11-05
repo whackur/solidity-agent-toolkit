@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ADVERSARIAL_SCENARIOS, type AdversarialScenario } from "../../knowledge/index.js";
+import { requireTemplateVariable } from "./template-variable.js";
 
 function formatSingleScenario(scenario: AdversarialScenario): string {
   let markdown = `# ${scenario.id}: ${scenario.name}\n\n`;
@@ -107,12 +108,7 @@ export function registerAdversarialResources(server: McpServer): void {
       mimeType: "text/markdown",
     },
     async (uri, variables) => {
-      const category = Array.isArray(variables.category)
-        ? variables.category[0]
-        : variables.category;
-      if (!category) {
-        throw new Error("Missing required parameter: category");
-      }
+      const category = requireTemplateVariable(variables, "category");
 
       const filtered = ADVERSARIAL_SCENARIOS.filter((s) => s.category === category);
 
@@ -145,10 +141,7 @@ export function registerAdversarialResources(server: McpServer): void {
       mimeType: "text/markdown",
     },
     async (uri, variables) => {
-      const id = Array.isArray(variables.id) ? variables.id[0] : variables.id;
-      if (!id) {
-        throw new Error("Missing required parameter: id");
-      }
+      const id = requireTemplateVariable(variables, "id");
 
       const scenario = ADVERSARIAL_SCENARIOS.find((s) => s.id === id);
 

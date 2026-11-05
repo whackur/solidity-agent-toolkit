@@ -21,7 +21,7 @@
     "dist/",
     "data/owasp-scs/docs/SCWE/",
     "data/owasp-scs/docs/sctop10/",
-    "skills/"
+    "guides/"
   ],
   "engines": {
     "node": ">=22.13.0"
@@ -39,8 +39,7 @@
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "fix": "pnpm run lint:fix && pnpm run format",
-    "version": "node scripts/sync-skill-versions.mjs && git add skills/"
+    "fix": "pnpm run lint:fix && pnpm run format"
   },
   "keywords": [
     "solidity",
@@ -55,8 +54,6 @@
     "language-server",
     "owasp",
     "ai-agent",
-    "agent-skills",
-    "skills",
     "foundry",
     "slither",
     "aderyn",

@@ -18,7 +18,7 @@ import {
   WHITESPACE_RULE,
   NATSPEC_RULE,
 } from "../../knowledge/style-rules.js";
-import { registerStyleGuideTools } from "../../mcp/tools/style-guide.js";
+import { registerCodeQualityTools } from "../../mcp/tools/code-quality.js";
 
 vi.mock("child_process");
 
@@ -556,22 +556,23 @@ describe("Style Guide", () => {
       } as any;
     });
 
-    it("registers check_code_style tool", () => {
-      registerStyleGuideTools(mockServer);
-      expect(registeredTools.has("check_code_style")).toBe(true);
+    it("registers check_code_quality tool", () => {
+      registerCodeQualityTools(mockServer);
+      expect(registeredTools.has("check_code_quality")).toBe(true);
     });
 
-    it.skip("check_code_style has readOnlyHint annotation", () => {
-      registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("check_code_style");
+    it.skip("check_code_quality style has readOnlyHint annotation", () => {
+      registerCodeQualityTools(mockServer);
+      const tool = registeredTools.get("check_code_quality");
       expect(tool.schema.annotations?.readOnlyHint).toBe(true);
     });
 
-    it("check_code_style returns violations for bad code", async () => {
-      registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("check_code_style");
+    it("check_code_quality style returns violations for bad code", async () => {
+      registerCodeQualityTools(mockServer);
+      const tool = registeredTools.get("check_code_quality");
 
       const result = await tool.handler({
+        check: "style",
         code: "\tcontract my_contract {\n    function MyFunc() public {}\n}",
       });
 
@@ -579,11 +580,12 @@ describe("Style Guide", () => {
       expect(result.content[0].text).toContain("style violation");
     });
 
-    it("check_code_style returns no violations for clean code", async () => {
-      registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("check_code_style");
+    it("check_code_quality style returns no violations for clean code", async () => {
+      registerCodeQualityTools(mockServer);
+      const tool = registeredTools.get("check_code_quality");
 
       const result = await tool.handler({
+        check: "style",
         code: [
           "// SPDX-License-Identifier: MIT",
           "pragma solidity ^0.8.0;",
@@ -599,20 +601,20 @@ describe("Style Guide", () => {
       expect(result.content[0].text).toContain("No style violations found");
     });
 
-    it("check_code_style with fix returns error when forge not installed", async () => {
+    it("check_code_quality style with fix returns error when forge not installed", async () => {
       vi.mocked(execSync).mockImplementation(() => {
         throw new Error("forge not found");
       });
 
-      registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("check_code_style");
-      const result = await tool.handler({ code: "contract Foo {}", fix: true });
+      registerCodeQualityTools(mockServer);
+      const tool = registeredTools.get("check_code_quality");
+      const result = await tool.handler({ check: "style", code: "contract Foo {}", fix: true });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("forge fmt is not available");
     });
 
-    it("check_code_style with fix returns formatted code when forge is available", async () => {
+    it("check_code_quality style with fix returns formatted code when forge is available", async () => {
       const formattedCode = "contract Foo {\n}\n";
       vi.mocked(execSync).mockImplementation((cmd) => {
         if (cmd === "forge --version") {
@@ -624,15 +626,15 @@ describe("Style Guide", () => {
         return Buffer.from("");
       });
 
-      registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("check_code_style");
-      const result = await tool.handler({ code: "contract Foo{}", fix: true });
+      registerCodeQualityTools(mockServer);
+      const tool = registeredTools.get("check_code_quality");
+      const result = await tool.handler({ check: "style", code: "contract Foo{}", fix: true });
 
       expect(result.isError).toBe(false);
       expect(result.content[0].text).toBe(formattedCode);
     });
 
-    it("check_code_style with fix handles forge fmt errors", async () => {
+    it("check_code_quality style with fix handles forge fmt errors", async () => {
       vi.mocked(execSync).mockImplementation((cmd) => {
         if (cmd === "forge --version") {
           return Buffer.from("forge 0.2.0\n");
@@ -645,9 +647,13 @@ describe("Style Guide", () => {
         return Buffer.from("");
       });
 
-      registerStyleGuideTools(mockServer);
-      const tool = registeredTools.get("check_code_style");
-      const result = await tool.handler({ code: "invalid solidity {{{{", fix: true });
+      registerCodeQualityTools(mockServer);
+      const tool = registeredTools.get("check_code_quality");
+      const result = await tool.handler({
+        check: "style",
+        code: "invalid solidity {{{{",
+        fix: true,
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("forge fmt error");

@@ -53,10 +53,10 @@ src/
 │   ├── ast-detectors/    # 8 self-registering detector modules (22 SCWE IDs)
 │   ├── pattern-matcher.ts # Detection orchestrator (AST-first, regex fallback)
 │   └── ...               # CLI wrappers, formatters, pure analysis
-├── mcp/               # MCP server: 10 tools, 12 resources, 7 prompts
+├── mcp/               # MCP server: 5 tools, 14 resources, 7 prompts
 │   ├── server.ts      # createMcpServer() — all registrations
-│   ├── tools/         # 11 files → 10 consolidated tools
-│   ├── resources/     # 6 files → 12 resources
+│   ├── tools/         # 5 tool registrations + per-domain handler files
+│   ├── resources/     # 7 files → 14 resources
 │   └── prompts/       # 8 files → 7 prompts
 ├── lsp/               # LSP server (diagnostics, hover, code actions)
 │   ├── server.ts      # LSP connection + capabilities
@@ -65,7 +65,7 @@ src/
 ├── knowledge/         # OWASP data parsers, vulnerability patterns, style rules — 12 files
 └── __tests__/         # Test files (mirrors src/ structure) — 49 files
 
-skills/                # 7 Agent Skills (agentskills.io spec)
+guides/                # Methodology guides served by lookup_knowledge / guide://{topic}
 bin/                   # CLI entry points (MCP + LSP)
 data/owasp-scs/        # Git submodule — OWASP SCS docs (read-only)
 ```

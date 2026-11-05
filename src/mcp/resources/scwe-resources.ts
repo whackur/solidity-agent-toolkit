@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { loadAllSCWE, getSCWEById, type SCWEEntry } from "../../knowledge/index.js";
+import { requireTemplateVariable } from "./template-variable.js";
 
 function formatSCWEEntry(entry: SCWEEntry): string {
   const cweList = entry.mappings.cwe.map((c) => `CWE-${c}`).join(", ");
@@ -79,10 +80,7 @@ export function registerSCWEResources(server: McpServer): void {
       mimeType: "text/markdown",
     },
     async (uri, variables) => {
-      const id = Array.isArray(variables.id) ? variables.id[0] : variables.id;
-      if (!id) {
-        throw new Error("Missing required parameter: id");
-      }
+      const id = requireTemplateVariable(variables, "id");
 
       const entry = getSCWEById(id);
       if (!entry) {
@@ -113,12 +111,7 @@ export function registerSCWEResources(server: McpServer): void {
       mimeType: "text/markdown",
     },
     async (uri, variables) => {
-      const category = Array.isArray(variables.category)
-        ? variables.category[0]
-        : variables.category;
-      if (!category) {
-        throw new Error("Missing required parameter: category");
-      }
+      const category = requireTemplateVariable(variables, "category");
 
       const allEntries = loadAllSCWE();
       const filtered = allEntries.filter((entry) =>

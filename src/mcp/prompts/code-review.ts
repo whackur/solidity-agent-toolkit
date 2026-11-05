@@ -1,5 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { userPrompt } from "./prompt-messages.js";
 
 function buildReviewPrompt(code: string, focus: "security" | "gas" | "style" | "all"): string {
   const sections: string[] = [];
@@ -83,55 +84,37 @@ Provide a summary of which best practices are followed and which ones need impro
 }
 
 export function registerCodeReviewPrompts(server: McpServer) {
-  server.prompt(
+  server.registerPrompt(
     "code_review",
-    "Generate a structured code review checklist for Solidity. " +
-      "Covers security (OWASP Top 10 patterns), gas optimization, and style guide compliance. " +
-      "Set 'focus' to narrow the review scope: security, gas, style, or all (default). " +
-      "Use when: 'review my code', 'check my contract for issues', 'code review'.",
     {
-      code: z.string().describe("The Solidity code to review"),
-      focus: z
-        .enum(["security", "gas", "style", "all"])
-        .optional()
-        .default("all")
-        .describe("The focus area of the review"),
+      description:
+        "Generate a structured code review checklist for Solidity. " +
+        "Covers security (OWASP Top 10 patterns), gas optimization, and style guide compliance. " +
+        "Set 'focus' to narrow the review scope: security, gas, style, or all (default). " +
+        "Use when: 'review my code', 'check my contract for issues', 'code review'.",
+      argsSchema: {
+        code: z.string().describe("The Solidity code to review"),
+        focus: z
+          .enum(["security", "gas", "style", "all"])
+          .optional()
+          .default("all")
+          .describe("The focus area of the review"),
+      },
     },
-    async ({ code, focus }) => {
-      return {
-        messages: [
-          {
-            role: "user",
-            content: {
-              type: "text",
-              text: buildReviewPrompt(code, focus || "all"),
-            },
-          },
-        ],
-      };
-    },
+    async ({ code, focus }) => userPrompt(buildReviewPrompt(code, focus || "all")),
   );
 
-  server.prompt(
+  server.registerPrompt(
     "best_practices_check",
-    "Generate a best practices audit for Solidity 0.8+ code. " +
-      "Checks access control, reentrancy guards, event emission, error handling, upgradability, and more. " +
-      "Use when: 'check best practices', 'is my code following standards?', 'modernize my contract'.",
     {
-      code: z.string().describe("The Solidity code to check"),
+      description:
+        "Generate a best practices audit for Solidity 0.8+ code. " +
+        "Checks access control, reentrancy guards, event emission, error handling, upgradability, and more. " +
+        "Use when: 'check best practices', 'is my code following standards?', 'modernize my contract'.",
+      argsSchema: {
+        code: z.string().describe("The Solidity code to check"),
+      },
     },
-    async ({ code }) => {
-      return {
-        messages: [
-          {
-            role: "user",
-            content: {
-              type: "text",
-              text: buildBestPracticesPrompt(code),
-            },
-          },
-        ],
-      };
-    },
+    async ({ code }) => userPrompt(buildBestPracticesPrompt(code)),
   );
 }

@@ -3,31 +3,33 @@ import { z } from "zod";
 import { execSync } from "child_process";
 import { runSlither, formatFindings } from "../../core/slither.js";
 import { runAderyn } from "../../core/aderyn.js";
+import { matchPatterns, formatMatches } from "../../core/pattern-matcher.js";
 import { checkSolhintInstalled, parseSolhintOutput, formatViolations } from "../../core/solhint.js";
+import { describeError } from "./tool-result.js";
 
 export type { SlitherFinding, SlitherResult } from "../../core/slither.js";
 export type { AderynFinding } from "../../core/aderyn.js";
 export type { SolhintViolation } from "../../core/solhint.js";
+export type { PatternMatch } from "../../core/pattern-matcher.js";
 
 export function registerSecurityScanTools(server: McpServer): void {
   server.registerTool(
     "run_security_scan",
     {
       description:
-        "PRIMARY tool for deep security analysis of Solidity files and projects. " +
-        "Runs professional static analyzers: Slither (90+ detectors, most comprehensive), " +
-        "Aderyn (Rust-based, fast pattern detection), or Solhint (linting and security rules). " +
-        "Requires external CLI tools installed on the system. " +
-        "Use when: 'find vulnerabilities', 'audit my contract', 'run security scan', 'analyze for bugs'. " +
-        "NOT for: vulnerability lookups by name (use search_vulnerabilities) or quick " +
-        "inline scanning without CLI tools (use scan_vulnerability_patterns).",
+        "PRIMARY tool for security analysis of Solidity code. Slither (90+ detectors), Aderyn " +
+        "(fast Rust), Solhint (lint + security) need their CLIs installed; patterns runs 9 AST " +
+        "detectors with regex fallback on inline code, no CLI needed. " +
+        "Trigger: 'find vulnerabilities', 'audit my contract', 'run security scan'. " +
+        "NOT for: vulnerability lookups by name or SCWE ID (use lookup_knowledge).",
       inputSchema: {
         tool: z
-          .enum(["slither", "aderyn", "solhint"])
+          .enum(["slither", "aderyn", "solhint", "patterns"])
           .describe(
             "slither: most comprehensive, 90+ vulnerability detectors (Python) | " +
               "aderyn: fast Rust-based pattern detection | " +
-              "solhint: linting, style, and basic security rules (Node.js)",
+              "solhint: linting, style, and basic security rules (Node.js) | " +
+              "patterns: AST + regex scan of inline code (requires 'code'), no CLI, approximate",
           ),
         path: z
           .string()
@@ -51,10 +53,47 @@ export function registerSecurityScanTools(server: McpServer): void {
           .record(z.string(), z.string())
           .optional()
           .describe("Solhint rule configuration overrides"),
+        code: z.string().optional().describe("Solidity source code to scan (patterns only)"),
+        checkIds: z
+          .array(z.string())
+          .optional()
+          .describe("Limit checks to specific SCWE IDs (patterns only)"),
       },
     },
-    async ({ tool, path, detectors, exclude, jsonOutput, outputFormat, files }) => {
+    async ({ tool, path, detectors, exclude, jsonOutput, outputFormat, files, code, checkIds }) => {
       switch (tool) {
+        case "patterns": {
+          if (!code) {
+            return {
+              content: [
+                {
+                  type: "text" as const,
+                  text: '❌ **Missing Parameter**\n\n`code` is required when tool is "patterns".',
+                },
+              ],
+              isError: true,
+            };
+          }
+          try {
+            return {
+              content: [
+                { type: "text" as const, text: formatMatches(matchPatterns(code, checkIds)) },
+              ],
+              isError: false,
+            };
+          } catch (error) {
+            return {
+              content: [
+                {
+                  type: "text" as const,
+                  text: `Error scanning vulnerability patterns: ${describeError(error)}`,
+                },
+              ],
+              isError: true,
+            };
+          }
+        }
+
         case "slither": {
           const result = runSlither(path, detectors, exclude);
           if (!result.success) {
@@ -87,7 +126,7 @@ export function registerSecurityScanTools(server: McpServer): void {
               content: [
                 {
                   type: "text" as const,
-                  text: `Error running Aderyn analysis: ${error instanceof Error ? error.message : String(error)}`,
+                  text: `Error running Aderyn analysis: ${describeError(error)}`,
                 },
               ],
               isError: true,
@@ -121,7 +160,7 @@ export function registerSecurityScanTools(server: McpServer): void {
               isError: false,
             };
           } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
+            const errorMessage = describeError(error);
             return {
               content: [
                 {

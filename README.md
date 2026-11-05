@@ -1,6 +1,6 @@
 # solidity-agent-toolkit
 
-MCP server + LSP server + Agent Skills providing Solidity smart contract security analysis tools, OWASP knowledge base, and development utilities for AI agents.
+MCP server + LSP server providing Solidity smart contract security analysis tools, OWASP knowledge base, and development utilities for AI agents.
 
 Built on [Model Context Protocol](https://modelcontextprotocol.io/) and [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) — works with Claude Desktop, Cursor, opencode, VSCode, IntelliJ, Neovim, and any MCP/LSP-compatible client.
 
@@ -10,8 +10,8 @@ Built on [Model Context Protocol](https://modelcontextprotocol.io/) and [Languag
 # Run MCP server (no install needed)
 npx solidity-agent-toolkit
 
-# Install Agent Skills for AI coding agents
-npx skills add whackur/solidity-agent-toolkit
+# Register with Claude Code
+claude mcp add solidity-agent-toolkit -- npx -y solidity-agent-toolkit@latest
 ```
 
 ### MCP Client Config (Claude Desktop, Cursor, etc.)
@@ -43,15 +43,15 @@ git submodule update --remote
 
 ## Features
 
-**10 MCP Tools** — Security scanning (Slither, Aderyn, Solhint), AST-based vulnerability detection with regex fallback (22 SCWE IDs), OWASP SCWE knowledge search, contract structural analysis (adversarial, proxy safety, ERC compliance, access control, dependencies), compilation & inspection (Foundry), test runner, gas analysis, deployment simulation, code quality (NatSpec, style guide, formatting)
+**5 MCP Tools** — `run_security_scan` (Slither, Aderyn, Solhint, or no-CLI AST pattern detection with regex fallback covering 22 SCWE IDs), `analyze_contract` (adversarial, proxy safety, ERC compliance, access control, dependencies), `lookup_knowledge` (methodology guides and OWASP SCWE search), `check_code_quality` (style guide, formatting, NatSpec), `run_foundry` (build, inspect, test, gas, deployment simulation). See [Migrating from 0.8.x](docs/api-reference.md#migrating-from-08x) for the old tool names.
 
-**12 MCP Resources** — OWASP Smart Contract Top 10, SCWE vulnerability database (156 entries), ERC standard interfaces, adversarial scenarios, Slither detectors, Solhint rules
+**14 MCP Resources** — Methodology guides (`guide://`), OWASP Smart Contract Top 10, SCWE vulnerability database (156 entries), ERC standard interfaces, adversarial scenarios, Slither detectors, Solhint rules
 
 **7 MCP Prompts** — Security audit, vulnerability fix, code review, best practices, gas optimization, ERC generation, adversarial analysis
 
 **LSP Server** — Real-time AST + pattern diagnostics, CLI diagnostics on save, OWASP SCWE hover info, remediation code actions
 
-**6 Agent Skills** — Code review & security (audit methodology, secure patterns, OWASP SCWE), Foundry development, Hardhat development, gas optimization, ERC standards, adversarial analysis
+**Methodology Guides** — Code review & security (audit methodology, secure patterns, OWASP SCWE), adversarial analysis, gas optimization, ERC standards, Foundry and Hardhat development. Served through `lookup_knowledge` and `guide://{topic}`; server instructions tell agents which guide to load for each task.
 
 ## Documentation
 
@@ -61,7 +61,6 @@ git submodule update --remote
 | [MCP Setup](docs/mcp-setup.md)         | Claude Desktop, Cursor, opencode, VSCode, IntelliJ |
 | [LSP Setup](docs/lsp-setup.md)         | VSCode, IntelliJ, Neovim, Sublime Text             |
 | [API Reference](docs/api-reference.md) | All tools, resources, and prompts                  |
-| [Agent Skills](docs/agent-skills.md)   | Skill descriptions and installation                |
 | [Development](docs/development.md)     | Prerequisites, commands, architecture              |
 
 ## Contributing
