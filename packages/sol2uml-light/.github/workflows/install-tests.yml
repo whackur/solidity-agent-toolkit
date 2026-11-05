@@ -1,0 +1,41 @@
+name: Installation tests
+on:
+    workflow_run:
+        workflows: ['Platform tests']
+        types: [completed]
+jobs:
+    build:
+        strategy:
+            fail-fast: false
+            max-parallel: 1
+            matrix:
+                platform: [ubuntu-latest, macos-latest, windows-latest]
+                node-version: [22.x, 24.x, 26.x]
+        runs-on: ${{ matrix.platform }}
+        steps:
+            - uses: actions/checkout@v3
+            - name: Use Node.js ${{ matrix.node-version }} on ${{ matrix.platform }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - run: npm link sol2uml --only=production
+            - name: KoiosECDSA class
+              run: sol2uml class 0x2762e676a9f17c7de34fe4b124424837c7e18e1c -v
+              env:
+                  SCAN_API_KEY: ${{ secrets.SCAN_API_KEY }}
+                  NODE_URL: ${{ secrets.NODE_URL }}
+            - name: KoiosECDSA storage
+              run: sol2uml storage 0x2762e676a9f17c7de34fe4b124424837c7e18e1c -v
+              env:
+                  SCAN_API_KEY: ${{ secrets.SCAN_API_KEY }}
+                  NODE_URL: ${{ secrets.NODE_URL }}
+            - name: Base flatten
+              run: sol2uml flatten --network base 0x5F81a5a22375ebCC2075b162D23a5b16a1e7A92d -v
+              env:
+                  SCAN_API_KEY: ${{ secrets.SCAN_API_KEY }}
+                  NODE_URL: ${{ secrets.NODE_URL }}
+            - name: Diff OUSD VaultCore upgrade
+              run: sol2uml diff 0x48Cf14DeA2f5dD31c57218877195913412D3278A 0x997c35A0bf8E21404aE4379841E0603C957138c3 -v
+              env:
+                  SCAN_API_KEY: ${{ secrets.SCAN_API_KEY }}
+                  NODE_URL: ${{ secrets.NODE_URL }}

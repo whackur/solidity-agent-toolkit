@@ -1,0 +1,13 @@
+node_modules
+.idea
+.vscode
+lib/
+logs
+*.logs
+*.dot
+testDiagrams
+converterTest.svg
+tests/*.svg
+tests/*.png
+tests/*.sol
+bin
