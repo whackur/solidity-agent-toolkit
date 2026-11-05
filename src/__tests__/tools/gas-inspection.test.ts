@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { execSync } from "child_process";
 import { existsSync } from "fs";
-import { registerCompileTools } from "../../mcp/tools/compile.js";
-import { registerGasTools } from "../../mcp/tools/gas-analysis.js";
+import { registerFoundryTools } from "../../mcp/tools/foundry.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 vi.mock("child_process");
@@ -31,14 +30,14 @@ describe("Gas Inspection Tools", () => {
   });
 
   describe("Tool Registration", () => {
-    it("registers compile_contract tool (for inspect_storage)", () => {
-      registerCompileTools(mockServer);
-      expect(registeredTools.has("compile_contract")).toBe(true);
+    it("registers run_foundry tool (for inspect storage)", () => {
+      registerFoundryTools(mockServer);
+      expect(registeredTools.has("run_foundry")).toBe(true);
     });
 
-    it("registers analyze_gas tool (for estimate_gas)", () => {
-      registerGasTools(mockServer);
-      expect(registeredTools.has("analyze_gas")).toBe(true);
+    it("registers run_foundry tool (for gas_report)", () => {
+      registerFoundryTools(mockServer);
+      expect(registeredTools.has("run_foundry")).toBe(true);
     });
   });
 
@@ -48,9 +47,13 @@ describe("Gas Inspection Tools", () => {
         throw new Error("forge not found");
       });
 
-      registerCompileTools(mockServer);
-      const tool = registeredTools.get("compile_contract");
-      const result = await tool.handler({ contractName: "MyContract", inspect: "storage" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({
+        action: "inspect",
+        contractName: "MyContract",
+        inspect: "storage",
+      });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Forge is not installed");
@@ -81,9 +84,13 @@ describe("Gas Inspection Tools", () => {
         return Buffer.from("");
       });
 
-      registerCompileTools(mockServer);
-      const tool = registeredTools.get("compile_contract");
-      const result = await tool.handler({ contractName: "MyContract", inspect: "storage" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({
+        action: "inspect",
+        contractName: "MyContract",
+        inspect: "storage",
+      });
 
       expect(result.isError).toBeUndefined();
       expect(result.content[0].text).toContain("Storage Layout");
@@ -97,9 +104,9 @@ describe("Gas Inspection Tools", () => {
         throw new Error("forge not found");
       });
 
-      registerGasTools(mockServer);
-      const tool = registeredTools.get("analyze_gas");
-      const result = await tool.handler({ mode: "report" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({ action: "gas_report" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Forge is not installed");
@@ -125,9 +132,9 @@ describe("Gas Inspection Tools", () => {
         return Buffer.from("");
       });
 
-      registerGasTools(mockServer);
-      const tool = registeredTools.get("analyze_gas");
-      const result = await tool.handler({ mode: "report" });
+      registerFoundryTools(mockServer);
+      const tool = registeredTools.get("run_foundry");
+      const result = await tool.handler({ action: "gas_report" });
 
       expect(result.isError).toBeUndefined();
       expect(result.content[0].text).toContain("Gas Estimates");

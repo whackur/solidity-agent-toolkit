@@ -28,6 +28,9 @@ export function isFoundryProject(): boolean {
   return existsSync("foundry.toml");
 }
 
+export const NOT_FOUNDRY_PROJECT_MESSAGE =
+  "❌ **Not a Foundry Project**\n\nNo `foundry.toml` found in the current directory.\n\nTo initialize a Foundry project:\n```bash\nforge init\n```";
+
 export const FORGE_INSTALL_INSTRUCTIONS = `Forge is not installed. Please install Foundry:
 
 **Installation:**

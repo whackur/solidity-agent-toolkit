@@ -1,5 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { userPrompt } from "./prompt-messages.js";
 import { buildERCPrompt } from "./erc-patterns-logic.js";
 
 export function registerERCPatternPrompts(server: McpServer): void {
@@ -20,18 +21,6 @@ export function registerERCPatternPrompts(server: McpServer): void {
           .describe("Optional features to include in the guidance"),
       },
     },
-    async ({ standard, features }) => {
-      return {
-        messages: [
-          {
-            role: "user",
-            content: {
-              type: "text",
-              text: buildERCPrompt(standard, features),
-            },
-          },
-        ],
-      };
-    },
+    async ({ standard, features }) => userPrompt(buildERCPrompt(standard, features)),
   );
 }

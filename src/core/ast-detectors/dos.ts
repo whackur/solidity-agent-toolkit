@@ -6,6 +6,7 @@
 
 import { visit } from "@solidity-parser/parser";
 import type {
+  ASTNode,
   SourceUnit,
   ForStatement,
   WhileStatement,
@@ -18,6 +19,29 @@ function getLine(node: { loc?: { start: { line: number } } }): number {
   return node.loc?.start.line ?? 0;
 }
 
+function referencesLength(condition: ASTNode): boolean {
+  let found = false;
+  visit(condition, {
+    MemberAccess: (member) => {
+      if (member.memberName === "length") found = true;
+    },
+  });
+  return found;
+}
+
+function blockGasLimitResult(node: ASTNode): DetectorResult {
+  return {
+    scweId: "SCWE-058",
+    name: "DoS with Block Gas Limit",
+    severity: "high",
+    line: getLine(node),
+    description:
+      "Unbounded loop over dynamic array can exceed block gas limit. " +
+      "Use pagination or pull patterns.",
+    source: "ast",
+  };
+}
+
 registerDetector({
   id: "dos",
   scweIds: ["SCWE-058", "SCWE-071", "SCWE-050", "SCWE-075"],
@@ -25,52 +49,15 @@ registerDetector({
     const results: DetectorResult[] = [];
     const lines = code.split("\n");
 
-    // SCWE-058: DoS with Block Gas Limit — unbounded loops
-    // Detect for/while loops where the condition references .length (dynamic array)
+    // SCWE-058: unbounded loops whose condition references a dynamic array's .length
     visit(ast, {
       ForStatement: (node) => {
-        const forNode = node as ForStatement;
-        // Check if condition subtree contains a MemberAccess with "length"
-        if (forNode.conditionExpression) {
-          let hasLengthAccess = false;
-          visit(forNode.conditionExpression, {
-            MemberAccess: (member) => {
-              if (member.memberName === "length") hasLengthAccess = true;
-            },
-          });
-          if (hasLengthAccess) {
-            results.push({
-              scweId: "SCWE-058",
-              name: "DoS with Block Gas Limit",
-              severity: "high",
-              line: getLine(node),
-              description:
-                "Unbounded loop over dynamic array can exceed block gas limit. " +
-                "Use pagination or pull patterns.",
-              source: "ast",
-            });
-          }
-        }
+        const condition = (node as ForStatement).conditionExpression;
+        if (condition && referencesLength(condition)) results.push(blockGasLimitResult(node));
       },
       WhileStatement: (node) => {
-        const whileNode = node as WhileStatement;
-        let hasLengthAccess = false;
-        visit(whileNode.condition, {
-          MemberAccess: (member) => {
-            if (member.memberName === "length") hasLengthAccess = true;
-          },
-        });
-        if (hasLengthAccess) {
-          results.push({
-            scweId: "SCWE-058",
-            name: "DoS with Block Gas Limit",
-            severity: "high",
-            line: getLine(node),
-            description:
-              "Unbounded loop over dynamic array can exceed block gas limit. " +
-              "Use pagination or pull patterns.",
-            source: "ast",
-          });
+        if (referencesLength((node as WhileStatement).condition)) {
+          results.push(blockGasLimitResult(node));
         }
       },
     });

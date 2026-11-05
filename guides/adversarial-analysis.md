@@ -1,0 +1,111 @@
+# Solidity Adversarial Scenario Analysis
+
+## When to Apply
+
+- Red-team security reviews and penetration testing
+- Pre-deployment threat modeling for DeFi protocols
+- Analyzing contracts that handle significant TVL
+- Investigating suspicious behavior or incident response
+- Extending a standard security audit with attacker-perspective analysis
+
+## Adversarial Thinking Framework
+
+| Step                      | Action                             | Key Question                                                      |
+| :------------------------ | :--------------------------------- | :---------------------------------------------------------------- |
+| 1. Identify Assets        | Map valuable targets               | What can be stolen, locked, or manipulated?                       |
+| 2. Enumerate Entry Points | List all external/public functions | Which functions change state or move value?                       |
+| 3. Model Adversary        | Define attacker capabilities       | What resources (flash loans, MEV, tokens) does the attacker have? |
+| 4. Construct Sequences    | Build multi-step attack paths      | What sequence of calls achieves the attack goal?                  |
+| 5. Verify Invariants      | Check contract assumptions         | Which mathematical or state invariants can be violated?           |
+
+## Attack Scenario Categories
+
+| Category            | Severity | Key Indicators                                      | Example Attack                   |
+| :------------------ | :------- | :-------------------------------------------------- | :------------------------------- |
+| Reentrancy          | Critical | External calls before state updates, missing guards | Drain via fallback re-entry      |
+| Flash Loan          | Critical | Price-dependent logic, spot price reliance          | Borrow → manipulate → profit     |
+| Oracle Manipulation | High     | External price feeds, single-source oracles         | Inflate collateral value         |
+| MEV / Front-running | High     | DEX interactions, unprotected swaps                 | Sandwich attack on swap          |
+| Governance          | High     | Token-weighted voting, timelocks                    | Flash-borrow votes               |
+| Access Control      | Critical | Initializers, proxy patterns, ownership             | Unprotected initializer takeover |
+| Economic / Logic    | High     | Reward calculations, share math, minting            | Rounding exploit in rewards      |
+| Cross-contract      | High     | Token callbacks, composability assumptions          | Malicious ERC777 callback        |
+
+## Scenario Analysis Process
+
+1. **Feature Detection**: Identify what the contract does (oracle usage? governance? DEX interaction?)
+2. **Threat Mapping**: Map detected features to applicable attack categories
+3. **Scenario Construction**: For each applicable category, build: Pre-conditions → Attack Steps → Impact
+4. **Invariant Verification**: Define properties that must always hold (e.g., `totalDeposits <= balance`)
+5. **Mitigation Assessment**: Check if existing defenses (ReentrancyGuard, access control, slippage checks) adequately cover the scenario
+
+## Multi-Angle Coverage
+
+A single function is rarely vulnerable in only one way. Examine every entry point from each applicable angle before concluding it is safe:
+
+- **Cross-category**: Re-check the same function against every attack category above, not just the most obvious one (a swap is both an MEV target AND an oracle-manipulation surface).
+- **Combination attacks**: Chain individually-minor issues into a high-impact path (e.g., a rounding error plus a missing reentrancy guard).
+- **State & timing**: Vary block timing, transaction ordering, and intermediate state — what holds in isolation may break under adversarial sequencing.
+- **Actor capabilities**: Re-run the analysis assuming the attacker is, in turn, a whale, a flash-loan borrower, a malicious token (ERC777 callback), and a colluding validator.
+
+## Category Deep Dives
+
+### Reentrancy
+
+- Does the contract make external calls before updating state?
+- Are there cross-function interactions sharing mutable state?
+- Is ReentrancyGuard applied to all functions with external calls?
+
+### Flash Loan
+
+- Does any calculation depend on a spot price that can be manipulated within one transaction?
+- Can the attacker's position be established and unwound atomically?
+
+### Oracle Manipulation
+
+- Is a single oracle source used for critical price data?
+- Can the oracle price be influenced by large trades in the same block?
+- Are there fallback oracles or sanity checks on price deviations?
+
+### MEV / Front-running
+
+- Are there unprotected swaps or liquidity operations?
+- Does the contract rely on `block.number` or `block.timestamp` for ordering?
+- Can an attacker sandwich a user's transaction for profit?
+
+### Governance
+
+- Can voting power be acquired via flash loans or flash mints?
+- Is there a sufficient timelock between proposal and execution?
+- Can a malicious actor bypass quorum requirements?
+
+### Access Control
+
+- Are initializers protected against multiple calls?
+- Can ownership be hijacked through uninitialized storage or logic flaws?
+- Are administrative functions restricted to trusted roles?
+
+### Economic / Logic
+
+- Are there rounding errors in reward or share calculations?
+- Can an attacker mint tokens or inflate balances through logic gaps?
+- Does the contract handle fee-on-transfer or rebasing tokens correctly?
+
+### Cross-contract
+
+- Does the contract interact with untrusted tokens (e.g., ERC777)?
+- Are there assumptions about external contract behavior that can be violated?
+- Can a malicious callback disrupt the contract's state?
+
+## Related MCP Capabilities
+
+- `analyze_contract` with `analysis: "adversarial"`: Detect contract features and match applicable attack scenarios automatically
+- `adversarial_analysis` prompt: Guided adversarial analysis with scenario knowledge injected
+- `adversarial://list`: Browse all attack scenario categories
+- `adversarial://category/{category}`, `adversarial://scenario/{id}`: Deep dive into a category or scenario
+- `run_security_scan` with `tool: "patterns"`: Complement with AST/regex vulnerability detection
+- `run_security_scan` (Slither / Aderyn): Automated static analysis for supporting evidence
+
+## References
+
+- For defensive patterns, secure coding, and audit methodology: the `code-review` guide

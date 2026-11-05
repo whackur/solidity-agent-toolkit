@@ -2,27 +2,8 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
-import { registerTop10Resources } from "../../mcp/resources/top10-resources.js";
-import { registerSecurityScanTools } from "../../mcp/tools/security-scan.js";
-import { registerCompileTools } from "../../mcp/tools/compile.js";
-import { registerTestRunnerTools } from "../../mcp/tools/test-runner.js";
-import { registerNatSpecTools } from "../../mcp/tools/natspec.js";
-import { registerGasTools } from "../../mcp/tools/gas-analysis.js";
-import { registerDeployTools } from "../../mcp/tools/deploy.js";
-import { registerStyleGuideTools } from "../../mcp/tools/style-guide.js";
-import { registerVulnerabilitySearchTools } from "../../mcp/tools/vulnerability-search.js";
-import { registerVulnerabilityPatternTools } from "../../mcp/tools/vulnerability-patterns.js";
-import { registerContractAnalysisTools } from "../../mcp/tools/contract-analysis.js";
-import { registerERCPatternPrompts } from "../../mcp/prompts/erc-patterns.js";
-import { registerERCResources } from "../../mcp/resources/erc-standards.js";
-import { registerSCWEResources } from "../../mcp/resources/scwe-resources.js";
-import { registerSecurityAuditPrompts } from "../../mcp/prompts/security-audit.js";
-import { registerCodeReviewPrompts } from "../../mcp/prompts/code-review.js";
-import { registerGasOptimizationPrompts } from "../../mcp/prompts/gas-optimization.js";
-import { registerAdversarialPrompts } from "../../mcp/prompts/adversarial-analysis.js";
-import { registerAdversarialResources } from "../../mcp/resources/adversarial-resources.js";
-import { registerSlitherResources } from "../../mcp/resources/slither-resources.js";
-import { registerSolhintResources } from "../../mcp/resources/solhint-resources.js";
+import { createMcpServer } from "../../mcp/server.js";
+import { getCurrentVersion } from "../../core/version-checker.js";
 
 describe("Full MCP Server Integration", () => {
   let server: McpServer;
@@ -31,32 +12,7 @@ describe("Full MCP Server Integration", () => {
   let serverTransport: InMemoryTransport;
 
   beforeAll(async () => {
-    server = new McpServer({
-      name: "solidity-agent-toolkit",
-      version: "0.2.0",
-    });
-
-    registerTop10Resources(server);
-    registerSecurityScanTools(server);
-    registerCompileTools(server);
-    registerTestRunnerTools(server);
-    registerNatSpecTools(server);
-    registerGasTools(server);
-    registerDeployTools(server);
-    registerStyleGuideTools(server);
-    registerVulnerabilitySearchTools(server);
-    registerVulnerabilityPatternTools(server);
-    registerContractAnalysisTools(server);
-    registerERCPatternPrompts(server);
-    registerERCResources(server);
-    registerSCWEResources(server);
-    registerSecurityAuditPrompts(server);
-    registerCodeReviewPrompts(server);
-    registerGasOptimizationPrompts(server);
-    registerAdversarialPrompts(server);
-    registerAdversarialResources(server);
-    registerSlitherResources(server);
-    registerSolhintResources(server);
+    server = createMcpServer();
 
     [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
 
@@ -73,29 +29,15 @@ describe("Full MCP Server Integration", () => {
   describe("Tools", () => {
     const EXPECTED_TOOLS = [
       "run_security_scan",
-      "compile_contract",
-      "run_tests",
-      "analyze_gas",
-      "manage_deployment",
-      "check_natspec",
-      "check_code_style",
-      "search_vulnerabilities",
-      "scan_vulnerability_patterns",
       "analyze_contract",
+      "lookup_knowledge",
+      "check_code_quality",
+      "run_foundry",
     ];
 
-    it("should register 10 tools", async () => {
+    it("should register exactly 5 tools", async () => {
       const result = await client.listTools();
-      expect(result.tools.length).toBe(10);
-    });
-
-    it("should register all expected tools by name", async () => {
-      const result = await client.listTools();
-      const toolNames = result.tools.map((t) => t.name);
-
-      for (const expected of EXPECTED_TOOLS) {
-        expect(toolNames).toContain(expected);
-      }
+      expect(result.tools.map((t) => t.name).sort()).toEqual([...EXPECTED_TOOLS].sort());
     });
 
     it("every tool should have a description", async () => {
@@ -122,6 +64,7 @@ describe("Full MCP Server Integration", () => {
       expect(uris).toContain("scwe://list");
       expect(uris).toContain("adversarial://list");
       expect(uris).toContain("erc://list");
+      expect(uris).toContain("guide://list");
     });
 
     it("should register resource templates", async () => {
@@ -134,6 +77,7 @@ describe("Full MCP Server Integration", () => {
       expect(templateUris).toContain("scwe://category/{category}");
       expect(templateUris).toContain("adversarial://category/{category}");
       expect(templateUris).toContain("adversarial://scenario/{id}");
+      expect(templateUris).toContain("guide://{topic}");
     });
 
     it("should have at least 6 static resources and 6 resource templates", async () => {
@@ -200,9 +144,10 @@ describe("Full MCP Server Integration", () => {
       expect(info?.name).toBe("solidity-agent-toolkit");
     });
 
-    it("should report correct server version", () => {
+    it("should report the package version", () => {
       const info = client.getServerVersion();
-      expect(info?.version).toBe("0.2.0");
+      expect(info?.version).toBe(getCurrentVersion());
+      expect(info?.version).toMatch(/^\d+\.\d+\.\d+/);
     });
   });
 });

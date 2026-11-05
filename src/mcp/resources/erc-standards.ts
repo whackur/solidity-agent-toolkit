@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { getERCStandard, getSupportedERCStandards } from "../../knowledge/erc-interfaces.js";
+import { requireTemplateVariable } from "./template-variable.js";
 
 export { getERCStandard } from "../../knowledge/erc-interfaces.js";
 
@@ -33,11 +34,7 @@ export function registerERCResources(server: McpServer): void {
       mimeType: "text/markdown",
     },
     async (uri, variables) => {
-      const standard = variables.standard;
-      const std = Array.isArray(standard) ? standard[0] : standard;
-      if (!std) {
-        throw new Error("Missing required parameter: standard");
-      }
+      const std = requireTemplateVariable(variables, "standard");
       return {
         contents: [
           {

@@ -4,6 +4,7 @@ import {
   checkForgeInstalled,
   isFoundryProject,
   FORGE_INSTALL_INSTRUCTIONS,
+  NOT_FOUNDRY_PROJECT_MESSAGE,
 } from "../../core/compile.js";
 import {
   validateNoBroadcast,
@@ -13,32 +14,11 @@ import {
   parseDeploymentStatus,
   formatDeploymentStatus,
 } from "../../core/deploy.js";
-
-type ToolResult = {
-  content: { type: "text"; text: string }[];
-  isError?: boolean;
-};
+import { errorResult, type ToolResult } from "./tool-result.js";
 
 function checkPrerequisites(): ToolResult | null {
-  if (!checkForgeInstalled()) {
-    return {
-      content: [{ type: "text" as const, text: FORGE_INSTALL_INSTRUCTIONS }],
-      isError: true,
-    };
-  }
-
-  if (!isFoundryProject()) {
-    return {
-      content: [
-        {
-          type: "text" as const,
-          text: "❌ **Not a Foundry Project**\n\nNo `foundry.toml` found in the current directory.",
-        },
-      ],
-      isError: true,
-    };
-  }
-
+  if (!checkForgeInstalled()) return errorResult(FORGE_INSTALL_INSTRUCTIONS);
+  if (!isFoundryProject()) return errorResult(NOT_FOUNDRY_PROJECT_MESSAGE);
   return null;
 }
 

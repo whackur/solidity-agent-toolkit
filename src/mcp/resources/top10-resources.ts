@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { loadAllTop10, getTop10ById } from "../../knowledge/top10-parser.js";
+import { requireTemplateVariable } from "./template-variable.js";
 
 function formatTop10Entry(entry: ReturnType<typeof getTop10ById>): string {
   if (!entry) {
@@ -97,10 +98,7 @@ export function registerTop10Resources(server: McpServer): void {
       mimeType: "text/markdown",
     },
     async (uri, variables) => {
-      const id = Array.isArray(variables.id) ? variables.id[0] : variables.id;
-      if (!id) {
-        throw new Error("Missing required parameter: id");
-      }
+      const id = requireTemplateVariable(variables, "id");
 
       const entry = getTop10ById(id);
 

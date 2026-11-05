@@ -1,5 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { userPrompt } from "./prompt-messages.js";
 
 const GAS_OPTIMIZATION_CHECKLIST = `
 ### Gas Optimization Checklist:
@@ -83,31 +84,22 @@ ${storageLayout}
 }
 
 export function registerGasOptimizationPrompts(server: McpServer) {
-  server.prompt(
+  server.registerPrompt(
     "optimize_gas",
-    "Generate a gas optimization analysis for Solidity code with a 10-point checklist. " +
-      "Covers storage packing, calldata vs memory, unchecked arithmetic, loop optimizations, and more. " +
-      "Optionally accepts storage layout JSON for slot-level packing analysis. " +
-      "Use when: 'optimize gas', 'reduce gas costs', 'how to make this cheaper'.",
     {
-      code: z.string().describe("The Solidity contract code to analyze"),
-      storageLayout: z
-        .string()
-        .optional()
-        .describe("Optional JSON storage layout for packing analysis"),
+      description:
+        "Generate a gas optimization analysis for Solidity code with a 10-point checklist. " +
+        "Covers storage packing, calldata vs memory, unchecked arithmetic, loop optimizations, and more. " +
+        "Optionally accepts storage layout JSON for slot-level packing analysis. " +
+        "Use when: 'optimize gas', 'reduce gas costs', 'how to make this cheaper'.",
+      argsSchema: {
+        code: z.string().describe("The Solidity contract code to analyze"),
+        storageLayout: z
+          .string()
+          .optional()
+          .describe("Optional JSON storage layout for packing analysis"),
+      },
     },
-    async ({ code, storageLayout }) => {
-      return {
-        messages: [
-          {
-            role: "user",
-            content: {
-              type: "text",
-              text: buildGasOptimizationPrompt(code, storageLayout),
-            },
-          },
-        ],
-      };
-    },
+    async ({ code, storageLayout }) => userPrompt(buildGasOptimizationPrompt(code, storageLayout)),
   );
 }

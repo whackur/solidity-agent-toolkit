@@ -7,7 +7,7 @@ import {
   formatTestResults,
   formatSingleTestResult,
   checkForgeInstalled,
-} from "../../mcp/tools/test-runner.js";
+} from "../../core/test-runner.js";
 import * as childProcess from "child_process";
 
 vi.mock("child_process");

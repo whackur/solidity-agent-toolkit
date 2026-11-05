@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-MCP server + LSP server + 6 Agent Skills for Solidity smart contract security. TypeScript, wraps Foundry/Slither/Aderyn/Solhint CLIs, serves OWASP SCWE knowledge base (156 vulnerabilities) via MCP and LSP protocols.
+MCP server + LSP server for Solidity smart contract security. TypeScript, wraps Foundry/Slither/Aderyn/Solhint CLIs, serves OWASP SCWE knowledge base (156 vulnerabilities) via MCP and LSP protocols.
 
 ## STRUCTURE
 
@@ -13,11 +13,11 @@ src/
 ├── index.ts           # MCP entry (wiring only, <=5 lines)
 ├── core/              # Pure analysis logic (CLI wrappers, parsers, AST detectors)
 │   └── ast-detectors/ # 9 AST detector modules (self-registering)
-├── mcp/               # MCP server: 10 tools, 12 resources, 7 prompts
+├── mcp/               # MCP server: 5 tools, 14 resources, 7 prompts
 ├── lsp/               # LSP server (diagnostics, hover, code actions)
 ├── knowledge/         # OWASP data parsers, vulnerability patterns, style rules
 └── __tests__/         # Mirrors src/ structure
-skills/                # 6 Agent Skills (agentskills.io spec)
+guides/                # Methodology markdown served via lookup_knowledge / guide://{topic}
 bin/                   # CLI entry points (cli.ts, lsp.ts)
 data/owasp-scs/        # Git submodule — READ ONLY
 
@@ -122,4 +122,4 @@ export function registerXxxTools(server: McpServer): void {
 
 ## VERSIONING
 
-`pnpm version <semver>` syncs package.json + all `skills/*/SKILL.md` versions. Never bump SKILL.md manually.
+`pnpm version <semver>` bumps package.json only.

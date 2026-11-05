@@ -1,6 +1,6 @@
 # src/mcp/ — MCP Server
 
-MCP protocol layer. Thin wrappers around `core/` functions. 10 tools, 12 resources, 7 prompts.
+MCP protocol layer. Thin wrappers around `core/` functions. 5 tools, 14 resources, 7 prompts.
 
 ## CONVENTIONS
 
@@ -16,16 +16,17 @@ MCP protocol layer. Thin wrappers around `core/` functions. 10 tools, 12 resourc
 ```
 [ROLE_PHRASE]. [HOW_IT_WORKS]. [EXTERNAL_DEP if applicable].
 Trigger: "[example user queries]"
-NOT for: "[disambiguation]"    <- only for 3-tool vuln cluster
+NOT for: "[disambiguation]"    <- only for scan vs. knowledge lookup
 ```
 
 - 150-400 chars per description
-- Negative routing (`NOT for:`) only on: `run_security_scan`, `scan_vulnerability_patterns`, `search_vulnerabilities`
+- Negative routing (`NOT for:`) only on: `run_security_scan`, `lookup_knowledge`
 - `inputSchema` field descriptions provide sub-routing within consolidated tools
 
 ## STRUCTURE
 
 - `server.ts` — `createMcpServer()` + `startMcpServer()`, all registrations
-- `tools/` — 11 files, 10 tools (deploy split into deploy.ts + deploy-handlers.ts for LOC)
-- `resources/` — 6 files, 12 resources (scwe://, sctop10://, erc://, adversarial://, slither://, solhint://)
+- `server-instructions.ts` — `instructions` sent on initialize; routes agents to the right guide (replaces former Agent Skills auto-triggering). Keep it in sync with the guide catalog.
+- `tools/` — 5 thin registration files (`security-scan`, `contract-analysis`, `knowledge-lookup`, `code-quality`, `foundry`) plus per-domain `*-handlers.ts` and shared `tool-result.ts`
+- `resources/` — 7 files, 14 resources (scwe://, sctop10://, erc://, adversarial://, slither://, solhint://, guide://)
 - `prompts/` — 8 files, 7 prompts (3 have split `*-logic.ts` files)
