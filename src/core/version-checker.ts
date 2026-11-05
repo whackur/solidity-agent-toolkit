@@ -1,4 +1,6 @@
-import { createRequire } from "module";
+import fs from "node:fs";
+import path from "node:path";
+import { findPackageRoot } from "../knowledge/package-root.js";
 
 const PACKAGE_NAME = "solidity-agent-toolkit";
 const REGISTRY_URL = `https://registry.npmjs.org/${PACKAGE_NAME}/latest`;
@@ -11,8 +13,8 @@ export interface VersionCheckResult {
 }
 
 export function getCurrentVersion(): string {
-  const require = createRequire(import.meta.url);
-  const pkg = require("../../package.json") as { version: string };
+  const manifest = path.join(findPackageRoot(), "package.json");
+  const pkg = JSON.parse(fs.readFileSync(manifest, "utf8")) as { version: string };
   return pkg.version;
 }
 

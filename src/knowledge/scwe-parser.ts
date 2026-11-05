@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { escapeRegex } from "./markdown-section.js";
+import { findPackageRoot } from "./package-root.js";
 
 export interface SCWEMappings {
   scsvsCg: string[];
@@ -28,10 +29,7 @@ export interface SCWEEntry {
   relationships: string;
 }
 
-const DATA_ROOT = path.resolve(
-  import.meta.dirname ?? path.dirname(new URL(import.meta.url).pathname),
-  "../../data/owasp-scs/docs/SCWE",
-);
+const SCWE_DATA_DIR = "data/owasp-scs/docs/SCWE";
 
 function toStringArray(val: unknown): string[] {
   if (Array.isArray(val)) return val.map(String);
@@ -104,15 +102,17 @@ function parseSCWEFile(filePath: string): SCWEEntry | null {
 function discoverSCWEFiles(): string[] {
   const files: string[] = [];
 
+  let dataRoot: string;
   let categoryDirs: string[];
   try {
-    categoryDirs = fs.readdirSync(DATA_ROOT);
+    dataRoot = path.join(findPackageRoot(), SCWE_DATA_DIR);
+    categoryDirs = fs.readdirSync(dataRoot);
   } catch {
     return files;
   }
 
   for (const dir of categoryDirs) {
-    const dirPath = path.join(DATA_ROOT, dir);
+    const dirPath = path.join(dataRoot, dir);
     if (!fs.statSync(dirPath).isDirectory()) continue;
 
     for (const entry of fs.readdirSync(dirPath)) {

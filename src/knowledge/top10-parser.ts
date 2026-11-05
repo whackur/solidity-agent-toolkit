@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { escapeRegex } from "./markdown-section.js";
+import { findPackageRoot } from "./package-root.js";
 import { enrichTop10WithSCWE } from "./top10-scwe-mappings.js";
 
 export interface SCTop10Examples {
@@ -19,10 +20,7 @@ export interface SCTop10Entry {
   relatedSCWE: string[];
 }
 
-const DATA_ROOT = path.resolve(
-  import.meta.dirname ?? path.dirname(new URL(import.meta.url).pathname),
-  "../../data/owasp-scs/docs/sctop10",
-);
+const TOP10_DATA_DIR = "data/owasp-scs/docs/sctop10";
 
 const TOP10_FILE_RE = /^SC(\d{2})-.*\.md$/;
 
@@ -160,9 +158,11 @@ function parseSCTop10File(filePath: string): SCTop10Entry | null {
 }
 
 function discoverTop10Files(): string[] {
+  let dataRoot: string;
   let entries: string[];
   try {
-    entries = fs.readdirSync(DATA_ROOT);
+    dataRoot = path.join(findPackageRoot(), TOP10_DATA_DIR);
+    entries = fs.readdirSync(dataRoot);
   } catch {
     return [];
   }
@@ -174,7 +174,7 @@ function discoverTop10Files(): string[] {
       const numB = parseInt(b.match(TOP10_FILE_RE)?.[1] ?? "0", 10);
       return numA - numB;
     })
-    .map((e) => path.join(DATA_ROOT, e));
+    .map((e) => path.join(dataRoot, e));
 }
 
 let _cache: SCTop10Entry[] | null = null;
