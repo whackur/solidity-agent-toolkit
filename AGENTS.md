@@ -1,125 +1,41 @@
-# PROJECT KNOWLEDGE BASE
+# Solidity Agent Toolkit Agent Guide
 
----
+> `CLAUDE.md` is a symlink to this file; edit `AGENTS.md` only. Read an untracked `AGENTS.local.md` when present; keep checkout-specific access and machine facts there.
 
-## OVERVIEW
+## Scope and sources of truth
 
-MCP server + LSP server for Solidity smart contract security. TypeScript, wraps Foundry/Slither/Aderyn/Solhint CLIs, serves OWASP SCWE knowledge base (156 vulnerabilities) via MCP and LSP protocols.
+Keep this guide at or below 200 physical lines and limited to durable safety, architecture, compatibility, and verification rules. Keep tracked source, tests, and documentation in English; write each Markdown prose paragraph and list item on one physical line. Put scope-specific rules in the nearest `AGENTS.md` and long-lived design or runbooks in `docs/`.
 
-## STRUCTURE
+- Public MCP tools, resources, prompts, and parameters: [`docs/api-reference.md`](docs/api-reference.md).
+- Development setup, commands, architecture, and testing: [`docs/development.md`](docs/development.md).
+- User installation and runtime requirements: [`docs/installation.md`](docs/installation.md).
 
-```
-src/
-├── index.ts           # MCP entry (wiring only, <=5 lines)
-├── core/              # Pure analysis logic (CLI wrappers, parsers, AST detectors)
-│   └── ast-detectors/ # 9 AST detector modules (self-registering)
-├── mcp/               # MCP server: 5 tools, 14 resources, 7 prompts
-├── lsp/               # LSP server (diagnostics, hover, code actions)
-├── knowledge/         # OWASP data parsers, vulnerability patterns, style rules
-└── __tests__/         # Mirrors src/ structure
-guides/                # Methodology markdown served via lookup_knowledge / guide://{topic}
-bin/                   # CLI entry points (cli.ts, lsp.ts)
-data/owasp-scs/        # Git submodule — READ ONLY
+Update the relevant documentation when a change affects a public API, CLI, configuration, or user workflow. Read the nearest scoped `AGENTS.md` before changing a covered area.
 
-**Import DAG** (strict, never violate):
+## Architecture and compatibility
 
-```
+- Keep the import DAG: `knowledge/` has no internal dependencies; `core/` may import `knowledge/`; `mcp/` and `lsp/` may import `core/` and `knowledge/`, but never each other. `core/` must not import from `mcp/` or `lsp/`.
+- AST detectors are pure functions; their project-local imports are limited to `ast-detector-registry.ts`, `ast-validators.ts`, and `ast-utils.ts`, and they must not import from `mcp/` or `lsp/`.
+- Keep `index.ts` files limited to re-exports and wiring. `src/index.ts` is wiring only and stays at five lines or fewer.
+- Give each source file one clear responsibility; avoid generic grab-bag names such as `utils.ts`, `helpers.ts`, or `common.ts`. Keep logic files within 300 logical lines, excluding blank lines, comments, static data arrays, and prompt templates; split mixed I/O and pure logic, and separate types from implementation when they have mixed responsibilities.
+- If a touched file violates these architecture rules, refactor it first, then continue the requested change.
+- Preserve the public MCP, LSP, CLI, configuration, and package contracts unless the request explicitly changes them. When a contract changes, update all affected package surfaces and documentation together.
+- Keep `data/owasp-scs/` read-only; it is a Git submodule. Do not commit edits to its contents.
 
-knowledge/ → (no internal deps)
-core/ → knowledge/
-mcp/ → core/, knowledge/
-lsp/ → core/, knowledge/
+## TypeScript and MCP
 
-```
+- Keep TypeScript strict and use the configured NodeNext module behavior in the toolkit root; narrower package guides override root defaults. Use `.js` extensions for local imports, `import type` for type-only imports, and named exports.
+- Follow `.prettierrc` and ESLint for formatting and lint rules. Use `PascalCase` for types, `UPPER_SNAKE_CASE` for exported constants, and prefix intentionally unused arguments with `_`.
+- Do not introduce `any`, use `as any`, or use `@ts-ignore` in source. Tests may use `any` for mocks; use a described `@ts-expect-error` only when a test needs an intentional type error.
+- Use the supported MCP SDK `server.registerTool()` API. For MCP tool results, `isError: true` means execution failed; absent or `false` means success, including when findings are returned. Expected core failures should use result objects rather than thrown exceptions.
+- Use `"text" as const` for MCP content literals when needed for type narrowing.
+- Do not log credentials, tokens, private endpoints, or connection strings. Add controls only for a concrete security or authority risk, preserve required protections, avoid unnecessary user steps, and explain failures in clear user-facing language.
 
-`core/` NEVER imports from `mcp/` or `lsp/`. `mcp/` NEVER imports from `lsp/` or vice versa.
+## Development and verification
 
-## CODE STYLE
-
-- **Formatting** (`.prettierrc`): Double quotes, trailing commas, 2-space indent, 100 char width, semicolons
-- **Imports**: Always `.js` extension for local imports (NodeNext). Use `import type` for type-only imports.
-- **Naming**: `camelCase` functions/vars, `PascalCase` types/interfaces, `UPPER_SNAKE_CASE` exported constants
-- **Files**: Named by purpose — never `utils.ts`, `helpers.ts`, `common.ts`
-- **Exports**: Named exports only. No default exports.
-- **Unused vars**: Prefix with `_`. ESLint enforces `argsIgnorePattern: "^_"`
-
-## TYPE SAFETY
-
-- `strict: true`, target ESNext, module NodeNext
-- **NO** `as any` in source (allowed in tests only for mocks)
-- **NO** `@ts-ignore` — use `@ts-expect-error` with description (tests only)
-- Zod v4 for MCP tool schema validation
-- Content literals use `"text" as const` for type narrowing
-
-## ERROR HANDLING
-
-- **MCP tools**: `isError: true` = execution failure. Absent/`false` = success (even if findings found)
-- **Core functions**: Return result objects (`{ success, error?, findings }`), never throw for expected failures
-
-## ARCHITECTURE RULES
-
-Modular architecture is a BLOCKING policy — when you touch a file that violates these, refactor FIRST, then continue your task.
-
-1. **`index.ts` = entry point ONLY** — re-exports + factory/wiring calls (e.g. `registerXxxTools(server)`). NEVER business logic, helper functions, type definitions beyond re-exports, or handler bodies.
-2. **No catch-all files** — `utils.ts`, `helpers.ts`, `common.ts` are BANNED as top-level grab-bags. Name every file by its single purpose (`tool-checker.ts`, `json-parser.ts` — never `utils.ts`).
-3. **Single Responsibility** — every `.ts` file has ONE nameable purpose. Self-test: if you can't describe it in one short phrase, split it. Split when a file has 2+ unrelated exports, mixes I/O with pure logic, or mixes types with implementation.
-4. **300 LOC hard limit** on logic. Count: imports, declarations, control flow, expressions, returns. Exclude: blank lines, comments, static data arrays (e.g. `VULNERABILITY_PATTERNS`), and prompt template literals. When in doubt, round up and split.
-5. I/O separate from pure logic (CLI execution vs. output parsing).
-6. Complex prompt logic split into `*-logic.ts` files.
-
-## VULNERABILITY DETECTION ARCHITECTURE
-
-Two-layer detection: AST detectors (primary) + regex patterns (fallback).
-
-```
-
-matchPatterns(code, checkIds?)
-→ parseSolidity(code) # @solidity-parser/parser + LRU cache
-→ runASTDetectors(ast, code) # 9 detectors, 22 SCWE IDs
-→ regex fallback (uncovered IDs) # 32 patterns, ~10 SCWE IDs not in AST
-→ filterByASTContext() # Phase 2 supplementary FP filter
-→ dedup + sort → PatternMatch[]
-
-````
-
-**AST detectors** (`src/core/ast-detectors/`): Self-register via `registerDetector()` on import. Barrel import `index.ts` triggers all registrations. Each detector is a pure function: `(ast, code) → DetectorResult[]`.
-
-**Regex fallback** (`src/knowledge/vulnerability-patterns.ts`): 32 regex patterns. Only runs for SCWE IDs NOT covered by AST detectors. On AST parse failure, all regex patterns run.
-
-**Key rule**: AST detectors MUST NOT import from `mcp/` or `lsp/`. They import only from `ast-detector-registry.ts`, `ast-validators.ts`, and `ast-utils.ts`.
-## TESTING
-
-- **Framework**: vitest 4.x, node environment, globals enabled
-- **Mocking**: CLI tools via `vi.mock("child_process")` + `vi.mocked(execSync)`
-- **Conventions**: `beforeEach` → fresh McpServer + `vi.clearAllMocks()`
-- Knowledge tests use real submodule data (not mocked) — `git submodule update --init` required
-- Relaxed ESLint in tests: `no-unused-vars`, `ban-ts-comment`, `no-explicit-any` all off
-
-## MCP SDK
-
-SDK v1.29.0 — use `server.registerTool()` (NOT deprecated `server.tool()`).
-
-```typescript
-export function registerXxxTools(server: McpServer): void {
-  server.registerTool(
-    "tool_name",
-    {
-      description: "...",
-      inputSchema: {
-        /* zod */
-      },
-    },
-    async (args) => ({ content: [{ type: "text" as const, text: result }] }),
-  );
-}
-// Register in mcp/server.ts: import + call registerXxxTools(server)
-````
-
-## GIT RULES
-
-- NEVER add `Co-authored-by` or `Signed-off-by` trailers unless user explicitly provides them
-- Commit messages in English only
-
-## VERSIONING
-
-`pnpm version <semver>` bumps package.json only.
+- Use `pnpm` for repository scripts. Launch package JavaScript binaries with `process.execPath` for cross-platform behavior.
+- Select verification for the changed surface. Prose-only documentation or guide edits need focused Markdown, link, and content checks; they do not need the full runtime suite. For source changes, run the focused checks that cover the changed behavior and run the integrated suite once; repeat only when new evidence justifies it.
+- Knowledge tests use real OWASP submodule data rather than mocks; initialize it with `git submodule update --init` before running those tests.
+- Do not run concurrent installs or builds that write to the same output directory in one checkout. Report commands and results accurately; do not describe skipped checks as passing.
+- Do not change package versions or make a release bump without an explicit release request.
+- Use English commit messages and do not add `Co-authored-by` or `Signed-off-by` trailers unless the user explicitly supplies them.
