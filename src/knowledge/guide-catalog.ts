@@ -57,6 +57,14 @@ export const GUIDES = [
     kind: "guide",
   },
   {
+    id: "glamsterdam",
+    title: "Glamsterdam (Amsterdam + Gloas) Audit Guide",
+    description:
+      "Ethereum L1 Glamsterdam hardfork impact on contracts: state gas and reservoir (EIP-8037), state access repricing, intrinsic gas split, larger code size limit, calldata floor, access list surcharge, ETH transfer logs, and a review checklist.",
+    file: "guides/glamsterdam.md",
+    kind: "guide",
+  },
+  {
     id: "audit-checklist",
     title: "Smart Contract Audit Checklist",
     description: "Item-by-item audit checklist referenced by the code-review guide.",
