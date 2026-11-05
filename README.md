@@ -29,6 +29,15 @@ claude mcp add solidity-agent-toolkit -- npx -y solidity-agent-toolkit@latest
 
 See [MCP Setup](docs/mcp-setup.md) for client-specific instructions.
 
+### Solidity UML CLI
+
+The package also ships the standalone `sol2uml-light` command for generating Solidity UML and storage diagrams. SVG is the default output; PNG rendering uses resvg and does not require a browser. Its upstream source and MIT attribution are documented in [packages/sol2uml-light/README.md](packages/sol2uml-light/README.md).
+
+```bash
+npx --yes --package=solidity-agent-toolkit sol2uml-light --help
+npx --yes --package=solidity-agent-toolkit sol2uml-light ./contracts
+```
+
 ### Local Development
 
 ```bash

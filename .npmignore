@@ -10,3 +10,5 @@ __tests__/
 .git/
 .gitignore
 examples/
+!packages/sol2uml-light/src/
+packages/sol2uml-light/src/contracts/
