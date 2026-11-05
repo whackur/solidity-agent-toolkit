@@ -11,57 +11,42 @@ export interface GasSnapshotWithDiff extends GasSnapshot {
   diffPercent?: number;
 }
 
+const SNAPSHOT_LINE_RE = /^(.+?):(.+?)\s+\(gas:\s*(\d+)\)/;
+const SNAPSHOT_DIFF_LINE_RE =
+  /^(.+?):(.+?)\s+\(gas:\s*(\d+)\)\s+\(gas:\s*([+-]?\d+)\s+\(([+-]?[\d.]+)%\)\)/;
+
+function toSnapshot([, contract, testName, gasUsed]: RegExpMatchArray): GasSnapshot {
+  return { contract: contract.trim(), testName: testName.trim(), gasUsed: parseInt(gasUsed, 10) };
+}
+
+function parseLines<T>(output: string, parseLine: (line: string) => T | null): T[] {
+  return output
+    .trim()
+    .split("\n")
+    .map(parseLine)
+    .filter((snapshot): snapshot is T => snapshot !== null);
+}
+
 export function parseGasSnapshot(output: string): GasSnapshot[] {
-  const snapshots: GasSnapshot[] = [];
-  const lines = output.trim().split("\n");
-
-  for (const line of lines) {
-    const match = line.match(/^(.+?):(.+?)\s+\(gas:\s*(\d+)\)/);
-    if (match) {
-      const [, contract, testName, gasUsed] = match;
-      snapshots.push({
-        contract: contract.trim(),
-        testName: testName.trim(),
-        gasUsed: parseInt(gasUsed, 10),
-      });
-    }
-  }
-
-  return snapshots;
+  return parseLines(output, (line) => {
+    const match = line.match(SNAPSHOT_LINE_RE);
+    return match ? toSnapshot(match) : null;
+  });
 }
 
 export function parseGasSnapshotDiff(output: string): GasSnapshotWithDiff[] {
-  const snapshots: GasSnapshotWithDiff[] = [];
-  const lines = output.trim().split("\n");
-
-  for (const line of lines) {
-    const matchWithDiff = line.match(
-      /^(.+?):(.+?)\s+\(gas:\s*(\d+)\)\s+\(gas:\s*([+-]?\d+)\s+\(([+-]?[\d.]+)%\)\)/,
-    );
-    if (matchWithDiff) {
-      const [, contract, testName, gasUsed, diff, diffPercent] = matchWithDiff;
-      snapshots.push({
-        contract: contract.trim(),
-        testName: testName.trim(),
-        gasUsed: parseInt(gasUsed, 10),
-        diff: parseInt(diff, 10),
-        diffPercent: parseFloat(diffPercent),
-      });
-      continue;
+  return parseLines<GasSnapshotWithDiff>(output, (line) => {
+    const withDiff = line.match(SNAPSHOT_DIFF_LINE_RE);
+    if (withDiff) {
+      return {
+        ...toSnapshot(withDiff),
+        diff: parseInt(withDiff[4], 10),
+        diffPercent: parseFloat(withDiff[5]),
+      };
     }
-
-    const match = line.match(/^(.+?):(.+?)\s+\(gas:\s*(\d+)\)/);
-    if (match) {
-      const [, contract, testName, gasUsed] = match;
-      snapshots.push({
-        contract: contract.trim(),
-        testName: testName.trim(),
-        gasUsed: parseInt(gasUsed, 10),
-      });
-    }
-  }
-
-  return snapshots;
+    const match = line.match(SNAPSHOT_LINE_RE);
+    return match ? toSnapshot(match) : null;
+  });
 }
 
 export function formatGasSnapshot(snapshots: GasSnapshotWithDiff[], compare: boolean): string {
