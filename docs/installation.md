@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- **Node.js** 22 or later
+- **Node.js** 24 or later
 - **npm**, **pnpm**, or **yarn** package manager
 
 External tools (Foundry, Slither, Aderyn, Solhint) are optional — features that don't require them work out of the box.
@@ -32,11 +32,12 @@ pnpm add -g solidity-agent-toolkit
 yarn global add solidity-agent-toolkit
 ```
 
-After installation, both commands are available system-wide:
+After installation, these commands are available system-wide:
 
 ```bash
 solidity-agent-toolkit       # MCP server
 solidity-agent-toolkit-lsp   # LSP server
+sol2uml-light                # Solidity UML and storage diagrams
 ```
 
 ## Migrating from Agent Skills
@@ -123,11 +124,11 @@ To lock a specific version (e.g., for reproducible CI environments):
 
 ```bash
 # Global install with exact version
-npm install -g solidity-agent-toolkit@0.1.0
+npm install -g solidity-agent-toolkit@0.9.2
 
 # Or in MCP config
 {
   "command": "npx",
-  "args": ["-y", "solidity-agent-toolkit@0.1.0"]
+  "args": ["-y", "solidity-agent-toolkit@0.9.2"]
 }
 ```

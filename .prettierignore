@@ -1,7 +1,6 @@
 dist/
 coverage/
 data/
-packages/sol2uml-light/
 node_modules/
 pnpm-lock.yaml
 *.tgz

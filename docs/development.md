@@ -4,7 +4,7 @@
 
 | Tool                                            | Required For                                | Install                                                     |
 | ----------------------------------------------- | ------------------------------------------- | ----------------------------------------------------------- |
-| [Node.js](https://nodejs.org/) 22+              | Runtime                                     | [nodejs.org](https://nodejs.org/)                           |
+| [Node.js](https://nodejs.org/) 24+              | Runtime                                     | [nodejs.org](https://nodejs.org/)                           |
 | [pnpm](https://pnpm.io/) 11.28.8                | Package manager                             | `npm install -g pnpm@11.28.8`                               |
 | [Foundry](https://book.getfoundry.sh/)          | Compilation, testing, gas, deployment tools | `curl -L https://foundry.paradigm.xyz \| bash && foundryup` |
 | [Slither](https://github.com/crytic/slither)    | `run_security_scan` (tool: slither)         | `pip3 install slither-analyzer`                             |
@@ -97,4 +97,4 @@ Test files live in `src/__tests__/` and mirror the source structure.
 
 The `v*` tag workflow checks that the tag matches the root package version, runs quality checks and a build, publishes with npm trusted publishing, then creates the GitHub Release. Before the first publish, configure `solidity-agent-toolkit` on npm with a GitHub Actions trusted publisher for owner `whackur`, repository `solidity-agent-toolkit`, workflow `release.yml`, and environment `release`, and allow direct publishing; the workflow uses OIDC and requires no npm token secret.
 
-For a patch release, run `npm version patch --no-git-tag-version`, commit the root `package.json` version change, then tag and push that version (for example, `git tag v0.9.1` and `git push origin v0.9.1`).
+For a patch release, run `npm version patch --no-git-tag-version`, commit the root `package.json` version change, then tag and push that version (for example, `git tag v0.9.2` and `git push origin v0.9.2`).

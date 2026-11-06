@@ -31,7 +31,7 @@ See [MCP Setup](docs/mcp-setup.md) for client-specific instructions.
 
 ### Solidity UML CLI
 
-The package also ships the standalone `sol2uml-light` command for generating Solidity UML and storage diagrams. SVG is the default output; PNG rendering uses resvg and does not require a browser. Its upstream source and MIT attribution are documented in [packages/sol2uml-light/README.md](packages/sol2uml-light/README.md).
+The package also ships the standalone `sol2uml-light` command for generating Solidity UML and storage diagrams, provided by the [`sol2uml-light`](https://www.npmjs.com/package/sol2uml-light) dependency. SVG is the default output; PNG rendering uses resvg and does not require a browser.
 
 ```bash
 npx --yes --package=solidity-agent-toolkit sol2uml-light --help
