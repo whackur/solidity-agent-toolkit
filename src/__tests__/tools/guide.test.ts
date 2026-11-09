@@ -47,6 +47,19 @@ describe("guide tool and resources", () => {
     expect((result.content as TextContent[])[0].text).toContain("# Foundry Development Guide");
   });
 
+  it("serves the architecture guide via tool and resource", async () => {
+    const result = await client.callTool({
+      name: "lookup_knowledge",
+      arguments: { guide: "architecture-diagrams" },
+    });
+    const resource = await client.readResource({ uri: "guide://architecture-diagrams" });
+
+    expect((result.content as TextContent[])[0].text).toContain("sol2uml-light");
+    expect((resource.contents[0] as { text: string }).text).toContain(
+      "MCP server does not expose a tool",
+    );
+  });
+
   it("lookup_knowledge rejects unknown guides via schema", async () => {
     const result = await client.callTool({
       name: "lookup_knowledge",

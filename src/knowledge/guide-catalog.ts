@@ -75,6 +75,16 @@ export const GUIDES = [
       "Ethereum L1 Glamsterdam hardfork impact, including gas repricing and code-size changes",
   },
   {
+    id: "architecture-diagrams",
+    title: "Solidity and Repository Architecture Diagrams",
+    description:
+      "Route Solidity repository architecture/composition and contract UML requests through the standalone sol2uml-light CLI; distinguish generated contract diagrams from explicitly requested whole-repository/off-chain maps, with a supplied-source Mermaid fallback when shell access is unavailable.",
+    file: "guides/architecture-diagrams.md",
+    kind: "guide",
+    trigger:
+      "Solidity repository architecture or composition diagrams, Solidity UML, and contract relationships",
+  },
+  {
     id: "audit-checklist",
     title: "Smart Contract Audit Checklist",
     description: "Item-by-item audit checklist referenced by the code-review guide.",

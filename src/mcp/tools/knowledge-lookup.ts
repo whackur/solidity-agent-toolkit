@@ -42,10 +42,10 @@ export function registerKnowledgeLookupTools(server: McpServer): void {
     "lookup_knowledge",
     {
       description:
-        "Knowledge lookup — does NOT analyze code. Load a methodology guide (audit, threat modeling, " +
-        "gas, ERC, Foundry/Hardhat) or search 156 OWASP SCWE entries / fetch one SCWE ID with " +
-        "remediation. No args lists guides. Trigger: 'audit checklist', 'what is reentrancy?', " +
-        "'explain SCWE-046'. NOT for: scanning actual code (use run_security_scan).",
+        "Knowledge lookup — does NOT analyze code. Load guides (audit, threat modeling, gas, ERC, " +
+        "Foundry/Hardhat, Solidity UML) or search OWASP SCWE / fetch an SCWE ID with remediation. " +
+        "No args lists guides. Trigger: 'Solidity repository architecture/composition diagram', " +
+        "'audit checklist', 'reentrancy', 'SCWE-046'. NOT for: code scanning (use run_security_scan).",
       inputSchema: LookupKnowledgeSchema.shape,
     },
     async ({ guide, query, vulnerabilityId, filters }) => {

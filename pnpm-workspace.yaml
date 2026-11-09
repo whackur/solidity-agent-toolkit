@@ -3,4 +3,4 @@ allowBuilds:
   esbuild: false
   es5-ext: false
 minimumReleaseAgeExclude:
-  - sol2uml-light@0.1.0
+  - sol2uml-light@0.1.3

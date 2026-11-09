@@ -31,7 +31,7 @@ See [MCP Setup](docs/mcp-setup.md) for client-specific instructions.
 
 ### Solidity UML CLI
 
-The package also ships the standalone `sol2uml-light` command for generating Solidity UML and storage diagrams, provided by the [`sol2uml-light`](https://www.npmjs.com/package/sol2uml-light) dependency. SVG is the default output; PNG rendering uses resvg and does not require a browser.
+The package also ships the standalone `sol2uml-light` command for generating Solidity UML and storage diagrams, provided by the [`sol2uml-light`](https://www.npmjs.com/package/sol2uml-light) dependency. SVG is the default output; PNG rendering uses resvg and does not require a browser. The CLI runs from a client's shell; this MCP server does not expose a tool to execute it.
 
 ```bash
 npx --yes --package=solidity-agent-toolkit sol2uml-light --help
@@ -60,7 +60,7 @@ git submodule update --remote
 
 **LSP Server** — Real-time AST + pattern diagnostics, CLI diagnostics on save, OWASP SCWE hover info, remediation code actions
 
-**Methodology Guides** — Code review & security (audit methodology, secure patterns, OWASP SCWE), adversarial analysis, gas optimization, ERC standards, Foundry and Hardhat development. Served through `lookup_knowledge` and `guide://{topic}`; server instructions tell agents which guide to load for each task.
+**Methodology Guides** — Code review & security (audit methodology, secure patterns, OWASP SCWE), adversarial analysis, gas optimization, ERC standards, Foundry and Hardhat development, and Solidity UML/repository architecture diagrams. Served through `lookup_knowledge` and `guide://{topic}`; server instructions tell agents which guide to load for each task.
 
 ## Documentation
 
