@@ -55,9 +55,9 @@ src/
 │   ├── ast-detectors/    # 8 self-registering detector modules (22 SCWE IDs)
 │   ├── pattern-matcher.ts # Detection orchestrator (AST-first, regex fallback)
 │   └── ...               # CLI wrappers, formatters, pure analysis
-├── mcp/               # MCP server: 5 tools, 14 resources, 7 prompts
+├── mcp/               # MCP server: 6 tools, 14 resources, 7 prompts
 │   ├── server.ts      # createMcpServer() — all registrations
-│   ├── tools/         # 5 tool registrations + per-domain handler files
+│   ├── tools/         # 6 tool registrations + per-domain handler files
 │   ├── resources/     # 7 files → 14 resources
 │   └── prompts/       # 8 files → 7 prompts
 ├── lsp/               # LSP server (diagnostics, hover, code actions)
@@ -97,7 +97,7 @@ Test files live in `src/__tests__/` and mirror the source structure.
 
 ## Release
 
-The `v*` tag workflow first verifies that the tag matches the root package version and points at the push event commit, then runs the test suite, typecheck, lint, and build. It packs once with lifecycle scripts disabled, installs that exact archive in an isolated temporary consumer, and smoke-tests the published MCP, LSP, and `sol2uml-light` commands. The archive and its SHA-512 integrity are uploaded as an immutable artifact named for the workflow run and attempt; separate jobs publish those exact bytes to npm and create or recover the GitHub Release with the tested `.tgz` attached.
+The `v*` tag workflow first verifies that the tag matches the root package version and points at the push event commit, then runs the test suite, typecheck, lint, and build. It packs once with lifecycle scripts disabled, installs that exact archive in an isolated temporary consumer, and smoke-tests the published MCP (including diagram generation), LSP, and `sol2uml-light` commands. The archive and its SHA-512 integrity are uploaded as an immutable artifact named for the workflow run and attempt; separate jobs publish those exact bytes to npm and create or recover the GitHub Release with the tested `.tgz` attached.
 
 Before the first publish, configure `solidity-agent-toolkit` on npm with a GitHub Actions trusted publisher for owner `whackur`, repository `solidity-agent-toolkit`, workflow `release.yml`, and environment `release`, and allow direct publishing. The publish job uses OIDC and requires no npm token secret. Stable versions use the `latest` dist-tag and prereleases use `next`. It refuses to replace a published version with different bytes and refuses a new version lower than npm's current stable `latest`; after publishing, it waits up to 20 minutes for npm's registry to expose the same integrity before allowing the GitHub Release job to run.
 

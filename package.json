@@ -1,6 +1,6 @@
 {
   "name": "solidity-agent-toolkit",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "MCP server providing Solidity smart contract security analysis tools, OWASP knowledge base, and development utilities for AI agents",
   "repository": {
     "type": "git",
@@ -76,8 +76,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@typescript/native": "npm:typescript@^7.0.2",
     "@types/node": "^26.6.6",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@vitest/coverage-v8": "^5.1.0",
     "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",

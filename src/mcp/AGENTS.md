@@ -1,11 +1,11 @@
 # src/mcp/ — MCP Server
 
-MCP protocol layer. Thin wrappers around `core/` functions. 5 tools, 14 resources, 7 prompts.
+MCP protocol layer. Thin wrappers around `core/` functions. Public tools and parameters are documented in [`../../docs/api-reference.md`](../../docs/api-reference.md); this file does not maintain a duplicate tool inventory.
 
 ## CONVENTIONS
 
 - Tool files are thin wrappers: import from `../../core/xxx.js`, call `server.registerTool()`
-- MCP SDK v1.29.0 — `server.registerTool()` for tools (`server.tool()` is deprecated)
+- Use the supported MCP SDK `server.registerTool()` API for tools (`server.tool()` is deprecated)
 - `isError: true` = tool execution failure; absent or `false` = success
 - Schema uses Zod `.shape` property for inline schema extraction
 - Complex prompt logic split into `*-logic.ts` files to stay under 300 LOC
@@ -27,6 +27,6 @@ NOT for: "[disambiguation]"    <- only for scan vs. knowledge lookup
 
 - `server.ts` — `createMcpServer()` + `startMcpServer()`, all registrations
 - `server-instructions.ts` — `instructions` sent on initialize; routes agents to the right guide (replaces former Agent Skills auto-triggering). Keep it in sync with the guide catalog.
-- `tools/` — 5 thin registration files (`security-scan`, `contract-analysis`, `knowledge-lookup`, `code-quality`, `foundry`) plus per-domain `*-handlers.ts` and shared `tool-result.ts`
+- `tools/` — thin registration files and per-domain `*-handlers.ts`; use the API reference for the public tool list and parameters
 - `resources/` — 7 files, 14 resources (scwe://, sctop10://, erc://, adversarial://, slither://, solhint://, guide://)
 - `prompts/` — 8 files, 7 prompts (3 have split `*-logic.ts` files)

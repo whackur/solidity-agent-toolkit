@@ -34,6 +34,7 @@ Update the relevant documentation when a change affects a public API, CLI, confi
 ## Development and verification
 
 - Use `pnpm` for repository scripts. Launch package JavaScript binaries with `process.execPath` for cross-platform behavior.
+- When changing bundled CLI execution or artifact-return contracts, verify an actual MCP tool call from an installed package archive.
 - Select verification for the changed surface. Prose-only documentation or guide edits need focused Markdown, link, and content checks; they do not need the full runtime suite. For source changes, run the focused checks that cover the changed behavior and run the integrated suite once; repeat only when new evidence justifies it.
 - Knowledge tests use real OWASP submodule data rather than mocks; initialize it with `git submodule update --init` before running those tests.
 - Do not run concurrent installs or builds that write to the same output directory in one checkout. Report commands and results accurately; do not describe skipped checks as passing.

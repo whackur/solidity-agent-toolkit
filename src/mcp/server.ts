@@ -12,6 +12,7 @@ import { registerContractAnalysisTools } from "./tools/contract-analysis.js";
 import { registerKnowledgeLookupTools } from "./tools/knowledge-lookup.js";
 import { registerCodeQualityTools } from "./tools/code-quality.js";
 import { registerFoundryTools } from "./tools/foundry.js";
+import { registerDiagramTools } from "./tools/diagram.js";
 import { registerERCPatternPrompts } from "./prompts/erc-patterns.js";
 import { registerSecurityAuditPrompts } from "./prompts/security-audit.js";
 import { registerCodeReviewPrompts } from "./prompts/code-review.js";
@@ -39,6 +40,7 @@ export function createMcpServer(): McpServer {
   registerKnowledgeLookupTools(server);
   registerCodeQualityTools(server);
   registerFoundryTools(server);
+  registerDiagramTools(server);
 
   registerERCPatternPrompts(server);
   registerSecurityAuditPrompts(server);

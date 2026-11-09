@@ -55,9 +55,7 @@ describe("guide tool and resources", () => {
     const resource = await client.readResource({ uri: "guide://architecture-diagrams" });
 
     expect((result.content as TextContent[])[0].text).toContain("sol2uml-light");
-    expect((resource.contents[0] as { text: string }).text).toContain(
-      "MCP server does not expose a tool",
-    );
+    expect((resource.contents[0] as { text: string }).text).toContain("generate_diagram");
   });
 
   it("lookup_knowledge rejects unknown guides via schema", async () => {

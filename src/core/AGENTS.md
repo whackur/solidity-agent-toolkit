@@ -8,6 +8,8 @@ Protocol-agnostic analysis logic reusable by both MCP and LSP. CLI wrappers, pur
 - May import from `knowledge/` only
 - Each file < 300 LOC logic
 - `execSync` calls are acceptable here
+- New dependency CLI runners should resolve the package's JavaScript entry and invoke it with `process.execPath` plus separate `execFile` arguments; do not build shell command strings, and bound runtime and captured output.
+- For CLI-produced artifacts, use a per-call temporary output and clean it on success or failure; verify it is a regular file of an allowed size and format before returning it, and persist only to an explicitly requested destination without overwriting an existing path.
 - Returns result objects (`{ success, findings, error }`) — never throws for expected failures
 - I/O separated from pure logic: `run*()` for execution, `parse*`/`format*` for logic
 

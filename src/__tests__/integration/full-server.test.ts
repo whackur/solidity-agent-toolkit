@@ -4,6 +4,9 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { createMcpServer } from "../../mcp/server.js";
 import { getCurrentVersion } from "../../core/version-checker.js";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 
 describe("Full MCP Server Integration", () => {
   let server: McpServer;
@@ -33,9 +36,10 @@ describe("Full MCP Server Integration", () => {
       "lookup_knowledge",
       "check_code_quality",
       "run_foundry",
+      "generate_diagram",
     ];
 
-    it("should register exactly 5 tools", async () => {
+    it("should register exactly 6 tools", async () => {
       const result = await client.listTools();
       expect(result.tools.map((t) => t.name).sort()).toEqual([...EXPECTED_TOOLS].sort());
     });
@@ -51,6 +55,34 @@ describe("Full MCP Server Integration", () => {
       const result = await client.listTools();
       for (const tool of result.tools) {
         expect(tool.inputSchema).toBeDefined();
+      }
+    });
+
+    it("generates and returns a Solidity diagram artifact", async () => {
+      const directory = await mkdtemp(path.join(os.tmpdir(), "toolkit-mcp-diagram-"));
+      const source = path.join(directory, "Fixture.sol");
+      await writeFile(
+        source,
+        "pragma solidity ^0.8.20; contract Fixture { uint256 public value; function setValue(uint256 next) external { value = next; } }\n",
+      );
+
+      try {
+        const result = await client.callTool({
+          name: "generate_diagram",
+          arguments: { path: source },
+        });
+        expect(result.isError).toBeFalsy();
+        expect(result.content[0]).toMatchObject({ type: "text" });
+        expect(result.content[1]).toMatchObject({ type: "resource" });
+        const resource = result.content[1];
+        expect(resource.type === "resource" ? resource.resource.mimeType : undefined).toBe(
+          "image/svg+xml",
+        );
+        expect(resource.type === "resource" ? resource.resource.text.includes("<svg") : false).toBe(
+          true,
+        );
+      } finally {
+        await rm(directory, { recursive: true, force: true });
       }
     });
   });

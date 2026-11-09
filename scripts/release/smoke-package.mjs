@@ -252,6 +252,8 @@ try {
     "installed UML PNG output",
   );
 
+  const previousNodeUrl = process.env.NODE_URL;
+  process.env.NODE_URL = "invalid://offline-package-smoke";
   const mcp = startProtocol(bins["solidity-agent-toolkit"], consumer, "mcp");
   try {
     const initialized = await mcp.request("initialize", {
@@ -263,10 +265,37 @@ try {
     mcp.notify("notifications/initialized", {});
     const tools = await mcp.request("tools/list", {});
     const names = tools.tools.map((tool) => tool.name);
-    assert.ok(names.length >= 5, "MCP tools/list response");
+    assert.ok(names.length >= 6, "MCP tools/list response");
     for (const name of ["lookup_knowledge", "run_security_scan", "analyze_contract"]) {
       assert.ok(names.includes(name), `missing MCP tool ${name}`);
     }
+    assert.ok(names.includes("generate_diagram"), "missing MCP tool generate_diagram");
+    const mcpDiagramPath = path.join(consumer, "mcp-artifacts", "Smoke.svg");
+    const overview = await mcp.request("tools/call", {
+      name: "generate_diagram",
+      arguments: { path: source, outputPath: mcpDiagramPath },
+    });
+    assert.equal(overview.isError, undefined, "installed MCP diagram overview");
+    assert.ok(
+      overview.content.some(
+        (item) => item.type === "resource" && item.resource.mimeType === "image/svg+xml",
+      ),
+      "installed MCP SVG artifact",
+    );
+    assert.match(await readFile(mcpDiagramPath, "utf8"), /<svg[\s>]/i, "saved MCP SVG output");
+
+    const storage = await mcp.request("tools/call", {
+      name: "generate_diagram",
+      arguments: { path: source, view: "storage", contractName: "Smoke", format: "png" },
+    });
+    assert.equal(storage.isError, undefined, "installed offline MCP storage diagram");
+    const storageImage = storage.content.find((item) => item.type === "image");
+    assert.ok(storageImage?.type === "image", "installed MCP PNG artifact");
+    assert.deepEqual(
+      [...Buffer.from(storageImage.data, "base64").subarray(0, 8)],
+      [137, 80, 78, 71, 13, 10, 26, 10],
+      "installed MCP storage PNG output",
+    );
     const readResource = async (uri, pattern) => {
       const result = await mcp.request("resources/read", { uri });
       const text = result.contents?.map((content) => content.text ?? "").join("\n") ?? "";
@@ -277,6 +306,8 @@ try {
     await readResource("guide://code-review", /code review/i);
   } finally {
     await mcp.close();
+    if (previousNodeUrl === undefined) delete process.env.NODE_URL;
+    else process.env.NODE_URL = previousNodeUrl;
   }
 
   const lsp = startProtocol(bins["solidity-agent-toolkit-lsp"], consumer, "lsp");

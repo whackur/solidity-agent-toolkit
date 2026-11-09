@@ -78,7 +78,7 @@ export const GUIDES = [
     id: "architecture-diagrams",
     title: "Solidity and Repository Architecture Diagrams",
     description:
-      "Route Solidity repository architecture/composition and contract UML requests through the standalone sol2uml-light CLI; distinguish generated contract diagrams from explicitly requested whole-repository/off-chain maps, with a supplied-source Mermaid fallback when shell access is unavailable.",
+      "Route Solidity repository architecture/composition and contract UML requests through generate_diagram with overview, detailed, or offline storage views; distinguish generated contract diagrams from whole-repository/off-chain maps and document parser limitations.",
     file: "guides/architecture-diagrams.md",
     kind: "guide",
     trigger:
