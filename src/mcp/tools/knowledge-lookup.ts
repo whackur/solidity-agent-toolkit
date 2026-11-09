@@ -1,6 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { GUIDE_IDS } from "../../knowledge/guide-catalog.js";
+import { GUIDES, GUIDE_IDS } from "../../knowledge/guide-catalog.js";
 import {
   handleGuide,
   handleGuideList,
@@ -14,9 +14,8 @@ const LookupKnowledgeSchema = z.object({
     .enum(GUIDE_IDS)
     .optional()
     .describe(
-      "Methodology guide: code-review | adversarial-analysis | gas-optimization | erc-standards | " +
-        "foundry | hardhat | glamsterdam, or a reference: audit-checklist, owasp-scwe-top10, solidity-style-guide, " +
-        "erc-interfaces, foundry-cheatsheet, hardhat-cheatsheet. Takes precedence over other fields.",
+      `Guide id. Available guides and references: ${GUIDES.map((guide) => guide.id).join(", ")}. ` +
+        "Takes precedence over other fields.",
     ),
   query: z
     .string()

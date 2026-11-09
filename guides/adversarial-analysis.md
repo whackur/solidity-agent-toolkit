@@ -31,6 +31,8 @@
 | Economic / Logic    | High     | Reward calculations, share math, minting            | Rounding exploit in rewards      |
 | Cross-contract      | High     | Token callbacks, composability assumptions          | Malicious ERC777 callback        |
 
+These labels describe potential impact in example scenarios; rate an actual finding from its demonstrated impact, exploitability, prerequisites, and mitigations.
+
 ## Scenario Analysis Process
 
 1. **Feature Detection**: Identify what the contract does (oracle usage? governance? DEX interaction?)
@@ -54,7 +56,7 @@ A single function is rarely vulnerable in only one way. Examine every entry poin
 
 - Does the contract make external calls before updating state?
 - Are there cross-function interactions sharing mutable state?
-- Is ReentrancyGuard applied to all functions with external calls?
+- Can reentry through external calls violate an invariant, and do CEI or guards protect every affected entry point?
 
 ### Flash Loan
 

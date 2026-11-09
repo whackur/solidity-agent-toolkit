@@ -53,10 +53,10 @@
 
 ### ERC Standards
 
-| URI                | Description                                                        |
-| ------------------ | ------------------------------------------------------------------ |
-| `erc://list`       | List all supported ERC standards                                   |
-| `erc://{standard}` | Get ERC standard interface and documentation (e.g., `erc://ERC20`) |
+| URI                | Description                                                         |
+| ------------------ | ------------------------------------------------------------------- |
+| `erc://list`       | List all supported ERC standards                                    |
+| `erc://{standard}` | Get an abbreviated ERC core-interface excerpt (e.g., `erc://ERC20`) |
 
 ### Adversarial Scenarios
 
@@ -81,6 +81,6 @@
 | `vulnerability_fix`    | Remediation guide and fix for a specific SCWE vulnerability              | `vulnerabilityId`, `code?`                                                     |
 | `code_review`          | Comprehensive Solidity code review focusing on security, gas, or style   | `code`, `focus?`: `"security"` \| `"gas"` \| `"style"`                         |
 | `best_practices_check` | Check Solidity code against modern best practices                        | `code`                                                                         |
-| `optimize_gas`         | Analyze Solidity code for gas optimizations with optional storage layout | `code`, `includeStorage?`                                                      |
+| `optimize_gas`         | Measure-first gas optimization analysis with optional storage layout     | `code`, `storageLayout?`                                                       |
 | `generate_erc`         | Generate guidance for implementing an ERC standard                       | `standard`: `"ERC20"` \| `"ERC721"` \| `"ERC1155"` \| `"ERC4626"`, `features?` |
 | `adversarial_analysis` | Guided adversarial scenario analysis from an attacker's perspective      | `code`, `categories?`                                                          |

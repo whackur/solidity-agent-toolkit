@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import { GUIDES } from "../../knowledge/guide-catalog.js";
 import { registerKnowledgeLookupTools } from "../../mcp/tools/knowledge-lookup.js";
 import { registerGuideResources } from "../../mcp/resources/guide-resources.js";
 import { createMcpServer } from "../../mcp/server.js";
@@ -110,8 +111,17 @@ describe("guide tool and resources", () => {
   it("lists every guide as a concrete resource", async () => {
     const { resources } = await client.listResources();
     const uris = resources.map((r) => r.uri);
-    expect(uris).toContain("guide://code-review");
-    expect(uris).toContain("guide://hardhat-cheatsheet");
+    expect(uris.sort()).toEqual(
+      [...GUIDES.map((guide) => `guide://${guide.id}`), "guide://list"].sort(),
+    );
+  });
+
+  it("advertises catalog ids in the lookup schema", async () => {
+    const { tools } = await client.listTools();
+    const lookup = tools.find((tool) => tool.name === "lookup_knowledge");
+    const guideSchema = lookup?.inputSchema.properties?.guide as { enum?: string[] } | undefined;
+    expect(guideSchema?.enum).toEqual(GUIDES.map((guide) => guide.id));
+    expect(guideSchema?.description).toContain("Available guides and references:");
   });
 });
 
@@ -121,7 +131,11 @@ describe("server instructions", () => {
     const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
     const client = new Client({ name: "test-client", version: "1.0.0" });
     await Promise.all([client.connect(clientTransport), server.connect(serverTransport)]);
-    expect(client.getInstructions()).toContain("lookup_knowledge");
+    const instructions = client.getInstructions() ?? "";
+    expect(instructions).toContain("lookup_knowledge");
+    for (const guide of GUIDES.filter((entry) => entry.kind === "guide")) {
+      expect(instructions).toContain(`${guide.trigger} → ${guide.id}`);
+    }
     await clientTransport.close();
     await serverTransport.close();
   });

@@ -1,11 +1,13 @@
-export interface GuideEntry {
+interface GuideMetadata {
   id: string;
   title: string;
   description: string;
   /** Path relative to the package root. */
   file: string;
-  kind: "guide" | "reference";
 }
+
+export type GuideEntry =
+  (GuideMetadata & { kind: "guide"; trigger: string }) | (GuideMetadata & { kind: "reference" });
 
 export const GUIDES = [
   {
@@ -15,6 +17,7 @@ export const GUIDES = [
       "Security thinking framework (CEI, least privilege, defense in depth), review methodology, severity classification, key inspection areas, secure patterns, improvement proposals, and reporting format.",
     file: "guides/code-review.md",
     kind: "guide",
+    trigger: "Security audits, code reviews, and secure contract implementation",
   },
   {
     id: "adversarial-analysis",
@@ -23,14 +26,16 @@ export const GUIDES = [
       "Attacker-perspective threat modeling: flash loans, oracle manipulation, MEV, governance, reentrancy, access control bypass, economic exploits, and cross-contract risks.",
     file: "guides/adversarial-analysis.md",
     kind: "guide",
+    trigger: "Threat modeling, attack scenarios, and red-team reviews",
   },
   {
     id: "gas-optimization",
     title: "Solidity Gas Optimization",
     description:
-      "Storage packing, custom errors, immutable/constant, calldata, unchecked loops, transient storage, assembly, Solady, and EIP-1167 clones with a 14-item checklist.",
+      "Measure-first optimization workflow and candidates for storage, arithmetic, calldata, loops, events, data structures, batching, and deployment size.",
     file: "guides/gas-optimization.md",
     kind: "guide",
+    trigger: "Gas or storage optimization and contract-size limits",
   },
   {
     id: "erc-standards",
@@ -39,6 +44,7 @@ export const GUIDES = [
       "ERC20, ERC721, ERC1155, and ERC4626 implementation rules, common pitfalls, OpenZeppelin vs Solady, and testing strategies.",
     file: "guides/erc-standards.md",
     kind: "guide",
+    trigger: "Implementing or reviewing ERC20, ERC721, ERC1155, or ERC4626 contracts",
   },
   {
     id: "foundry",
@@ -47,6 +53,7 @@ export const GUIDES = [
       "forge/cast/anvil workflow: project setup, fuzz/invariant/fork testing, cheatcodes, deployment scripts, debugging, and configuration profiles.",
     file: "guides/foundry.md",
     kind: "guide",
+    trigger: "Foundry setup, forge/cast/anvil, fuzz/invariant/fork tests, and forge scripts",
   },
   {
     id: "hardhat",
@@ -55,6 +62,7 @@ export const GUIDES = [
       "Hardhat 3 ESM-first setup, defineConfig, Solidity and TypeScript tests, Ignition deployment, multichain support, and v2 migration.",
     file: "guides/hardhat.md",
     kind: "guide",
+    trigger: "Hardhat 3 projects, tests, and Ignition deployments",
   },
   {
     id: "glamsterdam",
@@ -63,6 +71,8 @@ export const GUIDES = [
       "Ethereum L1 Glamsterdam hardfork impact on contracts: state gas and reservoir (EIP-8037), state access repricing, intrinsic gas split, larger code size limit, calldata floor, access list surcharge, ETH transfer logs, and a review checklist.",
     file: "guides/glamsterdam.md",
     kind: "guide",
+    trigger:
+      "Ethereum L1 Glamsterdam hardfork impact, including gas repricing and code-size changes",
   },
   {
     id: "audit-checklist",
