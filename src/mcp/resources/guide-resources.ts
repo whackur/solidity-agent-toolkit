@@ -31,7 +31,7 @@ export function registerGuideResources(server: McpServer): void {
     }),
     {
       description:
-        "Solidity methodology guide by topic (code-review, adversarial-analysis, gas-optimization, erc-standards, foundry, hardhat, glamsterdam, and references)",
+        "Solidity methodology guide or reference by topic; see guide://list for available ids",
       mimeType: "text/markdown",
     },
     async (uri, variables) => {
