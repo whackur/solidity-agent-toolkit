@@ -12,7 +12,7 @@
 
 | Requirement   | Value                                        |
 | :------------ | :------------------------------------------- |
-| Node.js       | v22.10 or newer                              |
+| Node.js       | v22.13 or newer                              |
 | Module system | ESM — set `"type": "module"` in package.json |
 | Init command  | `npx hardhat --init`                         |
 | Config entry  | `defineConfig` from `hardhat/config`         |
@@ -30,11 +30,11 @@ Organize setup with `solidity`, `networks`, and `plugins` keys. Use `configVaria
 
 ```typescript
 import { defineConfig, configVariable } from "hardhat/config";
-import { hardhatIgnition } from "@nomicfoundation/hardhat-ignition";
+import hardhatToolboxViem from "@nomicfoundation/hardhat-toolbox-viem";
 
 export default defineConfig({
   solidity: "0.8.28",
-  plugins: [hardhatIgnition],
+  plugins: [hardhatToolboxViem],
   networks: {
     hardhat: { type: "edr-simulated" },
     mainnet: { type: "http", url: configVariable("MAINNET_RPC_URL") },
@@ -65,7 +65,7 @@ Hardhat Ignition is the primary deployment framework: declarative modules via `b
 
 ## Multichain Support
 
-Hardhat 3 simulates multiple chains at once. Connect per-network with `const mainnet = await network.connect("mainnet")`. Fork several chains concurrently for complex cross-chain testing.
+Hardhat 3 simulates multiple chains at once. Create per-network connections with `network.create("mainnet")`; use `network.getOrCreate("mainnet")` when the same connection should be reused. Fork several chains concurrently for complex cross-chain testing.
 
 ## Debugging
 
@@ -80,7 +80,7 @@ Hardhat 3 simulates multiple chains at once. Connect per-network with `const mai
 | v2                         | v3                          |
 | :------------------------- | :-------------------------- |
 | CommonJS                   | ESM (`"type": "module"`)    |
-| Node.js < 22               | Node.js v22.10+             |
+| Node.js < 22               | Node.js v22.13+             |
 | `module.exports`           | `defineConfig`              |
 | Side-effect plugin imports | Explicit `plugins` array    |
 | Ethers v5                  | Ethers v6 or Viem           |
@@ -99,3 +99,4 @@ The MCP build, test, gas, and deployment tools wrap Foundry. For Hardhat project
 ## References
 
 - `hardhat-cheatsheet` — Hardhat 3 examples (load with `lookup_knowledge` `guide: "hardhat-cheatsheet"`)
+- Official docs: [Hardhat 3 configuration](https://hardhat.org/docs/reference/configuration), [Viem toolbox](https://hardhat.org/docs/plugins/hardhat-toolbox-viem), [Network Manager API](https://hardhat.org/docs/reference/network-manager)

@@ -1,6 +1,8 @@
 # Hardhat 3 Cheatsheet
 
-> **MCP Integration**: Use the `run_foundry` MCP tool (Foundry-based) for programmatic access within AI agent workflows.
+Use this standalone command reference with the `hardhat` guide for project setup, version migration, and workflow decisions.
+
+> **MCP Integration**: The `run_foundry` MCP tool is available for Hardhat projects only when Foundry is also configured. Otherwise, use the Hardhat CLI and tests shown here.
 
 ## CLI Commands
 
@@ -16,11 +18,11 @@
 
 ```typescript
 import { defineConfig, configVariable } from "hardhat/config";
-import { hardhatViem } from "@nomicfoundation/hardhat-viem";
+import hardhatToolboxViem from "@nomicfoundation/hardhat-toolbox-viem";
 
 export default defineConfig({
   solidity: "0.8.28",
-  plugins: [hardhatViem],
+  plugins: [hardhatToolboxViem],
   networks: {
     sepolia: {
       type: "http",
@@ -64,9 +66,10 @@ import { test } from "node:test";
 import assert from "node:assert";
 import { network } from "hardhat";
 
-test("should connect to mainnet", async () => {
-  const mainnet = await network.connect("mainnet");
-  const block = await mainnet.provider.getBlockNumber();
+test("should read the latest block number", async () => {
+  const { viem } = await network.create("sepolia");
+  const publicClient = await viem.getPublicClient();
+  const block = await publicClient.getBlockNumber();
   assert.ok(block > 0);
 });
 ```
