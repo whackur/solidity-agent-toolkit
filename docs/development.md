@@ -39,6 +39,8 @@ pnpm format:check     # Prettier check
 pnpm fix              # ESLint fix + Prettier format (combined)
 ```
 
+TypeScript 7 is installed as `@typescript/native` and provides `tsc` for `pnpm typecheck` and `pnpm build`. The `typescript` alias points to the official TypeScript 6 compatibility package, keeping its compiler API available to `typescript-eslint`; its compiler is also available as `pnpm exec tsc6`.
+
 ## Architecture
 
 ```
