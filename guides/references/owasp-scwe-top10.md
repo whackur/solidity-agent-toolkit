@@ -8,7 +8,7 @@ Failures in restricting access to sensitive functions or data. This allows unaut
 
 - Use OpenZeppelin Ownable or AccessControl
 - Apply the principle of least privilege
-- Ensure all state-changing functions have modifiers
+- Restrict privileged operations according to the intended authority model while preserving permissionless user flows
 - Audit visibility of internal/private functions
 
 **Related SCWE IDs:** SCWE-016, SCWE-018, SCWE-049

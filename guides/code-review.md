@@ -14,13 +14,13 @@ Apply these foundational principles as a mental checklist. Each addresses a cate
 
 ### Core Principles
 
-| Principle                             | What It Means                                                  | What to Verify                                             |
-| :------------------------------------ | :------------------------------------------------------------- | :--------------------------------------------------------- |
-| **Checks-Effects-Interactions (CEI)** | Validate inputs, update state, then interact externally        | State changes complete before any external call            |
-| **Least Privilege**                   | Every function and role has the minimum access required        | Sensitive functions have appropriate access modifiers      |
-| **Defense in Depth**                  | Multiple layers of protection, no single points of failure     | Combine CEI + ReentrancyGuard + SafeERC20 where applicable |
-| **Fail-Safe Defaults**                | The default state is secure; access must be explicitly granted | Functions default to restricted, not open                  |
-| **Complete Mediation**                | Every access to every resource is validated                    | No code paths bypass access control checks                 |
+| Principle                             | What It Means                                              | What to Verify                                             |
+| :------------------------------------ | :--------------------------------------------------------- | :--------------------------------------------------------- |
+| **Checks-Effects-Interactions (CEI)** | Validate inputs, update state, then interact externally    | State changes complete before any external call            |
+| **Least Privilege**                   | Every function and role has the minimum access required    | Sensitive functions have appropriate access modifiers      |
+| **Defense in Depth**                  | Multiple layers of protection, no single points of failure | Combine CEI + ReentrancyGuard + SafeERC20 where applicable |
+| **Fail-Safe Defaults**                | Privileges are granted deliberately                        | Permissionless user flows remain available when intended   |
+| **Complete Mediation**                | Every access to every resource is validated                | No code paths bypass access control checks                 |
 
 ### Security Decision Process
 
@@ -30,7 +30,7 @@ For each function, ask in order:
 2. **What inputs does it accept?** — Validate parameters (zero address, bounds, empty values)
 3. **What state does it change?** — State updates happen before external interactions
 4. **Does it interact externally?** — Apply CEI, use SafeERC20, check return values
-5. **Can it be called recursively?** — Add ReentrancyGuard if external calls are present
+5. **Can reentry violate an invariant?** — Review callbacks and related entry points; add a guard where needed to protect the invariant
 6. **Is the state change visible?** — Emit events for off-chain tracking
 7. **Can it be paused?** — Circuit breakers for critical operations
 
@@ -53,12 +53,14 @@ For each function, ask in order:
 
 ## Severity Classification
 
-| Severity     | Criteria                                                                              | Examples                                                              |
-| :----------- | :------------------------------------------------------------------------------------ | :-------------------------------------------------------------------- |
-| **Critical** | Direct loss of funds, permanent contract lock, or total compromise.                   | Reentrancy, Unprotected `withdraw`, Logic error in `transfer`.        |
-| **High**     | Significant impact on system functionality or exploitable under realistic conditions. | Access control bypass, Unchecked external calls, Oracle manipulation. |
-| **Medium**   | Limited impact or requires specific, difficult-to-achieve conditions.                 | Timestamp dependence, Front-running, Denial of Service (DoS).         |
-| **Low**      | Best practice violations, informational findings, or minor optimizations.             | Missing events, Floating pragma, Unused variables.                    |
+Severity depends on demonstrated impact, exploitability, prerequisites, affected assets and users, and available mitigations. A vulnerability category alone does not determine severity; explain the concrete conditions and consequences for this system.
+
+| Severity     | Criteria                                                                                        |
+| :----------- | :---------------------------------------------------------------------------------------------- |
+| **Critical** | Plausible exploitation causes catastrophic loss, broad control compromise, or systemic failure. |
+| **High**     | A realistic path causes substantial loss, privilege escalation, or important system failure.    |
+| **Medium**   | Impact is material but constrained by scope, prerequisites, or available mitigations.           |
+| **Low**      | Impact is limited, or the issue is primarily informational with no demonstrated exploit path.   |
 
 ## Key Inspection Areas
 
@@ -66,7 +68,7 @@ Organized by OWASP SCSVS threat model. For each area, verify the listed controls
 
 ### Access Control & Authorization (SCSVS-AUTH)
 
-- `onlyOwner` or role-based access on ALL state-changing functions.
+- Privileged state-changing functions are restricted to the roles intended by the design; user operations remain permissionless where intended.
 - Initializers protected and callable once only.
 - No `tx.origin` for authentication — use `msg.sender`.
 - Privileged roles guarded by multi-sig or timelock.
@@ -74,7 +76,7 @@ Organized by OWASP SCSVS threat model. For each area, verify the listed controls
 ### External Calls & Reentrancy (SCSVS-COMM)
 
 - Follow Checks-Effects-Interactions strictly; state updates before external calls.
-- `ReentrancyGuard` on functions making external calls; watch cross-function/cross-contract reentrancy.
+- Review reentrancy across callbacks, functions, and contracts; use a guard when reentry can violate a state invariant.
 - Use `call()` (not `transfer`/`send`) for ETH; handle and check all return values.
 - Pull-over-push pattern for payments.
 
@@ -107,9 +109,9 @@ Organized by OWASP SCSVS threat model. For each area, verify the listed controls
 
 ### Events & NatSpec (SCWE-063)
 
-Events are the audit trail. Reason about them from the transaction logic, not just syntax — for every state transition an auditor or off-chain indexer would need to follow, verify an event exists, fires, and logs the truth. When one is missing or wrong, propose the correct declaration and `emit`.
+Events are an off-chain audit trail. For externally relevant state transitions that standards, integrations, or operators need to track, verify that the expected event fires and reports the actual outcome. Do not require an event for every internal or user-specific state change without a consumer need.
 
-- **Missing emission**: every state-changing public/external function emits an event (token transfers, ownership/role changes, config updates, upgrades, fund movements). A silent state change is an audit gap — propose the event.
+- **Missing emission**: required standard events and events relied on by integrations are emitted for the corresponding operation (token transfers, role changes, configuration updates, upgrades, fund movements).
 - **Declared but never emitted**: an `event` that is declared yet never `emit`ted is a forgotten emission or dead code. Either wire it to the relevant state change or remove it.
 - **Incorrect data**: the logged values must reflect the actual post-conditions (e.g. log the amount actually transferred, after a successful call — not the requested amount). Emit only after the effect succeeds.
 - **Missing `indexed`**: mark key fields (addresses, ids) as `indexed` so off-chain consumers can filter logs efficiently (max 3 indexed topics per event).
@@ -125,11 +127,11 @@ Events are the audit trail. Reason about them from the transaction logic, not ju
 
 ## Secure Patterns by Priority
 
-**Critical** — CEI pattern (state before external calls); ReentrancyGuard (mutex on external interactions); access control on every state-changing function; SafeERC20 + checked `.call()` returns.
+**Security-critical review areas** — CEI where external interactions can observe or reenter mutable state; a reentrancy guard when needed to protect an invariant; authorization on privileged functions while preserving intended public user flows; SafeERC20 for external token calls and checked low-level call results.
 
-**High** — Input validation (zero address, bounds, empty arrays) with gas-efficient custom errors; upgrade safety (`initializer` modifier, storage compatibility); circuit breakers (Pausable) for fund-handling protocols.
+**Other review areas** — Input validation (zero address, bounds, empty arrays); upgrade safety (`initializer` protection and storage compatibility); circuit breakers for protocols whose threat model requires them.
 
-**Medium** — Signature security (nonces + EIP-712); no on-chain randomness; events on all significant state changes.
+**Additional review areas** — Signature security (nonces + EIP-712); randomness sources; events for externally relevant state changes.
 
 ## Code Improvement Proposals
 
