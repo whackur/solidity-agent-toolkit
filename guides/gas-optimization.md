@@ -1,128 +1,76 @@
 # Solidity Gas Optimization
 
-> **Fork note:** Gas figures in this guide are pre-Glamsterdam. On Ethereum L1 after Glamsterdam, new storage slots, new accounts, and code deposits also pay state gas (a new slot costs ~110k in total), slot updates are repriced, and the code size limit rises to 64 KiB. Load the `glamsterdam` guide before giving L1 gas or size advice.
-
 ## When to Apply
 
-- During contract development to reduce deployment and runtime costs.
-- When hitting the 24KB contract size limit.
-- When optimizing high-frequency functions (e.g., swaps, transfers).
-- When designing storage-heavy protocols.
-- Before final security audits to ensure efficiency doesn't compromise safety.
+- Comparing implementations of a measured hot path or reducing deployment cost.
+- Reviewing storage-heavy protocols, bounded batch operations, or contract-size constraints.
+- Re-baselining gas for a target chain, fork, compiler, or deployment configuration.
 
-## Critical Optimizations
+## Measure-First Workflow
 
-### Storage Layout Packing
+1. Record the target chain and fork, compiler version, optimizer settings and runs, `viaIR` setting, EVM target, and benchmark inputs and state.
+2. Capture a baseline with the project's test and gas-reporting tools. Include the functions and deployment costs relevant to the change.
+3. Choose one candidate tied to measured cost and make one change at a time.
+4. Run the same functional, fuzz, invariant, and security checks that cover the changed behavior. For upgradeable contracts, compare storage layouts and preserve existing slots.
+5. Repeat the benchmark under the same configuration and conditions. Keep the change only when the measured benefit justifies its complexity and tradeoffs.
+6. Report before-and-after measurements, the toolchain and fork, the tested behavior, and any limitations. Do not present estimates as measured savings.
 
-EVM reads and writes in 32-byte (256-bit) slots. Variables smaller than 32 bytes that are declared consecutively share a slot, reducing SSTORE operations. A new SSTORE costs 20,000 gas; packing avoids additional slot allocations.
+Gas costs and code-size limits depend on the target chain and fork. For Ethereum L1 after Glamsterdam, load the `glamsterdam` guide and re-check its cited EIPs before relying on protocol constants.
 
-**What to verify**: Consecutive variables of the same or smaller combined size (≤32 bytes) are grouped together. Place `uint128` next to `uint128`, not separated by a `uint256`.
+## Optimization Candidates
 
-### Custom Errors vs Revert Strings
+Treat each item as a hypothesis to measure, not a requirement to change code.
 
-Custom errors are encoded as 4-byte selectors, whereas revert strings store the full string in contract bytecode and in memory at runtime. Custom errors save gas on both deployment (smaller bytecode) and execution (cheaper encoding).
+### Storage Packing
 
-**What to verify**: All `require` statements with string messages are replaced with `if (...) revert CustomError()` patterns.
-
-### Immutable and Constant Variables
-
-`constant` values are inlined at compile time — zero storage reads. `immutable` values are stored in contract bytecode (set once in constructor), costing ~3 gas to read instead of ~2,100 gas for a cold SLOAD.
-
-**What to verify**: Values known at compile time use `constant`. Values set once in the constructor use `immutable`. Neither uses a storage slot.
-
-## High Impact Optimizations
+Check whether values with compatible lifetimes and access patterns can share a storage slot. Smaller types may add masking or conversion work when they do not pack. Never reorder existing state variables in a deployed upgradeable contract; use the project's approved storage-layout migration process.
 
 ### Calldata vs Memory
 
-`calldata` is read-only and avoids the ABI decode copy into memory. For external functions with array or struct parameters that are only read (not modified), `calldata` saves the entire memory copy cost.
-
-**What to verify**: External function parameters that are not modified use `calldata` instead of `memory`.
+For external parameters that are only read, compare `calldata` with `memory`. It may avoid copying into memory, but compiler behavior and the contract's use of the parameter affect the result.
 
 ### Unchecked Arithmetic
 
-Solidity 0.8+ adds overflow/underflow checks on every arithmetic operation (~30 gas each). For loop counters where overflow is mathematically impossible (e.g., `i < length` where `length ≤ type(uint256).max`), wrapping the increment in `unchecked` safely removes this overhead.
+Use checked arithmetic by default. Consider `unchecked` only when a local invariant proves the operation cannot wrap for every reachable input and state. Document the invariant and test its boundaries; gas savings do not justify weakening correctness.
 
-**What to verify**: Loop increment operations (`++i`) are inside `unchecked` blocks where overflow is provably impossible.
+### Short-circuiting
 
-### Short-Circuit Evaluation
+For `&&` and `||`, consider condition cost and how often each condition is decisive. Reorder only when evaluation has no side effects and the observable behavior, including revert behavior, remains acceptable.
 
-Solidity evaluates `&&` and `||` left-to-right, stopping at the first decisive result. Placing cheap conditions (storage reads < external calls) and high-failure-probability conditions first reduces average gas cost.
+### Events vs Storage
 
-**What to verify**: Conditions in `&&` expressions are ordered cheapest/most-likely-to-fail first.
+Events can replace storage only for data needed exclusively by off-chain consumers. Contracts cannot read past logs, so retain state that on-chain logic, later calls, or on-chain integrations need.
 
-## Medium Impact Optimizations
+### Immutable and Constant
 
-### Loop Optimizations
+Use `constant` for compile-time values and `immutable` for values fixed at construction when that matches the intended mutability. Measure deployment size and runtime cost in the actual call paths.
 
-Accessing `.length` on a storage array costs a SLOAD each iteration. Caching the length in a local variable converts repeated SLOADs to near-free MLOAD operations.
+### Loop Optimization
 
-**What to verify**: Array length is cached in a local variable before the loop. No storage reads inside the loop body that could be cached.
+Measure loops using representative sizes and state. Check repeated storage reads and writes, bounds, and whether caching a value changes behavior. Compiler optimizations can make manual caching or increment changes redundant.
 
-### Efficient Data Types
+### Custom Errors vs Require Strings
 
-The EVM operates on 256-bit words natively. Smaller types (`uint8`, `uint32`) require additional masking operations when used in isolation. Use `uint256` for math and smaller types only when packing into a single storage slot. For short strings (≤32 bytes), `bytes32` avoids dynamic allocation overhead.
+Custom errors can reduce revert-data and bytecode cost compared with long revert strings. Preserve useful diagnostics and any expected external error interface; do not replace every message without measuring and checking compatibility.
 
-**What to verify**: `uint256` is the default for standalone math. Smaller types are used only for storage packing. Short constant strings use `bytes32`.
+### Mapping vs Array
 
-### Minimize Storage Writes
+Mappings suit keyed lookup but do not support enumeration; arrays support ordered iteration at a cost that grows with their contents. Choose based on required reads, iteration, deletion, and bounds, then benchmark realistic workloads.
 
-SSTORE is the most expensive EVM operation (20,000 gas new, 5,000 update, 2,900 refund for clearing). Batch updates to write once instead of multiple times. For same-transaction temporary state, EIP-1153 transient storage (TSTORE/TLOAD at 100 gas each) eliminates the need for storage writes entirely.
+### Batch Operations
 
-**What to verify**: State variables are not written multiple times in the same function. Temporary state within a single transaction uses transient storage (Solidity ≥0.8.24).
+Batching can amortize per-transaction overhead, but increases per-call gas, calldata, and the impact of a revert. Bound batch sizes and verify atomicity or partial-progress behavior under the target block and transaction limits.
 
-## Advanced Optimizations
+## Other Candidates
 
-### Assembly (Yul)
-
-Inline assembly bypasses Solidity's safety checks and memory management for direct EVM opcode access. Use for gas-critical operations like efficient transfers, custom encoding, or storage manipulation. The readability tradeoff is significant — every assembly block must be heavily documented.
-
-**What to verify**: Assembly is used only where measurable gas savings justify the readability cost. All assembly blocks have detailed comments.
-
-### Solady Library
-
-Solady provides gas-optimized alternatives to OpenZeppelin contracts (SafeTransferLib, Ownable, ERC20, etc.) using assembly-level optimizations. Typical savings: 20-50% gas reduction on common operations.
-
-**What to verify**: For gas-critical applications, Solady alternatives are evaluated for standard patterns (token transfers, ownership, ERC implementations).
-
-### EIP-1167 Minimal Proxy (Clones)
-
-The Clone pattern deploys a 45-byte proxy that delegates all calls to a single implementation contract. Deployment cost drops from ~500k gas (full contract) to ~42k gas (proxy). Use when deploying many instances of the same logic.
-
-**What to verify**: Contracts deployed in bulk (e.g., per-user vaults, per-pair pools) use the clone pattern instead of full deployment.
-
-## Optimization Checklist
-
-1. Are variables packed into 32-byte slots?
-2. Are all revert strings replaced with custom errors?
-3. Are `constant` and `immutable` used where possible?
-4. Are function parameters `calldata` instead of `memory`?
-5. Are loop increments `unchecked`?
-6. Is array length cached before loops?
-7. Are `uint256` used instead of smaller types for math?
-8. Are `bytes32` used instead of `string` for short data?
-9. Are storage writes minimized/batched?
-10. Is `short-circuiting` applied to complex conditionals?
-11. Are `external` functions used instead of `public` where possible?
-12. Is `Solady` used for standard utilities?
-13. Are `TSTORE`/`TLOAD` used for transient state?
-14. Is the contract size within the target chain's limit (24 KiB pre-Glamsterdam; 64 KiB on Glamsterdam L1)?
+- Minimize redundant storage writes only when state transitions remain clear and correct.
+- Consider transient storage for data that must exist only within one transaction and only on chains supporting EIP-1153; verify reentrancy and call-context behavior.
+- Consider assembly, optimized libraries such as Solady, or minimal proxies only after measuring the concrete path and reviewing the added safety, audit, and maintenance costs.
+- Check deployment bytecode against the target network's active code-size limits. The `glamsterdam` guide covers the Ethereum L1 fork-specific change.
 
 ## Related MCP Capabilities
 
-**Measure and compare:**
-
-- `run_foundry` with `action: "gas_snapshot"` — Generate gas snapshots and compare across implementations
-- `run_foundry` with `action: "gas_report"` — Function-level gas estimates
-- `run_foundry` with `action: "inspect"`, `inspect: "storage"` — Inspect storage layout and identify packing opportunities
-
-**Automate optimization review:**
-
-- Use the `optimize_gas` prompt for a structured optimization workflow
-
-**Check for optimization-related vulnerabilities:**
-
-- `run_security_scan` with `tool: "patterns"` — Detect patterns where optimization may compromise security (e.g., unchecked usage in non-loop contexts)
-
-## References
-
-- For security implications and auditing of optimized code: the `code-review` guide
+- `run_foundry` with `action: "gas_snapshot"` and optional `compare` or with `action: "gas_report"` — measure and compare function costs.
+- `run_foundry` with `action: "inspect"` and `inspect: "storage"` — inspect storage layout before proposing packing changes.
+- Use the `optimize_gas` prompt for a structured review based on this guide.
+- Use the `code-review` guide to review security implications of optimized code.

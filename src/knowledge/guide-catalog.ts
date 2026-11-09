@@ -28,7 +28,7 @@ export const GUIDES = [
     id: "gas-optimization",
     title: "Solidity Gas Optimization",
     description:
-      "Storage packing, custom errors, immutable/constant, calldata, unchecked loops, transient storage, assembly, Solady, and EIP-1167 clones with a 14-item checklist.",
+      "Measure-first optimization workflow and candidates for storage, arithmetic, calldata, loops, events, data structures, batching, and deployment size.",
     file: "guides/gas-optimization.md",
     kind: "guide",
   },
