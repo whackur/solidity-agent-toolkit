@@ -1,6 +1,8 @@
 # ERC Standard Interfaces
 
-> **MCP Integration**: Use `erc://{standard}` resource to fetch these interfaces programmatically. Use `analyze_contract` with `analysis: "erc_compliance"` to verify implementations.
+> These are abbreviated core-method references, not complete standalone compliance definitions. They omit inherited interfaces and some required metadata, events, or receiver interfaces; consult each standard before implementing or asserting compliance.
+>
+> **MCP Integration**: Use `erc://{standard}` for the toolkit's abbreviated interface excerpt. Use `analyze_contract` with `analysis: "erc_compliance"` for a limited automated check, then verify against the standard.
 
 ## ERC20 Interface
 
@@ -86,12 +88,12 @@ interface IERC4626 {
 
 ## Common Pitfalls per Standard
 
-| Standard | Pitfall                      | Fix                                                                  | SCWE     |
-| -------- | ---------------------------- | -------------------------------------------------------------------- | -------- |
-| ERC20    | Approval race condition      | Use `increaseAllowance`/`decreaseAllowance` or `Permit`.             | SCWE-029 |
-| ERC20    | Tokens returning `false`     | Use `SafeERC20` wrapper.                                             | SCWE-109 |
-| ERC721   | Reentrancy in `safeTransfer` | Use `nonReentrant` modifier or CEI pattern.                          | SCWE-138 |
-| ERC721   | Gas cost of Enumerable       | Avoid `Enumerable` if on-chain discovery isn't required.             | -        |
-| ERC1155  | Missing batch support        | Ensure `balanceOfBatch` and `safeBatchTransferFrom` are implemented. | -        |
-| ERC4626  | Inflation attack             | Mint "dead shares" to `address(0)` on first deposit.                 | SCWE-049 |
-| ERC4626  | Rounding errors              | Round in favor of the vault (Down for deposit, Up for withdraw).     | -        |
+| Standard | Pitfall                             | Fix                                                                                                                        | SCWE     |
+| -------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------- |
+| ERC20    | Replacing a nonzero allowance       | Choose an allowance update flow supported by the token and installed library version; `permit` does not remove every race. | -        |
+| ERC20    | Tokens returning `false` or no data | Use a compatible `SafeERC20` wrapper for external token calls.                                                             | -        |
+| ERC721   | Reentrancy in `safeTransfer`        | Use `nonReentrant` modifier or CEI pattern.                                                                                | SCWE-138 |
+| ERC721   | Gas cost of Enumerable              | Avoid `Enumerable` if on-chain discovery isn't required.                                                                   | -        |
+| ERC1155  | Missing batch support               | Ensure `balanceOfBatch` and `safeBatchTransferFrom` are implemented.                                                       | -        |
+| ERC4626  | First-deposit donation attack       | Consider virtual assets and shares with a tested decimals offset; do not assume zero-address dead-share mints are valid.   | -        |
+| ERC4626  | Rounding errors                     | Follow each method's direction in the ERC4626 guide and test preview/operation consistency.                                | SCWE-124 |

@@ -53,10 +53,10 @@
 
 ### ERC Standards
 
-| URI                | Description                                                        |
-| ------------------ | ------------------------------------------------------------------ |
-| `erc://list`       | List all supported ERC standards                                   |
-| `erc://{standard}` | Get ERC standard interface and documentation (e.g., `erc://ERC20`) |
+| URI                | Description                                                         |
+| ------------------ | ------------------------------------------------------------------- |
+| `erc://list`       | List all supported ERC standards                                    |
+| `erc://{standard}` | Get an abbreviated ERC core-interface excerpt (e.g., `erc://ERC20`) |
 
 ### Adversarial Scenarios
 

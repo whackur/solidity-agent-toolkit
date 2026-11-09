@@ -2,74 +2,79 @@
 
 ## When to Apply
 
-- Implementing a new token (Fungible, NFT, Multi-token, or Vault).
-- Reviewing existing token implementations for standard compliance.
-- Integrating with external tokens (e.g., DeFi protocols, marketplaces).
-- Extending standards with custom logic (e.g., Permit, Votes, Enumerable).
+- Implementing a new fungible token, NFT, multi-token contract, or tokenized vault.
+- Reviewing standard compliance or integrating with external token contracts.
+- Extending a token with features such as Permit, Votes, Enumerable, or custom callbacks.
 
 ## ERC20: Fungible Tokens
 
-- **Required**: `totalSupply`, `balanceOf`, `transfer`, `allowance`, `approve`, `transferFrom`.
-- **SafeERC20**: ALWAYS wrap external ERC20 calls (`transfer`, `transferFrom`, `approve`) using OpenZeppelin's `SafeERC20` to handle tokens that return `false` instead of reverting.
-- **Race Condition**: The `approve` function has a known race condition. Use `increaseAllowance` and `decreaseAllowance` (OpenZeppelin) or `ERC20Permit` to mitigate.
-- **ERC20Permit (EIP-2612)**: Use for gasless approvals via signatures (`permit` function).
-- **ERC20Votes**: Use for governance tokens to enable delegation and checkpointing.
-- **Common Pitfall**: Some tokens (like USDT) do not return a boolean on `transfer`, causing calls to revert if the interface expects a return value.
+- **Core interface**: `totalSupply`, `balanceOf`, `transfer`, `allowance`, `approve`, and `transferFrom`.
+- **External token calls**: Use a `SafeERC20` API supported by the project's installed OpenZeppelin version for calls to arbitrary ERC-20 tokens. It handles tokens that return `false` or no return data, subject to the library's documented behavior.
+- **Allowance changes**: Replacing a nonzero allowance can race with spending of the old allowance. Where available and appropriate, use `safeIncreaseAllowance` for additive changes or a zero-first update when replacing an allowance. Check the installed SafeERC20 version before using helpers such as `forceApprove`; zero-reset handling is not itself a universal race fix. Permit signatures do not remove every allowance race, so account for nonce, deadline, spender, and execution-order behavior.
+- **ERC20Permit (EIP-2612)**: Supports signature-based approvals; treat the signature and allowance as an authorization surface with replay and deadline checks.
+- **ERC20Votes**: Adds delegation and vote checkpointing when governance needs historical voting power.
 
 ## ERC721: Non-Fungible Tokens
 
-- **Required**: `balanceOf`, `ownerOf`, `safeTransferFrom`, `transferFrom`, `approve`, `setApprovalForAll`, `getApproved`, `isApprovedForAll`.
-- **safeTransferFrom**: Always prefer `safeTransferFrom` over `transferFrom` to ensure the recipient can handle NFTs (via `onERC721Received`).
-- **ERC721Enumerable**: Provides on-chain tracking of all tokens. High gas cost for transfers; avoid unless necessary for on-chain discovery.
-- **Metadata**: Use `tokenURI` to link to JSON metadata. Off-chain (IPFS/Arweave) is standard; on-chain (Base64) is used for "fully on-chain" NFTs.
-- **Common Pitfall**: Reentrancy via `onERC721Received` callback during `safeTransferFrom`. Use `nonReentrant` or follow Checks-Effects-Interactions (SCWE-046, SCWE-138).
+- **Core interface**: `balanceOf`, `ownerOf`, `safeTransferFrom`, `transferFrom`, `approve`, `setApprovalForAll`, `getApproved`, and `isApprovedForAll`.
+- **Safe transfers**: Use `safeTransferFrom` when receiver-contract checks are required. The callback can execute arbitrary code; apply Checks-Effects-Interactions and review reentrancy across related functions (SCWE-046, SCWE-138).
+- **ERC721Enumerable**: Adds on-chain enumeration with transfer and storage costs; include it only when on-chain discovery is required.
+- **Metadata**: `tokenURI` can point to off-chain metadata (for example, content-addressed storage) or return on-chain data.
 
 ## ERC1155: Multi-Token
 
-- **When to use**: When managing multiple token types (fungible and non-fungible) in a single contract. More gas-efficient for batch operations.
-- **Batch Operations**: Use `safeBatchTransferFrom` and `balanceOfBatch` to reduce gas for multiple transfers.
-- **URI Pattern**: Use a single URI with the `{id}` substitution string (e.g., `https://api.com/{id}.json`).
-- **Common Pitfall**: Forgetting to implement `balanceOfBatch` or incorrect implementation of the receiver callback.
+- **Use case**: Manage multiple token types in one contract, with batch methods when users need to transfer several entries together.
+- **Batch operations**: Test `safeBatchTransferFrom` and `balanceOfBatch`, including mismatched lengths, authorization, callbacks, and bounded batch sizes.
+- **URI pattern**: If using the `{id}` substitution convention, document how the token ID is encoded and how clients resolve the URI.
+- **Receiver callbacks**: Verify ERC1155 receiver behavior and consider reentrancy and atomicity when callbacks run.
 
-## ERC4626: Tokenized Vault
+## ERC4626: Tokenized Vaults
 
-- **Calculations**: `convertToShares` (assets to shares) and `convertToAssets` (shares to assets).
-- **Rounding**: Favor the vault. Round DOWN on `deposit`/`mint` (fewer shares for assets) and round UP on `withdraw`/`redeem` (more shares for assets).
-- **Inflation Attack**: First depositor can manipulate share price. Prevent by minting "dead shares" to `address(0)` on the first deposit (SCWE-049).
-- **Common Pitfall**: Incorrect rounding direction leading to "free" shares or assets over time.
+Follow the [ERC-4626 specification](https://eips.ethereum.org/EIPS/eip-4626) for the complete interface and behavior. In particular, the rounding directions are not the same for every preview method:
+
+| Method                               | Rounding direction | Value returned                                       |
+| ------------------------------------ | ------------------ | ---------------------------------------------------- |
+| `convertToShares`, `convertToAssets` | Down               | Idealized conversion, independent of caller and fees |
+| `previewDeposit`                     | Down               | Shares for an asset deposit                          |
+| `previewMint`                        | Up                 | Assets required to mint shares                       |
+| `previewWithdraw`                    | Up                 | Shares burned to withdraw assets                     |
+| `previewRedeem`                      | Down               | Assets returned for redeemed shares                  |
+
+Preview methods are not interchangeable. Test that each operation is consistent with its corresponding preview under the same conditions, including fees, limits, and boundary amounts.
+
+First-deposit donation or inflation attacks can distort the initial share price. Use a mitigation appropriate to the vault implementation, such as virtual assets and shares with a considered decimals offset, and test first deposits, direct donations, and small deposits. Do not assume that minting dead shares to `address(0)` is universally safe; token implementations may reject zero-address mints. OpenZeppelin's [ERC4626 security guidance](https://docs.openzeppelin.com/contracts/5.x/erc4626) explains the virtual-offset approach.
 
 ## Implementation Choice
 
-|             | OpenZeppelin   | Solady                    |
-| ----------- | -------------- | ------------------------- |
-| Gas         | Higher         | Lower                     |
-| Readability | More readable  | More optimized            |
-| Extensions  | Many available | Fewer but efficient       |
-| When to use | Most projects  | Gas-critical applications |
+| Consideration    | OpenZeppelin                               | Solady                                                    |
+| ---------------- | ------------------------------------------ | --------------------------------------------------------- |
+| Typical tradeoff | Broad extensions and familiar APIs         | Gas-oriented implementations                              |
+| Review focus     | Version and extension behavior             | Version, assembly, and audit coverage                     |
+| Selection        | Choose for project needs and compatibility | Benchmark and review before replacing an existing library |
 
 ## Testing Strategies
 
-- **ERC20**: Test `transfer` (balance changes), `approve`/`transferFrom` (allowance logic), and edge cases (0 amount, `type(uint256).max`).
-- **ERC721**: Test `mint`, `transfer`, `approval`, and `ERC721Enumerable` (if used). Verify `onERC721Received` triggers.
-- **ERC1155**: Test batch transfers, URI substitution, and receiver callbacks.
-- **ERC4626**: Test deposit/withdraw symmetry (1:1 if no yield), share calculations, and rounding edge cases.
+- **ERC20**: Test balances, transfer and allowance behavior, token return-value variations, zero amounts, and maximum allowances.
+- **ERC721**: Test ownership, approvals, safe receiver callbacks, and callback reentrancy across affected state.
+- **ERC1155**: Test batch validation, authorization, receiver callbacks, and batch bounds.
+- **ERC4626**: Test previews and operation rounding, fee and limit behavior, first-deposit donation scenarios, and deposit/withdraw symmetry where the vault's economics imply it.
 
 ## Related MCP Capabilities
 
 **Interface Lookup:**
 
-- `erc://{standard}`: Full interface definition, required functions, events, and extension list for ERC20, ERC721, ERC1155, ERC4626
+- `erc://{standard}` provides an abbreviated core-interface excerpt. Consult the standard for inherited interfaces, extensions, and full compliance requirements.
 
 **Implementation Verification:**
 
-- `analyze_contract` with `analysis: "erc_compliance"`: Check required functions and events against the standard
-- `run_security_scan` with `tool: "patterns"`: Detect missing SafeERC20, approval race conditions, reentrancy in callbacks
-- `lookup_knowledge` with `query`: Look up SCWE entries related to token standards (e.g., "ERC20", "reentrancy") and their remediation
+- `analyze_contract` with `analysis: "erc_compliance"`: Check recognized required functions and events.
+- `run_security_scan` with `tool: "patterns"`: Check supported patterns, then review token callbacks, allowance semantics, and vault math in context.
+- `lookup_knowledge` with `query`: Look up SCWE entries related to token standards, callbacks, or authorization.
 
 **Code Generation:**
 
-- Use the `generate_erc` prompt for scaffolding compliant token implementations
+- Use the `generate_erc` prompt for a starting point, then verify the result against the selected standard and dependency version.
 
 ## References
 
-- `erc-interfaces` — ERC Standard Interfaces (load with `lookup_knowledge` `guide: "erc-interfaces"`)
+- `erc-interfaces` — abbreviated ERC interface excerpts (load with `lookup_knowledge` and `guide: "erc-interfaces"`).

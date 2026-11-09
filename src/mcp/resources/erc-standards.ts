@@ -30,7 +30,8 @@ export function registerERCResources(server: McpServer): void {
     "erc-standard",
     new ResourceTemplate("erc://{standard}", { list: undefined }),
     {
-      description: "Get ERC standard interface and documentation (ERC20, ERC721, ERC1155, ERC4626)",
+      description:
+        "Get an abbreviated ERC core-interface excerpt for ERC20, ERC721, ERC1155, or ERC4626",
       mimeType: "text/markdown",
     },
     async (uri, variables) => {
